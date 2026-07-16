@@ -1,0 +1,85 @@
+# Python
+
+**pycache**/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Python sanal ortam
+
+.venv/
+venv/
+env/
+
+# Ortam değişkenleri ve gizli bilgiler
+
+.env
+.env.*
+!.env.example
+backend/.env
+
+# Node.js
+
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.vite/
+
+# IDE
+
+.vscode/
+.idea/
+
+# İşletim sistemi
+
+.DS_Store
+Thumbs.db
+
+# Log ve geçici dosyalar
+
+*.log
+*.tmp
+*.temp
+
+# Yerel veriler ve raporlar
+
+ServiceDeskReport.xlsx
+ServiceDeskReport_repaired.xlsx
+
+# PostgreSQL / yerel yedekler
+
+*.sql
+*.dump
+*.backup
+
+# Test ve coverage çıktıları
+
+.coverage
+htmlcov/
+coverage/
+coverage.xml
+
+# Python build çıktıları
+
+build/
+dist/
+
+# Frontend ortam dosyaları
+
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Yerel model ve cache dosyaları
+
+.cache/
+huggingface/
+sentence_transformers/
+
+# Geçici Jupyter dosyaları
+
+.ipynb_checkpoints/
