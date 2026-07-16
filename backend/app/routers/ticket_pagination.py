@@ -48,6 +48,12 @@ class TicketFilterOptionsResponse(BaseModel):
     departments: list[str]
 
 
+class TicketFormOptionsResponse(BaseModel):
+    departments: list[str]
+    categories: list[str]
+    subcategories: list[str]
+
+
 def apply_common_filters(
     query,
     search: str | None,
@@ -189,6 +195,167 @@ def apply_ticket_sorting(
     )
 
 
+def clean_option_values(
+    values: list[str | None],
+) -> list[str]:
+    cleaned_values = []
+    seen_values = set()
+
+    for value in values:
+        if not value:
+            continue
+
+        cleaned_value = value.strip()
+
+        if not cleaned_value:
+            continue
+
+        normalized_value = (
+            cleaned_value.casefold()
+        )
+
+        if normalized_value in seen_values:
+            continue
+
+        seen_values.add(normalized_value)
+        cleaned_values.append(cleaned_value)
+
+    return sorted(
+        cleaned_values,
+        key=lambda item: item.casefold(),
+    )
+
+
+@router.get(
+    "/form-options",
+    response_model=TicketFormOptionsResponse,
+)
+def get_ticket_form_options(
+    department: str | None = Query(
+        default=None,
+        max_length=150,
+    ),
+    category: str | None = Query(
+        default=None,
+        max_length=150,
+    ),
+    db: Session = Depends(get_db),
+):
+    department_query = (
+        select(models.Ticket.department)
+        .where(
+            models.Ticket.department.is_not(
+                None
+            )
+        )
+        .where(
+            func.trim(
+                models.Ticket.department
+            )
+            != ""
+        )
+        .distinct()
+    )
+
+    departments = clean_option_values(
+        list(
+            db.scalars(
+                department_query
+            ).all()
+        )
+    )
+
+    category_query = (
+        select(models.Ticket.category)
+        .where(
+            models.Ticket.category.is_not(
+                None
+            )
+        )
+        .where(
+            func.trim(
+                models.Ticket.category
+            )
+            != ""
+        )
+    )
+
+    if department and department.strip():
+        category_query = (
+            category_query.where(
+                func.trim(
+                    models.Ticket.department
+                )
+                == department.strip()
+            )
+        )
+
+    category_query = (
+        category_query.distinct()
+    )
+
+    categories = clean_option_values(
+        list(
+            db.scalars(
+                category_query
+            ).all()
+        )
+    )
+
+    subcategory_query = (
+        select(models.Ticket.subcategory)
+        .where(
+            models.Ticket.subcategory.is_not(
+                None
+            )
+        )
+        .where(
+            func.trim(
+                models.Ticket.subcategory
+            )
+            != ""
+        )
+    )
+
+    if department and department.strip():
+        subcategory_query = (
+            subcategory_query.where(
+                func.trim(
+                    models.Ticket.department
+                )
+                == department.strip()
+            )
+        )
+
+    if category and category.strip():
+        subcategory_query = (
+            subcategory_query.where(
+                func.trim(
+                    models.Ticket.category
+                )
+                == category.strip()
+            )
+        )
+
+    subcategory_query = (
+        subcategory_query.distinct()
+    )
+
+    subcategories = clean_option_values(
+        list(
+            db.scalars(
+                subcategory_query
+            ).all()
+        )
+    )
+
+    return {
+        "departments": departments,
+        "categories": categories,
+        "subcategories": subcategories,
+    }
+
+
 @router.get(
     "/filter-options",
     response_model=TicketFilterOptionsResponse,
@@ -218,9 +385,7 @@ def get_ticket_filter_options(
     db: Session = Depends(get_db),
 ):
     category_query = (
-        select(
-            models.Ticket.category
-        )
+        select(models.Ticket.category)
         .where(
             models.Ticket.category.is_not(
                 None
@@ -252,17 +417,11 @@ def get_ticket_filter_options(
         )
 
     category_query = (
-        category_query
-        .distinct()
-        .order_by(
-            models.Ticket.category.asc()
-        )
+        category_query.distinct()
     )
 
     department_query = (
-        select(
-            models.Ticket.department
-        )
+        select(models.Ticket.department)
         .where(
             models.Ticket.department.is_not(
                 None
@@ -294,28 +453,24 @@ def get_ticket_filter_options(
         )
 
     department_query = (
-        department_query
-        .distinct()
-        .order_by(
-            models.Ticket.department.asc()
+        department_query.distinct()
+    )
+
+    categories = clean_option_values(
+        list(
+            db.scalars(
+                category_query
+            ).all()
         )
     )
 
-    categories = [
-        value.strip()
-        for value in db.scalars(
-            category_query
-        ).all()
-        if value and value.strip()
-    ]
-
-    departments = [
-        value.strip()
-        for value in db.scalars(
-            department_query
-        ).all()
-        if value and value.strip()
-    ]
+    departments = clean_option_values(
+        list(
+            db.scalars(
+                department_query
+            ).all()
+        )
+    )
 
     return {
         "categories": categories,

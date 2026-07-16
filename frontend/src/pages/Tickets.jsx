@@ -383,13 +383,17 @@ function Tickets() {
     <main className="page">
       <header className="page-header">
         <div>
+          <span className="page-eyebrow">DESTEK TALEPLERİ</span>
           <h1>Ticketlar</h1>
-
-          <p>Sistemde kayıtlı destek talepleri</p>
+          <p>Sistemde kayıtlı destek taleplerini ara, filtrele ve yönet.</p>
         </div>
+
+        <Link className="primary-button" to="/tickets/new">
+          + Yeni Ticket
+        </Link>
       </header>
 
-      <section className="panel">
+      <section className="panel ticket-list-panel">
         <div className="ticket-filters">
           <div className="ticket-filter-field">
             <label htmlFor="ticket-search">Ticket ara</label>
