@@ -27,6 +27,8 @@ select {
 button {
   transition:
     background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s,
     opacity 0.2s;
 }
 
@@ -215,6 +217,92 @@ button {
   color: #9ca3af;
 }
 
+/* Ticket filtreleri */
+
+.ticket-filters {
+  display: grid;
+  grid-template-columns:
+    minmax(240px, 1fr)
+    repeat(3, minmax(150px, 190px))
+    auto;
+  align-items: end;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.ticket-filter-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.ticket-filter-field label {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ticket-filter-field input,
+.ticket-filter-field select {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  outline: none;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.ticket-filter-field input {
+  padding: 0 13px;
+}
+
+.ticket-filter-field select {
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+.ticket-filter-field input:focus,
+.ticket-filter-field select:focus {
+  border-color: #2563eb;
+  outline: 3px solid #dbeafe;
+}
+
+.clear-filters-button {
+  height: 42px;
+  padding: 0 18px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.clear-filters-button:hover:not(:disabled) {
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+
+.clear-filters-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.ticket-filter-summary {
+  display: flex;
+  min-height: 24px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: #64748b;
+  font-size: 13px;
+}
+
 /* Ticket tablosu */
 
 .table-wrapper {
@@ -239,6 +327,7 @@ button {
   color: #6b7280;
   font-size: 13px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .tickets-table tbody tr:hover {
@@ -271,6 +360,67 @@ button {
 .back-link {
   display: inline-block;
   margin-bottom: 12px;
+}
+
+button.back-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* Ticket sayfalama */
+
+.ticket-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.ticket-pagination-info {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.ticket-pagination-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ticket-pagination-button {
+  min-width: 92px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ticket-pagination-button:hover:not(:disabled) {
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+
+.ticket-pagination-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.ticket-page-indicator {
+  min-width: 82px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
 }
 
 /* Etiketler */
@@ -517,9 +667,9 @@ button {
 .form-group select,
 .form-group textarea {
   width: 100%;
+  padding: 11px 12px;
   border: 1px solid #d1d5db;
   border-radius: 9px;
-  padding: 11px 12px;
   background: #ffffff;
   color: #111827;
 }
@@ -545,9 +695,9 @@ button {
 
 .primary-button,
 .secondary-button {
+  padding: 11px 16px;
   border: 0;
   border-radius: 9px;
-  padding: 11px 16px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -576,7 +726,21 @@ button {
   opacity: 0.6;
 }
 
+.management-panel {
+  margin-bottom: 24px;
+}
+
 /* Responsive */
+
+@media (max-width: 1250px) {
+  .ticket-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .clear-filters-button {
+    width: 100%;
+  }
+}
 
 @media (max-width: 1000px) {
   .detail-grid {
@@ -621,6 +785,29 @@ button {
   .form-grid {
     grid-template-columns: 1fr;
   }
+
+  .ticket-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .ticket-pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ticket-pagination-actions {
+    width: 100%;
+  }
+
+  .ticket-pagination-button {
+    flex: 1;
+  }
+
+  .ticket-page-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 650px) {
@@ -647,6 +834,16 @@ button {
     width: 100%;
   }
 }
-.management-panel {
-  margin-bottom: 24px;
+
+@media (max-width: 450px) {
+  .ticket-pagination-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ticket-pagination-button,
+  .ticket-page-indicator {
+    width: 100%;
+    min-height: 38px;
+  }
 }

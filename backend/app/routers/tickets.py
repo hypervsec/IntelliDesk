@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import case, func, select
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import case, func, or_, select
 from sqlalchemy.orm import Session
 
 from .. import models, schemas
@@ -20,11 +20,65 @@ router = APIRouter(
     response_model=list[schemas.TicketResponse],
 )
 def list_tickets(
+    search: str | None = Query(
+        default=None,
+        max_length=200,
+    ),
+    ticket_status: str | None = Query(
+        default=None,
+        alias="status",
+    ),
+    priority: str | None = Query(
+        default=None,
+    ),
     db: Session = Depends(get_db),
 ):
-    query = (
-        select(models.Ticket)
-        .order_by(models.Ticket.created_at.desc())
+    query = select(models.Ticket)
+
+    if search and search.strip():
+        search_term = f"%{search.strip()}%"
+
+        query = query.where(
+            or_(
+                models.Ticket.title.ilike(
+                    search_term,
+                ),
+                models.Ticket.description.ilike(
+                    search_term,
+                ),
+                models.Ticket.requester_name.ilike(
+                    search_term,
+                ),
+                models.Ticket.department.ilike(
+                    search_term,
+                ),
+                models.Ticket.category.ilike(
+                    search_term,
+                ),
+                models.Ticket.subcategory.ilike(
+                    search_term,
+                ),
+                models.Ticket.assigned_technician.ilike(
+                    search_term,
+                ),
+                models.Ticket.resolution.ilike(
+                    search_term,
+                ),
+            )
+        )
+
+    if ticket_status:
+        query = query.where(
+            models.Ticket.status == ticket_status
+        )
+
+    if priority:
+        query = query.where(
+            models.Ticket.priority == priority
+        )
+
+    query = query.order_by(
+        models.Ticket.created_at.desc()
     )
 
     return db.scalars(query).all()

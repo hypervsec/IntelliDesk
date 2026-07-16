@@ -1,29 +1,18 @@
 from fastapi import FastAPI
-
-from .routers import tickets
 from fastapi.middleware.cors import CORSMiddleware
+
+from .routers import ticket_pagination
+from .routers import tickets
+
 
 app = FastAPI(
     title="IntelliDesk API",
-    description="Yapay zekâ destekli Service Desk sistemi",
+    description=(
+        "Yapay zekâ destekli Service Desk sistemi"
+    ),
     version="1.0.0",
 )
 
-app.include_router(tickets.router)
-
-
-@app.get("/")
-def root():
-    return {
-        "message": "IntelliDesk API çalışıyor."
-    }
-
-
-@app.get("/health")
-def health_check():
-    return {
-        "status": "ok"
-    }
 
 app.add_middleware(
     CORSMiddleware,
@@ -35,3 +24,28 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+app.include_router(
+    ticket_pagination.router
+)
+
+app.include_router(
+    tickets.router
+)
+
+
+@app.get("/")
+def root():
+    return {
+        "message": (
+            "IntelliDesk API çalışıyor."
+        )
+    }
+
+
+@app.get("/health")
+def health_check():
+    return {
+        "status": "ok"
+    }

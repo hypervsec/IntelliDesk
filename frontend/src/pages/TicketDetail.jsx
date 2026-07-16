@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import api from "../api/api";
 
 function TicketDetail() {
   const { ticketId } = useParams();
+
+  const navigate = useNavigate();
 
   const [ticket, setTicket] = useState(null);
 
@@ -218,9 +220,13 @@ function TicketDetail() {
     <main className="page">
       <header className="page-header">
         <div>
-          <Link to="/tickets" className="back-link">
+          <button
+            type="button"
+            className="back-link"
+            onClick={() => navigate(-1)}
+          >
             ← Ticketlara dön
-          </Link>
+          </button>
 
           <h1>
             #{ticket.ticket_id} {ticket.title}
