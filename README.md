@@ -71,4 +71,4 @@ Planlanan geliştirmeler:
 - Dosya ekleme desteği
 - Raporlama ve Docker desteği
 
-> `.env` dosyaları, API anahtarları ve veritabanı şifreleri GitHub'a gönderilmemelidir.
+
