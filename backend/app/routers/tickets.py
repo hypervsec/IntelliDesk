@@ -124,7 +124,6 @@ def get_feedback_stats(
             models.Ticket.ai_feedback.is_not(None)
         )
         .label("total_feedback"),
-
         func.sum(
             case(
                 (
@@ -134,7 +133,6 @@ def get_feedback_stats(
                 else_=0,
             )
         ).label("accepted_count"),
-
         func.sum(
             case(
                 (
@@ -187,7 +185,6 @@ def get_dashboard_summary(
         func.count(
             models.Ticket.ticket_id
         ).label("total_tickets"),
-
         func.sum(
             case(
                 (
@@ -197,7 +194,6 @@ def get_dashboard_summary(
                 else_=0,
             )
         ).label("open_tickets"),
-
         func.sum(
             case(
                 (
@@ -207,7 +203,6 @@ def get_dashboard_summary(
                 else_=0,
             )
         ).label("resolved_tickets"),
-
         func.sum(
             case(
                 (
@@ -217,13 +212,11 @@ def get_dashboard_summary(
                 else_=0,
             )
         ).label("closed_tickets"),
-
         func.count(
             models.Ticket.ticket_id
         ).filter(
             models.Ticket.ai_recommendation.is_not(None)
         ).label("ai_recommendation_count"),
-
         func.avg(
             models.Ticket.ai_confidence_score
         ).label("average_ai_confidence"),
@@ -264,6 +257,8 @@ def get_dashboard_summary(
         "ai_recommendation_count": ai_recommendation_count,
         "average_ai_confidence": average_ai_confidence,
     }
+
+
 @router.get(
     "/dashboard/categories",
     response_model=list[schemas.CategoryStatsItem],
@@ -303,6 +298,8 @@ def get_category_stats(
         }
         for row in results
     ]
+
+
 @router.get(
     "/dashboard/statuses",
     response_model=list[schemas.StatusStatsItem],
@@ -337,6 +334,7 @@ def get_status_stats(
         for row in results
     ]
 
+
 @router.get(
     "/dashboard/priorities",
     response_model=list[schemas.PriorityStatsItem],
@@ -370,6 +368,8 @@ def get_priority_stats(
         }
         for row in results
     ]
+
+
 @router.get(
     "/dashboard/daily",
     response_model=list[schemas.DailyTicketStatsItem],
@@ -418,6 +418,8 @@ def get_daily_ticket_stats(
         }
         for day in range(7)
     ]
+
+
 @router.get(
     "/dashboard/departments",
     response_model=list[schemas.DepartmentStatsItem],
@@ -454,7 +456,41 @@ def get_department_stats(
         }
         for row in results
     ]
-           
+
+
+@router.get("/technicians")
+def get_technicians(
+    db: Session = Depends(get_db),
+):
+    technician_value = func.trim(
+        models.Ticket.assigned_technician
+    )
+
+    query = (
+        select(
+            technician_value.label("technician")
+        )
+        .where(
+            models.Ticket.assigned_technician.is_not(None),
+            technician_value != "",
+        )
+        .distinct()
+        .order_by(
+            technician_value.asc()
+        )
+    )
+
+    results = db.execute(query).all()
+
+    return {
+        "technicians": [
+            row.technician
+            for row in results
+            if row.technician
+        ]
+    }
+
+
 @router.get(
     "/{ticket_id}",
     response_model=schemas.TicketResponse,
@@ -620,7 +656,6 @@ def create_recommendation(
     ticket.ai_recommendation = recommendation
     ticket.ai_confidence_score = confidence_score
 
-    # Yeni öneri oluşturulduğunda eski geri bildirim temizlenir.
     ticket.ai_feedback = None
     ticket.ai_feedback_note = None
     ticket.ai_feedback_at = None
