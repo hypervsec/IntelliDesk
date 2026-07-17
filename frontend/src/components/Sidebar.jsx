@@ -1,9 +1,8 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../auth/AuthContext";
-import Icon from "./Icon";
 
-import "./sidebar-account.css";
+import Icon from "./Icon";
 
 const navigationItems = [
   {
@@ -20,6 +19,7 @@ const navigationItems = [
   },
   {
     to: "/tickets/new",
+    end: false,
     label: "Yeni Ticket",
     icon: "plus",
   },
@@ -51,7 +51,7 @@ function getAccountInitials(fullName) {
   ).toLocaleUpperCase("tr-TR");
 }
 
-function Sidebar() {
+function Sidebar({ isOpen = false, onClose }) {
   const navigate = useNavigate();
 
   const { account, logout } = useAuth();
@@ -60,8 +60,18 @@ function Sidebar() {
     return isActive ? "sidebar-link active" : "sidebar-link";
   }
 
+  function handleNavigation() {
+    if (onClose) {
+      onClose();
+    }
+  }
+
   function handleLogout() {
     logout();
+
+    if (onClose) {
+      onClose();
+    }
 
     navigate("/login", {
       replace: true,
@@ -73,15 +83,32 @@ function Sidebar() {
   const initials = getAccountInitials(account?.full_name);
 
   return (
-    <aside className="sidebar">
-      <div className="sidebar-brand">
-        <div className="sidebar-brand-mark">ID</div>
+    <aside className={`sidebar ${isOpen ? "sidebar-open" : ""}`}>
+      <div className="sidebar-glow" />
 
-        <div>
-          <div className="sidebar-logo">IntelliDesk</div>
+      <div className="sidebar-header">
+        <Link to="/" className="sidebar-brand" onClick={handleNavigation}>
+          <div className="sidebar-brand-mark">
+            <span>ID</span>
 
-          <span className="sidebar-subtitle">AI Service Desk</span>
-        </div>
+            <i />
+          </div>
+
+          <div className="sidebar-brand-copy">
+            <strong>IntelliDesk</strong>
+
+            <span>AI Service Desk</span>
+          </div>
+        </Link>
+
+        <button
+          type="button"
+          className="sidebar-close-button"
+          aria-label="Menüyü kapat"
+          onClick={onClose}
+        >
+          <Icon name="close" size={19} />
+        </button>
       </div>
 
       <nav className="sidebar-nav" aria-label="Ana menü">
@@ -93,41 +120,62 @@ function Sidebar() {
             to={item.to}
             end={item.end}
             className={getLinkClass}
+            onClick={handleNavigation}
           >
-            <Icon name={item.icon} size={19} />
+            <span className="sidebar-link-icon">
+              <Icon name={item.icon} size={18} />
+            </span>
 
-            <span>{item.label}</span>
+            <span className="sidebar-link-label">{item.label}</span>
+
+            <Icon
+              name="chevronRight"
+              size={15}
+              className="sidebar-link-arrow"
+            />
           </NavLink>
         ))}
       </nav>
 
-      <div className="sidebar-bottom">
-        <div className="sidebar-account-compact">
+      <div className="sidebar-bottom-area">
+        <div className="sidebar-engine-status">
+          <span className="sidebar-engine-icon">
+            <Icon name="sparkles" size={14} />
+          </span>
+
+          <div>
+            <strong>AI motoru hazır</strong>
+
+            <span>Öneri sistemi çevrimiçi</span>
+          </div>
+
+          <span className="sidebar-engine-dot" />
+        </div>
+
+        <div className="sidebar-account-footer">
           <div className="sidebar-account-avatar">{initials}</div>
 
-          <div className="sidebar-account-identity">
+          <div className="sidebar-account-details">
             <strong title={account?.full_name}>
               {account?.full_name || "Kullanıcı"}
             </strong>
 
-            <span title={account?.email}>{roleLabel}</span>
+            <div className="sidebar-account-meta">
+              <span className="sidebar-online-dot" />
+
+              <span>{roleLabel}</span>
+            </div>
           </div>
 
           <button
             type="button"
-            className="sidebar-logout-icon"
+            className="sidebar-logout-button"
             onClick={handleLogout}
-            title="Çıkış Yap"
-            aria-label="Çıkış Yap"
+            title="Çıkış yap"
+            aria-label="Çıkış yap"
           >
-            <Icon name="logout" size={18} />
+            <Icon name="logout" size={17} />
           </button>
-        </div>
-
-        <div className="sidebar-system-status">
-          <span className="sidebar-system-dot" />
-
-          <span>Sistem aktif</span>
         </div>
       </div>
     </aside>

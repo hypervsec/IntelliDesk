@@ -1,14 +1,20 @@
+import { useState } from "react";
+
 import {
   BrowserRouter,
+  Link,
   Navigate,
   Outlet,
   Route,
   Routes,
+  useLocation,
 } from "react-router-dom";
 
 import ProtectedRoute from "./auth/ProtectedRoute";
 
+import Icon from "./components/Icon";
 import Sidebar from "./components/Sidebar";
+import ThemeToggle from "./components/ThemeToggle";
 
 import CreateTicket from "./pages/CreateTicket";
 import Dashboard from "./pages/Dashboard";
@@ -17,15 +23,102 @@ import Register from "./pages/Register";
 import TicketDetail from "./pages/TicketDetail";
 import Tickets from "./pages/Tickets";
 
+function getPageMeta(pathname) {
+  if (pathname === "/") {
+    return {
+      section: "Dashboard",
+      title: "Genel Bakış",
+    };
+  }
+
+  if (pathname === "/tickets") {
+    return {
+      section: "Ticketlar",
+      title: "Ticket Yönetimi",
+    };
+  }
+
+  if (pathname === "/tickets/new") {
+    return {
+      section: "Ticketlar",
+      title: "Yeni Ticket",
+    };
+  }
+
+  if (/^\/tickets\/[^/]+$/.test(pathname)) {
+    return {
+      section: "Ticketlar",
+      title: "Ticket Detayı",
+    };
+  }
+
+  return {
+    section: "IntelliDesk",
+    title: "Çalışma Alanı",
+  };
+}
+
 function ProtectedLayout() {
+  const location = useLocation();
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const pageMeta = getPageMeta(location.pathname);
+
+  const showCreateButton = location.pathname !== "/tickets/new";
+
   return (
     <ProtectedRoute>
       <div className="app-layout">
-        <Sidebar />
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        <main className="app-content">
-          <Outlet />
-        </main>
+        {sidebarOpen ? (
+          <button
+            type="button"
+            className="sidebar-overlay"
+            aria-label="Menüyü kapat"
+            onClick={() => setSidebarOpen(false)}
+          />
+        ) : null}
+
+        <div className="app-content">
+          <header className="app-topbar">
+            <div className="app-topbar-start">
+              <button
+                type="button"
+                className="topbar-menu-button"
+                aria-label="Menüyü aç"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <Icon name="menu" size={20} />
+              </button>
+
+              <nav className="app-breadcrumb" aria-label="Sayfa yolu">
+                <span>{pageMeta.section}</span>
+
+                <Icon name="chevronRight" size={14} />
+
+                <strong>{pageMeta.title}</strong>
+              </nav>
+            </div>
+
+            <div className="app-topbar-actions">
+              <ThemeToggle />
+
+              {showCreateButton ? (
+                <Link to="/tickets/new" className="topbar-create-button">
+                  <Icon name="plus" size={17} />
+
+                  <span>Yeni Ticket</span>
+                </Link>
+              ) : null}
+            </div>
+          </header>
+
+          <main className="app-page-region">
+            <Outlet />
+          </main>
+        </div>
       </div>
     </ProtectedRoute>
   );

@@ -1,0 +1,623 @@
+/* =========================================================
+   AÇIK TEMA - GENEL
+   ========================================================= */
+
+html[data-theme="light"],
+html[data-theme="light"] body,
+html[data-theme="light"] #root {
+  color: #1e293b;
+  background: #e9eef6;
+}
+
+html[data-theme="light"] body {
+  background: linear-gradient(145deg, #eef3fa 0%, #e5ebf4 100%);
+}
+
+html[data-theme="light"] .app-layout {
+  background: #e9eef6;
+}
+
+html[data-theme="light"] .app-content {
+  background:
+    radial-gradient(
+      circle at 86% 3%,
+      rgba(99, 102, 241, 0.12),
+      transparent 31rem
+    ),
+    radial-gradient(
+      circle at 10% 100%,
+      rgba(14, 165, 233, 0.07),
+      transparent 30rem
+    ),
+    linear-gradient(145deg, #eef3fa 0%, #e6ecf5 50%, #e2e9f3 100%) !important;
+}
+
+html[data-theme="light"] .app-page-region {
+  background: transparent;
+}
+
+/* =========================================================
+   ÜST BAR
+   ========================================================= */
+
+html[data-theme="light"] .app-topbar {
+  border-bottom: 1px solid #d6deea !important;
+
+  background: rgba(248, 250, 253, 0.94) !important;
+
+  box-shadow: 0 10px 28px rgba(30, 41, 59, 0.07) !important;
+
+  backdrop-filter: blur(18px);
+}
+
+html[data-theme="light"] .app-breadcrumb > span {
+  color: #8290a5 !important;
+}
+
+html[data-theme="light"] .app-breadcrumb svg {
+  color: #aab5c4 !important;
+}
+
+html[data-theme="light"] .app-breadcrumb strong {
+  color: #263247 !important;
+}
+
+html[data-theme="light"] .topbar-system-status strong {
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .topbar-system-status span {
+  color: #8492a6 !important;
+}
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+html[data-theme="light"] .sidebar {
+  color: #334155;
+
+  border-right: 1px solid #d6deea !important;
+
+  background:
+    radial-gradient(
+      circle at 5% 0%,
+      rgba(99, 102, 241, 0.13),
+      transparent 18rem
+    ),
+    linear-gradient(180deg, #f9fbff 0%, #f1f5fa 55%, #edf2f8 100%) !important;
+
+  box-shadow: 15px 0 40px rgba(30, 41, 59, 0.08) !important;
+}
+
+html[data-theme="light"] .sidebar-brand-copy strong {
+  color: #172033;
+}
+
+html[data-theme="light"] .sidebar-brand-copy span {
+  color: #7b899e;
+}
+
+html[data-theme="light"] .sidebar-section-label {
+  color: #8795a9;
+}
+
+html[data-theme="light"] .sidebar-link {
+  color: #66758b;
+}
+
+html[data-theme="light"] .sidebar-link:hover {
+  color: #334155;
+
+  border-color: rgba(99, 102, 241, 0.14);
+
+  background: rgba(99, 102, 241, 0.065);
+}
+
+html[data-theme="light"] .sidebar-link.active {
+  color: #4338ca;
+
+  border-color: rgba(99, 102, 241, 0.24);
+
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.16),
+    rgba(99, 102, 241, 0.055)
+  );
+
+  box-shadow:
+    inset 3px 0 0 #6366f1,
+    0 10px 24px rgba(79, 70, 229, 0.09);
+}
+
+html[data-theme="light"] .sidebar-link-icon {
+  color: #718096;
+  background: #e8edf5;
+}
+
+html[data-theme="light"] .sidebar-link:hover .sidebar-link-icon {
+  color: #4f46e5;
+}
+
+html[data-theme="light"] .sidebar-link.active .sidebar-link-icon {
+  color: #4f46e5;
+  background: #dfe4ff;
+}
+
+html[data-theme="light"] .sidebar-link-arrow {
+  color: #8795a9;
+}
+
+html[data-theme="light"] .sidebar-engine-status {
+  border-color: rgba(14, 165, 233, 0.2);
+
+  background: rgba(14, 165, 233, 0.07);
+}
+
+html[data-theme="light"] .sidebar-engine-status strong {
+  color: #075985;
+}
+
+html[data-theme="light"] .sidebar-engine-status > div > span {
+  color: #7b899e;
+}
+
+html[data-theme="light"] .sidebar-account-footer {
+  border-top-color: #d6deea;
+}
+
+html[data-theme="light"] .sidebar-account-details strong {
+  color: #334155;
+}
+
+html[data-theme="light"] .sidebar-account-meta {
+  color: #7b899e;
+}
+
+html[data-theme="light"] .sidebar-logout-button {
+  color: #7b899e;
+}
+
+html[data-theme="light"] .sidebar-logout-button:hover {
+  color: #dc2626;
+
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* =========================================================
+   SAYFA BAŞLIKLARI
+   ========================================================= */
+
+html[data-theme="light"] .page-header h1,
+html[data-theme="light"] .dashboard-v2-header h1 {
+  color: #172033 !important;
+}
+
+html[data-theme="light"] .page-header p,
+html[data-theme="light"] .dashboard-v2-header p {
+  color: #607089 !important;
+}
+
+html[data-theme="light"] .page-eyebrow,
+html[data-theme="light"] .section-kicker {
+  color: #4f46e5 !important;
+}
+
+/* =========================================================
+   DASHBOARD ÜST DURUM
+   ========================================================= */
+
+html[data-theme="light"] .dashboard-v2-live {
+  border-color: rgba(34, 197, 94, 0.22);
+
+  background: rgba(255, 255, 255, 0.94);
+
+  box-shadow: 0 13px 30px rgba(30, 41, 59, 0.08);
+}
+
+html[data-theme="light"] .dashboard-v2-live strong {
+  color: #263247;
+}
+
+html[data-theme="light"] .dashboard-v2-live span {
+  color: #74839a;
+}
+
+/* =========================================================
+   DASHBOARD KARTLARI
+   ========================================================= */
+
+html[data-theme="light"] .dashboard-v2-metric,
+html[data-theme="light"] .dashboard-v2-panel {
+  color: #334155;
+
+  border: 1px solid #d6deea !important;
+
+  background: linear-gradient(145deg, #ffffff 0%, #fbfcfe 100%) !important;
+
+  box-shadow: 0 18px 42px rgba(30, 41, 59, 0.09) !important;
+}
+
+html[data-theme="light"] .dashboard-v2-metric:hover,
+html[data-theme="light"] .dashboard-v2-panel:hover {
+  border-color: rgba(99, 102, 241, 0.24) !important;
+
+  box-shadow: 0 21px 48px rgba(30, 41, 59, 0.12) !important;
+}
+
+html[data-theme="light"] .dashboard-v2-metric-copy strong,
+html[data-theme="light"] .dashboard-v2-panel-header h2,
+html[data-theme="light"] .dashboard-v2-chart-summary strong,
+html[data-theme="light"] .dashboard-v2-status-item strong,
+html[data-theme="light"] .dashboard-v2-ticket-main strong,
+html[data-theme="light"] .dashboard-v2-bar-head strong {
+  color: #1e293b !important;
+}
+
+html[data-theme="light"] .dashboard-v2-metric-copy > span,
+html[data-theme="light"] .dashboard-v2-metric-copy p,
+html[data-theme="light"] .dashboard-v2-panel-header p,
+html[data-theme="light"] .dashboard-v2-status-name,
+html[data-theme="light"] .dashboard-v2-ticket-main span,
+html[data-theme="light"] .dashboard-v2-bar-head span {
+  color: #607089 !important;
+}
+
+html[data-theme="light"] .dashboard-v2-panel-header {
+  border-bottom-color: rgba(148, 163, 184, 0.2);
+}
+
+html[data-theme="light"] .dashboard-v2-metric-track,
+html[data-theme="light"] .dashboard-v2-bar-track {
+  background: #dfe5ee !important;
+}
+
+/* =========================================================
+   DASHBOARD GRAFİĞİ
+   ========================================================= */
+
+html[data-theme="light"] .dashboard-v2-chart svg text {
+  fill: #64748b !important;
+}
+
+html[data-theme="light"] .dashboard-v2-chart svg line {
+  stroke: rgba(100, 116, 139, 0.18) !important;
+}
+
+html[data-theme="light"] .dashboard-v2-chart-label,
+html[data-theme="light"] .dashboard-v2-chart-value,
+html[data-theme="light"] .dashboard-v2-chart-day {
+  color: #526179 !important;
+  fill: #526179 !important;
+}
+
+html[data-theme="light"] .dashboard-v2-chart-summary {
+  border-top-color: rgba(148, 163, 184, 0.2);
+}
+
+html[data-theme="light"] .dashboard-v2-chart-summary span {
+  color: #718096 !important;
+}
+
+html[data-theme="light"] .dashboard-v2-chart-summary strong {
+  color: #1e293b !important;
+}
+
+/* =========================================================
+   DONUT VE DURUM LİSTESİ
+   ========================================================= */
+
+html[data-theme="light"] .dashboard-v2-donut {
+  box-shadow: 0 16px 32px rgba(30, 41, 59, 0.14);
+}
+
+html[data-theme="light"] .dashboard-v2-donut::before {
+  background: linear-gradient(145deg, #ffffff, #f1f5f9) !important;
+}
+
+html[data-theme="light"] .dashboard-v2-donut-center strong {
+  color: #172033 !important;
+}
+
+html[data-theme="light"] .dashboard-v2-donut-center span {
+  color: #718096 !important;
+}
+
+html[data-theme="light"] .dashboard-v2-status-item {
+  border: 1px solid rgba(148, 163, 184, 0.16);
+
+  background: #f3f6fa !important;
+}
+
+html[data-theme="light"] .dashboard-v2-status-item:hover {
+  background: #eaf0f8 !important;
+}
+
+/* =========================================================
+   SON TICKETLAR VE BAR ALANLARI
+   ========================================================= */
+
+html[data-theme="light"] .dashboard-v2-ticket-row {
+  border-top-color: rgba(148, 163, 184, 0.2);
+}
+
+html[data-theme="light"] .dashboard-v2-ticket-row:hover {
+  background: rgba(99, 102, 241, 0.075);
+}
+
+html[data-theme="light"] .dashboard-v2-ticket-id {
+  color: #4f46e5 !important;
+}
+
+/* =========================================================
+   TICKET LİSTESİ
+   ========================================================= */
+
+html[data-theme="light"] .ticket-list-panel {
+  color: #334155;
+
+  border: 1px solid #d3dce8 !important;
+
+  background: #ffffff !important;
+
+  box-shadow: 0 20px 48px rgba(30, 41, 59, 0.1) !important;
+}
+
+html[data-theme="light"] .ticket-filters {
+  border-bottom-color: #d6deea;
+
+  background: linear-gradient(135deg, #f4f7fb, #eef2f8) !important;
+}
+
+html[data-theme="light"] .ticket-filter-field label {
+  color: #526179 !important;
+}
+
+html[data-theme="light"] .ticket-filter-field input,
+html[data-theme="light"] .ticket-filter-field select {
+  color: #334155 !important;
+
+  border-color: #cbd5e1 !important;
+
+  background: #ffffff !important;
+}
+
+html[data-theme="light"] .ticket-filter-field input::placeholder {
+  color: #94a3b8;
+}
+
+html[data-theme="light"] .ticket-filter-field input:focus,
+html[data-theme="light"] .ticket-filter-field select:focus {
+  border-color: rgba(99, 102, 241, 0.65) !important;
+
+  background: #ffffff !important;
+}
+
+html[data-theme="light"] .ticket-filter-field select option {
+  color: #334155;
+  background: #ffffff;
+}
+
+html[data-theme="light"] .ticket-filter-summary,
+html[data-theme="light"] .ticket-pagination {
+  color: #607089 !important;
+
+  border-color: #d6deea;
+
+  background: #f5f7fb !important;
+}
+
+html[data-theme="light"] .ticket-list-panel .tickets-table thead,
+html[data-theme="light"] .ticket-list-panel .tickets-table thead tr,
+html[data-theme="light"] .ticket-list-panel .tickets-table th {
+  color: #526179 !important;
+
+  background: #e7edf5 !important;
+}
+
+html[data-theme="light"] .ticket-list-panel .tickets-table th {
+  border-bottom-color: #ccd6e3 !important;
+}
+
+html[data-theme="light"] .ticket-list-panel .tickets-table td {
+  color: #607089 !important;
+
+  border-bottom-color: #e1e7ef !important;
+}
+
+html[data-theme="light"] .ticket-list-panel .tickets-table tbody tr {
+  background: #ffffff;
+}
+
+html[data-theme="light"]
+  .ticket-list-panel
+  .tickets-table
+  tbody
+  tr:nth-child(even) {
+  background: #f7f9fc;
+}
+
+html[data-theme="light"] .ticket-list-panel .tickets-table tbody tr:hover {
+  background: #edf1ff !important;
+}
+
+html[data-theme="light"] .ticket-title-cell strong {
+  color: #263247 !important;
+}
+
+html[data-theme="light"] .ticket-title-cell span {
+  color: #8492a6 !important;
+}
+
+/* =========================================================
+   TICKET DETAYI
+   ========================================================= */
+
+html[data-theme="light"] .page:has(.detail-grid) .panel {
+  color: #334155;
+
+  border: 1px solid #d3dce8 !important;
+
+  background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
+
+  box-shadow: 0 19px 45px rgba(30, 41, 59, 0.09) !important;
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .panel-header {
+  border-bottom-color: #dce3ec;
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .panel-header h2,
+html[data-theme="light"] .page:has(.detail-grid) .detail-row > strong {
+  color: #263247;
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .panel-header p,
+html[data-theme="light"] .page:has(.detail-grid) .detail-row > span {
+  color: #64748b;
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .detail-row {
+  border-bottom-color: #e1e7ef;
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .recommendation-box {
+  border-color: rgba(99, 102, 241, 0.24);
+
+  background: linear-gradient(145deg, #eef2ff, #f8faff);
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .recommendation-text {
+  color: #475569;
+}
+
+/* =========================================================
+   YENİ TICKET FORMU
+   ========================================================= */
+
+html[data-theme="light"] .page:has(.form-panel) .form-panel {
+  color: #334155;
+
+  border: 1px solid #d3dce8 !important;
+
+  background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
+
+  box-shadow: 0 20px 48px rgba(30, 41, 59, 0.09) !important;
+}
+
+html[data-theme="light"] .page:has(.form-panel) .form-panel-heading {
+  border-bottom-color: #dce3ec;
+
+  background: linear-gradient(135deg, #f3f5ff, #f7f9fc);
+}
+
+html[data-theme="light"] .page:has(.form-panel) .form-panel-heading h2 {
+  color: #263247;
+}
+
+html[data-theme="light"] .page:has(.form-panel) .form-panel-heading p {
+  color: #64748b;
+}
+
+html[data-theme="light"] .page:has(.form-panel) .form-group label {
+  color: #526179;
+}
+
+html[data-theme="light"] .page:has(.detail-grid) input,
+html[data-theme="light"] .page:has(.detail-grid) select,
+html[data-theme="light"] .page:has(.detail-grid) textarea,
+html[data-theme="light"] .page:has(.form-panel) input,
+html[data-theme="light"] .page:has(.form-panel) select,
+html[data-theme="light"] .page:has(.form-panel) textarea {
+  color: #334155 !important;
+
+  border-color: #cbd5e1 !important;
+
+  background: #ffffff !important;
+}
+
+html[data-theme="light"] .page:has(.detail-grid) input::placeholder,
+html[data-theme="light"] .page:has(.detail-grid) textarea::placeholder,
+html[data-theme="light"] .page:has(.form-panel) input::placeholder,
+html[data-theme="light"] .page:has(.form-panel) textarea::placeholder {
+  color: #94a3b8;
+}
+
+html[data-theme="light"] .page:has(.detail-grid) select option,
+html[data-theme="light"] .page:has(.form-panel) select option {
+  color: #334155;
+  background: #ffffff;
+}
+
+html[data-theme="light"] .page:has(.form-panel) .form-actions {
+  border-top-color: #dce3ec;
+}
+
+/* =========================================================
+   LOGIN VE REGISTER
+   ========================================================= */
+
+html[data-theme="light"] .auth-page {
+  color: #334155;
+
+  background: linear-gradient(145deg, #e8eef7, #f4f7fb);
+}
+
+html[data-theme="light"] .auth-form-panel {
+  background:
+    radial-gradient(
+      circle at 85% 10%,
+      rgba(99, 102, 241, 0.1),
+      transparent 24rem
+    ),
+    #e9eef6;
+}
+
+html[data-theme="light"] .auth-form-container {
+  border-color: #d3dce8;
+
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+
+  box-shadow: 0 24px 60px rgba(30, 41, 59, 0.14);
+}
+
+html[data-theme="light"] .auth-form-header h2 {
+  color: #172033;
+}
+
+html[data-theme="light"] .auth-form-header > p:last-child {
+  color: #64748b;
+}
+
+html[data-theme="light"] .auth-field label {
+  color: #526179;
+}
+
+html[data-theme="light"] .auth-field input {
+  color: #334155;
+
+  border-color: #cbd5e1;
+
+  background: #ffffff;
+}
+
+html[data-theme="light"] .auth-field input::placeholder {
+  color: #94a3b8;
+}
+
+html[data-theme="light"] .auth-field input:focus {
+  background: #ffffff;
+}
+
+html[data-theme="light"] .auth-password-rules,
+html[data-theme="light"] .auth-switch-text {
+  color: #64748b;
+}
+
+/* =========================================================
+   MOBİL SIDEBAR OVERLAY
+   ========================================================= */
+
+html[data-theme="light"] .sidebar-overlay {
+  background: rgba(30, 41, 59, 0.34);
+}

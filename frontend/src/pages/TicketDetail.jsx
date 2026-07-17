@@ -1,16 +1,25 @@
 import { useCallback, useEffect, useState } from "react";
+
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import api from "../api/api";
+import { useAuth } from "../auth/AuthContext";
 
 function TicketDetail() {
   const { ticketId } = useParams();
   const navigate = useNavigate();
 
+  const { account } = useAuth();
+
+  const canManageTicket =
+    account?.role === "technician" || account?.role === "admin";
+
   const [ticket, setTicket] = useState(null);
+
   const [recommendation, setRecommendation] = useState(null);
 
   const [feedback, setFeedback] = useState("accepted");
+
   const [feedbackNote, setFeedbackNote] = useState("");
 
   const [updateForm, setUpdateForm] = useState({
@@ -23,49 +32,27 @@ function TicketDetail() {
     resolution: "",
   });
 
-  const [technicianOptions, setTechnicianOptions] = useState([]);
   const [departmentOptions, setDepartmentOptions] = useState([]);
+
   const [categoryOptions, setCategoryOptions] = useState([]);
+
   const [subcategoryOptions, setSubcategoryOptions] = useState([]);
 
   const [loading, setLoading] = useState(true);
+
   const [recommendationLoading, setRecommendationLoading] = useState(false);
+
   const [feedbackLoading, setFeedbackLoading] = useState(false);
+
   const [updateLoading, setUpdateLoading] = useState(false);
+
   const [formOptionsLoading, setFormOptionsLoading] = useState(false);
-  const [techniciansLoading, setTechniciansLoading] = useState(false);
 
   const [error, setError] = useState("");
+
   const [message, setMessage] = useState("");
+
   const [formOptionsError, setFormOptionsError] = useState("");
-  const [techniciansError, setTechniciansError] = useState("");
-
-  const loadTechnicians = useCallback(async (currentTechnician = "") => {
-    try {
-      setTechniciansLoading(true);
-      setTechniciansError("");
-
-      const response = await api.get("/tickets/technicians");
-
-      const technicians = Array.isArray(response.data?.technicians)
-        ? response.data.technicians
-        : [];
-
-      setTechnicianOptions(createUniqueOptions(technicians, currentTechnician));
-    } catch (err) {
-      console.error(err);
-
-      setTechnicianOptions((currentOptions) =>
-        createUniqueOptions(currentOptions, currentTechnician),
-      );
-
-      setTechniciansError(
-        getApiErrorMessage(err, "Teknisyen seçenekleri alınamadı."),
-      );
-    } finally {
-      setTechniciansLoading(false);
-    }
-  }, []);
 
   const loadDependentOptions = useCallback(
     async (
@@ -160,15 +147,22 @@ function TicketDetail() {
         setError("");
 
         const response = await api.get(`/tickets/${ticketId}`);
+
         const ticketData = response.data;
 
         const nextUpdateForm = {
           status: ticketData.status || "open",
+
           assigned_technician: ticketData.assigned_technician || "",
+
           department: ticketData.department || "",
+
           category: ticketData.category || "",
+
           subcategory: ticketData.subcategory || "",
+
           priority: ticketData.priority || "medium",
+
           resolution: ticketData.resolution || "",
         };
 
@@ -178,10 +172,13 @@ function TicketDetail() {
         if (ticketData.ai_recommendation) {
           setRecommendation((currentRecommendation) => ({
             ticket_id: ticketData.ticket_id,
+
             recommendation: ticketData.ai_recommendation,
+
             confidence_score: normalizeConfidence(
               ticketData.ai_confidence_score,
             ),
+
             source_request_ids: currentRecommendation?.source_request_ids || [],
           }));
         } else {
@@ -194,14 +191,18 @@ function TicketDetail() {
           setFeedback("accepted");
         }
 
-        await Promise.all([
-          loadTechnicians(nextUpdateForm.assigned_technician),
-          loadDependentOptions(
+        if (canManageTicket) {
+          await loadDependentOptions(
             nextUpdateForm.department,
             nextUpdateForm.category,
             nextUpdateForm.subcategory,
-          ),
-        ]);
+          );
+        } else {
+          setDepartmentOptions([]);
+          setCategoryOptions([]);
+          setSubcategoryOptions([]);
+          setFormOptionsError("");
+        }
       } catch (err) {
         console.error(err);
 
@@ -212,7 +213,7 @@ function TicketDetail() {
         }
       }
     },
-    [ticketId, loadTechnicians, loadDependentOptions],
+    [ticketId, canManageTicket, loadDependentOptions],
   );
 
   useEffect(() => {
@@ -225,19 +226,6 @@ function TicketDetail() {
     setUpdateForm((currentData) => ({
       ...currentData,
       [name]: value,
-    }));
-  }
-
-  function handleTechnicianChange(event) {
-    const nextTechnician = event.target.value;
-
-    setUpdateForm((currentData) => ({
-      ...currentData,
-      assigned_technician: nextTechnician,
-      status:
-        nextTechnician && currentData.status === "open"
-          ? "assigned"
-          : currentData.status,
     }));
   }
 
@@ -274,6 +262,11 @@ function TicketDetail() {
   async function updateTicket(event) {
     event.preventDefault();
 
+    if (!canManageTicket) {
+      setError("Bu işlem için teknisyen veya yönetici yetkisi gereklidir.");
+      return;
+    }
+
     try {
       setUpdateLoading(true);
       setError("");
@@ -281,11 +274,17 @@ function TicketDetail() {
 
       const requestData = {
         status: updateForm.status,
+
         assigned_technician: updateForm.assigned_technician.trim() || null,
+
         department: updateForm.department.trim() || null,
+
         category: updateForm.category.trim() || null,
+
         subcategory: updateForm.subcategory.trim() || null,
+
         priority: updateForm.priority,
+
         resolution: updateForm.resolution.trim() || null,
       };
 
@@ -304,6 +303,11 @@ function TicketDetail() {
   }
 
   async function createRecommendation() {
+    if (!canManageTicket) {
+      setError("Bu işlem için teknisyen veya yönetici yetkisi gereklidir.");
+      return;
+    }
+
     try {
       setRecommendationLoading(true);
       setError("");
@@ -315,9 +319,11 @@ function TicketDetail() {
 
       setRecommendation({
         ...recommendationData,
+
         confidence_score: normalizeConfidence(
           recommendationData.confidence_score,
         ),
+
         source_request_ids: Array.isArray(recommendationData.source_request_ids)
           ? recommendationData.source_request_ids
           : [],
@@ -338,6 +344,11 @@ function TicketDetail() {
   async function submitFeedback(event) {
     event.preventDefault();
 
+    if (!canManageTicket) {
+      setError("Bu işlem için teknisyen veya yönetici yetkisi gereklidir.");
+      return;
+    }
+
     if (!recommendation) {
       setError("Geri bildirim göndermeden önce AI önerisi oluştur.");
       return;
@@ -350,10 +361,12 @@ function TicketDetail() {
 
       await api.post(`/tickets/${ticketId}/feedback`, {
         feedback,
+
         note: feedbackNote.trim() || null,
       });
 
       setMessage("Geri bildirim kaydedildi.");
+
       setFeedbackNote("");
 
       await loadTicket(false);
@@ -371,6 +384,7 @@ function TicketDetail() {
       <main className="page">
         <div className="page-loading">
           <div className="loading-spinner" aria-hidden="true" />
+
           <span>Ticket yükleniyor...</span>
         </div>
       </main>
@@ -396,7 +410,9 @@ function TicketDetail() {
   const confidenceScore = normalizeConfidence(recommendation?.confidence_score);
 
   const confidencePercentage = confidenceScore * 100;
+
   const confidenceLevel = getConfidenceLevel(confidenceScore);
+
   const confidenceLabel = getConfidenceLabel(confidenceLevel);
 
   return (
@@ -440,14 +456,19 @@ function TicketDetail() {
           <div className="panel-header">
             <div>
               <span className="section-kicker">GENEL BİLGİLER</span>
+
               <h2>Ticket Bilgileri</h2>
+
               <p>Destek talebinin mevcut kayıtları.</p>
             </div>
           </div>
 
           <DetailRow label="Açıklama" value={ticket.description} />
+
           <DetailRow label="Departman" value={ticket.department} />
+
           <DetailRow label="Kategori" value={ticket.category} />
+
           <DetailRow label="Alt kategori" value={ticket.subcategory} />
 
           <DetailRow
@@ -474,21 +495,28 @@ function TicketDetail() {
               <span className="section-kicker">YAPAY ZEKÂ DESTEĞİ</span>
 
               <h2>AI Çözüm Önerisi</h2>
-              <p>Geçmiş benzer ticketlar kullanılır.</p>
+
+              <p>
+                {canManageTicket
+                  ? "Geçmiş benzer ticketlar kullanılır."
+                  : "Mevcut AI çözüm önerisi görüntülenir."}
+              </p>
             </div>
 
-            <button
-              type="button"
-              className="primary-button"
-              onClick={createRecommendation}
-              disabled={recommendationLoading}
-            >
-              {recommendationLoading
-                ? "Oluşturuluyor..."
-                : recommendation
-                  ? "Öneriyi Yenile"
-                  : "Öneri Oluştur"}
-            </button>
+            {canManageTicket ? (
+              <button
+                type="button"
+                className="primary-button"
+                onClick={createRecommendation}
+                disabled={recommendationLoading}
+              >
+                {recommendationLoading
+                  ? "Oluşturuluyor..."
+                  : recommendation
+                    ? "Öneriyi Yenile"
+                    : "Öneri Oluştur"}
+              </button>
+            ) : null}
           </div>
 
           {recommendation ? (
@@ -554,275 +582,287 @@ function TicketDetail() {
         </div>
       </section>
 
-      <section className="panel management-panel">
-        <div className="panel-header">
-          <div>
-            <span className="section-kicker">OPERASYON</span>
-            <h2>Ticket Yönetimi</h2>
+      {canManageTicket ? (
+        <section className="panel management-panel">
+          <div className="panel-header">
+            <div>
+              <span className="section-kicker">OPERASYON</span>
 
-            <p>
-              Ticket durumunu, sınıflandırmasını, atamasını ve çözüm bilgisini
-              güncelle.
-            </p>
+              <h2>Ticket Yönetimi</h2>
+
+              <p>
+                Ticket durumunu, sınıflandırmasını, atamasını ve çözüm bilgisini
+                güncelle.
+              </p>
+            </div>
           </div>
-        </div>
 
-        {techniciansError ? (
-          <p className="error-message">{techniciansError}</p>
-        ) : null}
+          {formOptionsError ? (
+            <p className="error-message">{formOptionsError}</p>
+          ) : null}
 
-        {formOptionsError ? (
-          <p className="error-message">{formOptionsError}</p>
-        ) : null}
+          <form className="ticket-form" onSubmit={updateTicket}>
+            <div className="form-grid">
+              <div className="form-group">
+                <label htmlFor="status">Durum</label>
 
-        <form className="ticket-form" onSubmit={updateTicket}>
-          <div className="form-grid">
-            <div className="form-group">
-              <label htmlFor="status">Durum</label>
+                <select
+                  id="status"
+                  name="status"
+                  value={updateForm.status}
+                  disabled={updateLoading}
+                  onChange={handleUpdateChange}
+                >
+                  <option value="open">Açık</option>
 
-              <select
-                id="status"
-                name="status"
-                value={updateForm.status}
-                disabled={updateLoading}
-                onChange={handleUpdateChange}
-              >
-                <option value="open">Açık</option>
-                <option value="assigned">Atandı</option>
-                <option value="in_progress">İşlemde</option>
-                <option value="waiting_user">Kullanıcı Bekleniyor</option>
-                <option value="resolved">Çözüldü</option>
-                <option value="closed">Kapalı</option>
-                <option value="cancelled">İptal</option>
-              </select>
-            </div>
+                  <option value="assigned">Atandı</option>
 
-            <div className="form-group">
-              <label htmlFor="assigned_technician">Atanan teknisyen</label>
+                  <option value="in_progress">İşlemde</option>
 
-              <select
-                id="assigned_technician"
-                name="assigned_technician"
-                value={updateForm.assigned_technician}
-                disabled={updateLoading || techniciansLoading}
-                onChange={handleTechnicianChange}
-              >
-                <option value="">
-                  {techniciansLoading
-                    ? "Teknisyenler yükleniyor..."
-                    : "Teknisyen atanmadı"}
-                </option>
+                  <option value="waiting_user">Kullanıcı Bekleniyor</option>
 
-                {technicianOptions.map((technician) => (
-                  <option key={technician} value={technician}>
-                    {technician}
+                  <option value="resolved">Çözüldü</option>
+
+                  <option value="closed">Kapalı</option>
+
+                  <option value="cancelled">İptal</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="assigned_technician">Atanan teknisyen</label>
+
+                <input
+                  id="assigned_technician"
+                  name="assigned_technician"
+                  type="text"
+                  value={updateForm.assigned_technician}
+                  disabled={updateLoading}
+                  maxLength={150}
+                  placeholder="Teknisyen adı"
+                  onChange={handleUpdateChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="department">Departman</label>
+
+                <select
+                  id="department"
+                  name="department"
+                  value={updateForm.department}
+                  disabled={updateLoading || formOptionsLoading}
+                  onChange={handleDepartmentChange}
+                >
+                  <option value="">
+                    {formOptionsLoading && departmentOptions.length === 0
+                      ? "Departmanlar yükleniyor..."
+                      : "Departman seç"}
                   </option>
-                ))}
-              </select>
+
+                  {departmentOptions.map((department) => (
+                    <option key={department} value={department}>
+                      {department}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="category">Kategori</label>
+
+                <select
+                  id="category"
+                  name="category"
+                  value={updateForm.category}
+                  disabled={
+                    updateLoading ||
+                    formOptionsLoading ||
+                    !updateForm.department
+                  }
+                  onChange={handleCategoryChange}
+                >
+                  <option value="">
+                    {!updateForm.department
+                      ? "Önce departman seç"
+                      : formOptionsLoading
+                        ? "Kategoriler yükleniyor..."
+                        : "Kategori seç"}
+                  </option>
+
+                  {categoryOptions.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="subcategory">Alt kategori</label>
+
+                <select
+                  id="subcategory"
+                  name="subcategory"
+                  value={updateForm.subcategory}
+                  disabled={
+                    updateLoading || formOptionsLoading || !updateForm.category
+                  }
+                  onChange={handleUpdateChange}
+                >
+                  <option value="">
+                    {!updateForm.category
+                      ? "Önce kategori seç"
+                      : formOptionsLoading
+                        ? "Alt kategoriler yükleniyor..."
+                        : "Alt kategori seç"}
+                  </option>
+
+                  {subcategoryOptions.map((subcategory) => (
+                    <option key={subcategory} value={subcategory}>
+                      {subcategory}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="priority">Öncelik</label>
+
+                <select
+                  id="priority"
+                  name="priority"
+                  value={updateForm.priority}
+                  disabled={updateLoading}
+                  onChange={handleUpdateChange}
+                >
+                  <option value="low">Düşük</option>
+
+                  <option value="medium">Orta</option>
+
+                  <option value="high">Yüksek</option>
+
+                  <option value="critical">Kritik</option>
+                </select>
+              </div>
             </div>
 
             <div className="form-group">
-              <label htmlFor="department">Departman</label>
+              <label htmlFor="resolution">Uygulanan çözüm</label>
 
-              <select
-                id="department"
-                name="department"
-                value={updateForm.department}
+              <textarea
+                id="resolution"
+                name="resolution"
+                rows={5}
+                value={updateForm.resolution}
+                disabled={updateLoading}
+                placeholder="Teknisyen tarafından uygulanan çözümü yaz..."
+                onChange={handleUpdateChange}
+              />
+            </div>
+
+            <div className="form-actions">
+              <button
+                type="submit"
+                className="primary-button"
                 disabled={updateLoading || formOptionsLoading}
-                onChange={handleDepartmentChange}
               >
-                <option value="">
-                  {formOptionsLoading && departmentOptions.length === 0
-                    ? "Departmanlar yükleniyor..."
-                    : "Departman seç"}
-                </option>
-
-                {departmentOptions.map((department) => (
-                  <option key={department} value={department}>
-                    {department}
-                  </option>
-                ))}
-              </select>
+                {updateLoading ? "Güncelleniyor..." : "Ticketı Güncelle"}
+              </button>
             </div>
+          </form>
+        </section>
+      ) : null}
 
-            <div className="form-group">
-              <label htmlFor="category">Kategori</label>
+      {canManageTicket || ticket.ai_feedback ? (
+        <section className="panel feedback-panel">
+          <div className="panel-header">
+            <div>
+              <span className="section-kicker">AI KALİTE KONTROLÜ</span>
 
-              <select
-                id="category"
-                name="category"
-                value={updateForm.category}
-                disabled={
-                  updateLoading || formOptionsLoading || !updateForm.department
-                }
-                onChange={handleCategoryChange}
-              >
-                <option value="">
-                  {!updateForm.department
-                    ? "Önce departman seç"
-                    : formOptionsLoading
-                      ? "Kategoriler yükleniyor..."
-                      : "Kategori seç"}
-                </option>
+              <h2>Teknisyen Geri Bildirimi</h2>
 
-                {categoryOptions.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="subcategory">Alt kategori</label>
-
-              <select
-                id="subcategory"
-                name="subcategory"
-                value={updateForm.subcategory}
-                disabled={
-                  updateLoading || formOptionsLoading || !updateForm.category
-                }
-                onChange={handleUpdateChange}
-              >
-                <option value="">
-                  {!updateForm.category
-                    ? "Önce kategori seç"
-                    : formOptionsLoading
-                      ? "Alt kategoriler yükleniyor..."
-                      : "Alt kategori seç"}
-                </option>
-
-                {subcategoryOptions.map((subcategory) => (
-                  <option key={subcategory} value={subcategory}>
-                    {subcategory}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="priority">Öncelik</label>
-
-              <select
-                id="priority"
-                name="priority"
-                value={updateForm.priority}
-                disabled={updateLoading}
-                onChange={handleUpdateChange}
-              >
-                <option value="low">Düşük</option>
-                <option value="medium">Orta</option>
-                <option value="high">Yüksek</option>
-                <option value="critical">Kritik</option>
-              </select>
+              <p>
+                {canManageTicket
+                  ? "AI önerisinin faydalı olup olmadığını kaydet."
+                  : "AI önerisi için kaydedilen teknisyen geri bildirimi."}
+              </p>
             </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="resolution">Uygulanan çözüm</label>
-
-            <textarea
-              id="resolution"
-              name="resolution"
-              rows={5}
-              value={updateForm.resolution}
-              disabled={updateLoading}
-              placeholder="Teknisyen tarafından uygulanan çözümü yaz..."
-              onChange={handleUpdateChange}
-            />
-          </div>
-
-          <div className="form-actions">
-            <button
-              type="submit"
-              className="primary-button"
-              disabled={
-                updateLoading || formOptionsLoading || techniciansLoading
-              }
+          {ticket.ai_feedback ? (
+            <div
+              className={`saved-feedback ${
+                ticket.ai_feedback === "accepted"
+                  ? "feedback-accepted"
+                  : "feedback-rejected"
+              }`}
             >
-              {updateLoading ? "Güncelleniyor..." : "Ticketı Güncelle"}
-            </button>
-          </div>
-        </form>
-      </section>
+              <strong>
+                Mevcut geri bildirim:{" "}
+                {ticket.ai_feedback === "accepted"
+                  ? "Kabul edildi"
+                  : "Reddedildi"}
+              </strong>
 
-      <section className="panel feedback-panel">
-        <div className="panel-header">
-          <div>
-            <span className="section-kicker">AI KALİTE KONTROLÜ</span>
+              {ticket.ai_feedback_note ? (
+                <p>{ticket.ai_feedback_note}</p>
+              ) : null}
 
-            <h2>Teknisyen Geri Bildirimi</h2>
+              <span>{formatDate(ticket.ai_feedback_at)}</span>
+            </div>
+          ) : null}
 
-            <p>AI önerisinin faydalı olup olmadığını kaydet.</p>
-          </div>
-        </div>
+          {canManageTicket ? (
+            <form className="feedback-form" onSubmit={submitFeedback}>
+              <div className="form-group">
+                <label htmlFor="feedback">Geri bildirim</label>
 
-        {ticket.ai_feedback ? (
-          <div
-            className={`saved-feedback ${
-              ticket.ai_feedback === "accepted"
-                ? "feedback-accepted"
-                : "feedback-rejected"
-            }`}
-          >
-            <strong>
-              Mevcut geri bildirim:{" "}
-              {ticket.ai_feedback === "accepted"
-                ? "Kabul edildi"
-                : "Reddedildi"}
-            </strong>
+                <select
+                  id="feedback"
+                  value={feedback}
+                  disabled={feedbackLoading || !recommendation}
+                  onChange={(event) => setFeedback(event.target.value)}
+                >
+                  <option value="accepted">Kabul et</option>
 
-            {ticket.ai_feedback_note ? <p>{ticket.ai_feedback_note}</p> : null}
+                  <option value="rejected">Reddet</option>
+                </select>
+              </div>
 
-            <span>{formatDate(ticket.ai_feedback_at)}</span>
-          </div>
-        ) : null}
+              <div className="form-group">
+                <label htmlFor="feedbackNote">Açıklama</label>
 
-        <form className="feedback-form" onSubmit={submitFeedback}>
-          <div className="form-group">
-            <label htmlFor="feedback">Geri bildirim</label>
+                <textarea
+                  id="feedbackNote"
+                  rows={4}
+                  value={feedbackNote}
+                  disabled={feedbackLoading || !recommendation}
+                  maxLength={1000}
+                  placeholder={
+                    recommendation
+                      ? "Önerinin neden kabul veya reddedildiğini yaz..."
+                      : "Önce AI çözüm önerisi oluşturulmalıdır."
+                  }
+                  onChange={(event) => setFeedbackNote(event.target.value)}
+                />
+              </div>
 
-            <select
-              id="feedback"
-              value={feedback}
-              disabled={feedbackLoading || !recommendation}
-              onChange={(event) => setFeedback(event.target.value)}
-            >
-              <option value="accepted">Kabul et</option>
-              <option value="rejected">Reddet</option>
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="feedbackNote">Açıklama</label>
-
-            <textarea
-              id="feedbackNote"
-              rows={4}
-              value={feedbackNote}
-              disabled={feedbackLoading || !recommendation}
-              maxLength={1000}
-              placeholder={
-                recommendation
-                  ? "Önerinin neden kabul veya reddedildiğini yaz..."
-                  : "Önce AI çözüm önerisi oluşturulmalıdır."
-              }
-              onChange={(event) => setFeedbackNote(event.target.value)}
-            />
-          </div>
-
-          <div className="form-actions">
-            <button
-              type="submit"
-              className="primary-button"
-              disabled={feedbackLoading || !recommendation}
-            >
-              {feedbackLoading ? "Kaydediliyor..." : "Geri Bildirimi Kaydet"}
-            </button>
-          </div>
-        </form>
-      </section>
+              <div className="form-actions">
+                <button
+                  type="submit"
+                  className="primary-button"
+                  disabled={feedbackLoading || !recommendation}
+                >
+                  {feedbackLoading
+                    ? "Kaydediliyor..."
+                    : "Geri Bildirimi Kaydet"}
+                </button>
+              </div>
+            </form>
+          ) : null}
+        </section>
+      ) : null}
     </main>
   );
 }
@@ -831,6 +871,7 @@ function DetailRow({ label, value }) {
   return (
     <div className="detail-row">
       <span>{label}</span>
+
       <strong>{value || "Belirtilmemiş"}</strong>
     </div>
   );

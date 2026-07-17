@@ -43,7 +43,7 @@ bearer_scheme = HTTPBearer(
 
 
 # =========================================================
-# HATA YARDIMCILARI
+# AUTH HATALARI
 # =========================================================
 
 def create_authentication_exception() -> HTTPException:
@@ -57,7 +57,7 @@ def create_authentication_exception() -> HTTPException:
 
 
 # =========================================================
-# AKTİF KULLANICI BAĞIMLILIĞI
+# OTURUM AÇMIŞ KULLANICI
 # =========================================================
 
 def get_current_account(
@@ -100,6 +100,55 @@ def get_current_account(
 
 
 # =========================================================
+# ROL KONTROLLERİ
+# =========================================================
+
+def get_current_staff_account(
+    current_account: Account = Depends(
+        get_current_account
+    ),
+) -> Account:
+    """
+    Yalnızca teknisyen ve yönetici hesaplarına izin verir.
+    """
+
+    if current_account.role not in {
+        "technician",
+        "admin",
+    }:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=(
+                "Bu işlem için teknisyen veya "
+                "yönetici yetkisi gereklidir."
+            ),
+        )
+
+    return current_account
+
+
+def get_current_admin_account(
+    current_account: Account = Depends(
+        get_current_account
+    ),
+) -> Account:
+    """
+    Yalnızca yönetici hesaplarına izin verir.
+    """
+
+    if current_account.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=(
+                "Bu işlem için yönetici "
+                "yetkisi gereklidir."
+            ),
+        )
+
+    return current_account
+
+
+# =========================================================
 # REGISTER
 # =========================================================
 
@@ -126,7 +175,10 @@ def register_account(
     if existing_account is not None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Bu e-posta adresiyle kayıtlı bir hesap bulunmaktadır.",
+            detail=(
+                "Bu e-posta adresiyle kayıtlı "
+                "bir hesap bulunmaktadır."
+            ),
         )
 
     account = Account(
@@ -149,7 +201,10 @@ def register_account(
 
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Bu e-posta adresiyle kayıtlı bir hesap bulunmaktadır.",
+            detail=(
+                "Bu e-posta adresiyle kayıtlı "
+                "bir hesap bulunmaktadır."
+            ),
         ) from exc
 
     return account

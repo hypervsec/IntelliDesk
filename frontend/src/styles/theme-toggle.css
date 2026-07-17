@@ -1,0 +1,84 @@
+.theme-toggle {
+  min-height: 39px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  border: 1px solid rgba(148, 163, 184, 0.16);
+
+  border-radius: 11px;
+
+  padding: 0 12px;
+
+  color: #cbd5e1;
+
+  background: rgba(255, 255, 255, 0.045);
+
+  font: inherit;
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.theme-toggle:hover {
+  color: #ffffff;
+
+  border-color: rgba(129, 140, 248, 0.35);
+
+  background: rgba(99, 102, 241, 0.11);
+
+  transform: translateY(-1px);
+}
+
+.theme-toggle-icon {
+  width: 19px;
+  height: 19px;
+
+  display: grid;
+  place-items: center;
+
+  color: #fbbf24;
+}
+
+html[data-theme="light"] .theme-toggle {
+  color: #475569;
+
+  border-color: rgba(148, 163, 184, 0.3);
+
+  background: #ffffff;
+
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+}
+
+html[data-theme="light"] .theme-toggle:hover {
+  color: #312e81;
+
+  border-color: rgba(99, 102, 241, 0.32);
+
+  background: #eef2ff;
+}
+
+html[data-theme="light"] .theme-toggle-icon {
+  color: #4f46e5;
+}
+
+@media (max-width: 650px) {
+  .theme-toggle {
+    width: 39px;
+    min-width: 39px;
+    padding: 0;
+  }
+
+  .theme-toggle-label {
+    display: none;
+  }
+}

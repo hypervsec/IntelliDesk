@@ -1,0 +1,357 @@
+/* =========================================================
+   TICKET DETAY SAYFASI
+   ========================================================= */
+
+.page:has(.detail-grid) {
+  width: min(1480px, calc(100% - 52px));
+  padding-top: 30px;
+}
+
+.page:has(.detail-grid) .page-header {
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+
+.page:has(.detail-grid) .page-header h1 {
+  margin-top: 8px;
+  color: #f8fafc;
+  font-size: clamp(28px, 3vw, 40px);
+  letter-spacing: -0.04em;
+}
+
+.page:has(.detail-grid) .page-header p {
+  color: #94a3b8;
+}
+
+.page:has(.detail-grid) .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.page:has(.detail-grid) .back-link {
+  display: inline-flex;
+  align-items: center;
+
+  margin-bottom: 14px;
+  border: 0;
+  padding: 0;
+
+  color: #818cf8;
+  background: transparent;
+
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.page:has(.detail-grid) .back-link:hover {
+  color: #c7d2fe;
+}
+
+/* =========================================================
+   PANELLER
+   ========================================================= */
+
+.page:has(.detail-grid) .panel {
+  border: 1px solid rgba(148, 163, 184, 0.17) !important;
+
+  border-radius: 18px !important;
+
+  color: #dbe4f4;
+
+  background: linear-gradient(145deg, #17243e, #111d34) !important;
+
+  box-shadow: 0 22px 55px rgba(2, 6, 23, 0.25) !important;
+}
+
+.page:has(.detail-grid) .panel:hover {
+  border-color: rgba(129, 140, 248, 0.25) !important;
+}
+
+.page:has(.detail-grid) .panel-header {
+  padding-bottom: 17px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.page:has(.detail-grid) .panel-header h2 {
+  color: #f8fafc;
+}
+
+.page:has(.detail-grid) .panel-header p {
+  color: #71819a;
+}
+
+.page:has(.detail-grid) .section-kicker {
+  color: #818cf8;
+}
+
+/* =========================================================
+   GENEL BİLGİLER
+   ========================================================= */
+
+.page:has(.detail-grid) .detail-row {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.page:has(.detail-grid) .detail-row:last-child {
+  border-bottom: 0;
+}
+
+.page:has(.detail-grid) .detail-row > span {
+  color: #71809a;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.page:has(.detail-grid) .detail-row > strong {
+  color: #dbe4f4;
+  font-size: 10px;
+  line-height: 1.65;
+}
+
+/* =========================================================
+   AI ÖNERİSİ
+   ========================================================= */
+
+.page:has(.detail-grid) .recommendation-box {
+  border: 1px solid rgba(129, 140, 248, 0.18);
+
+  border-radius: 15px;
+
+  padding: 17px;
+
+  background: linear-gradient(
+    145deg,
+    rgba(99, 102, 241, 0.11),
+    rgba(15, 27, 49, 0.72)
+  );
+}
+
+.page:has(.detail-grid) .recommendation-text {
+  color: #cbd5e1;
+  font-size: 10px;
+  line-height: 1.75;
+  white-space: pre-line;
+}
+
+.page:has(.detail-grid) .confidence-title {
+  color: #8492aa;
+}
+
+.page:has(.detail-grid) .confidence-row strong {
+  color: #f8fafc;
+}
+
+.page:has(.detail-grid) .confidence-track {
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.page:has(.detail-grid) .confidence-fill {
+  background: linear-gradient(90deg, #6366f1, #22d3ee);
+}
+
+.page:has(.detail-grid) .confidence-badge {
+  border: 1px solid;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.page:has(.detail-grid) .confidence-badge-low {
+  border-color: rgba(248, 113, 113, 0.2);
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.09);
+}
+
+.page:has(.detail-grid) .confidence-badge-medium {
+  border-color: rgba(251, 191, 36, 0.2);
+  color: #fcd34d;
+  background: rgba(245, 158, 11, 0.09);
+}
+
+.page:has(.detail-grid) .confidence-badge-high {
+  border-color: rgba(52, 211, 153, 0.2);
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.09);
+}
+
+.page:has(.detail-grid) .source-list {
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+
+  color: #71809a;
+}
+
+.page:has(.detail-grid) .source-badge {
+  border: 1px solid rgba(129, 140, 248, 0.18);
+
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.09);
+}
+
+/* =========================================================
+   FORM ALANLARI
+   ========================================================= */
+
+.page:has(.detail-grid) .ticket-form,
+.page:has(.detail-grid) .feedback-form {
+  margin-top: 20px;
+}
+
+.page:has(.detail-grid) .form-group label {
+  color: #8190a8;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.page:has(.detail-grid) input,
+.page:has(.detail-grid) select,
+.page:has(.detail-grid) textarea {
+  border: 1px solid rgba(148, 163, 184, 0.16) !important;
+
+  border-radius: 11px !important;
+
+  color: #dbe4f4 !important;
+
+  background: rgba(9, 20, 39, 0.76) !important;
+
+  font-size: 10px !important;
+}
+
+.page:has(.detail-grid) input::placeholder,
+.page:has(.detail-grid) textarea::placeholder {
+  color: #4f5d75;
+}
+
+.page:has(.detail-grid) input:focus,
+.page:has(.detail-grid) select:focus,
+.page:has(.detail-grid) textarea:focus {
+  border-color: rgba(129, 140, 248, 0.65) !important;
+
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+}
+
+.page:has(.detail-grid) select option {
+  color: #dbe4f4;
+  background: #111d34;
+}
+
+.page:has(.detail-grid) input:disabled,
+.page:has(.detail-grid) select:disabled,
+.page:has(.detail-grid) textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* =========================================================
+   BUTONLAR
+   ========================================================= */
+
+.page:has(.detail-grid) .primary-button {
+  border: 1px solid rgba(129, 140, 248, 0.22) !important;
+
+  border-radius: 11px !important;
+
+  color: #ffffff !important;
+
+  background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+
+  box-shadow: 0 13px 28px rgba(79, 70, 229, 0.22) !important;
+}
+
+.page:has(.detail-grid) .primary-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  box-shadow: 0 17px 34px rgba(79, 70, 229, 0.3) !important;
+}
+
+/* =========================================================
+   GERİ BİLDİRİM
+   ========================================================= */
+
+.page:has(.detail-grid) .saved-feedback {
+  border: 1px solid;
+  border-radius: 13px;
+  padding: 14px;
+
+  background: rgba(9, 20, 39, 0.55);
+}
+
+.page:has(.detail-grid) .saved-feedback strong {
+  color: #e2e8f0;
+}
+
+.page:has(.detail-grid) .saved-feedback p {
+  color: #94a3b8;
+}
+
+.page:has(.detail-grid) .saved-feedback span {
+  color: #64748b;
+}
+
+.page:has(.detail-grid) .feedback-accepted {
+  border-color: rgba(52, 211, 153, 0.2);
+
+  background: rgba(16, 185, 129, 0.07);
+}
+
+.page:has(.detail-grid) .feedback-rejected {
+  border-color: rgba(248, 113, 113, 0.2);
+
+  background: rgba(239, 68, 68, 0.07);
+}
+
+/* =========================================================
+   MESAJLAR
+   ========================================================= */
+
+.page:has(.detail-grid) .empty-message {
+  color: #71809a;
+}
+
+.page:has(.detail-grid) .success-message {
+  border-color: rgba(52, 211, 153, 0.2);
+
+  color: #6ee7b7;
+
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.page:has(.detail-grid) .error-message {
+  border-color: rgba(248, 113, 113, 0.2);
+
+  color: #fca5a5;
+
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .page:has(.detail-grid) {
+    width: calc(100% - 30px);
+  }
+
+  .page:has(.detail-grid) .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 560px) {
+  .page:has(.detail-grid) .page-header h1 {
+    font-size: 28px;
+  }
+
+  .page:has(.detail-grid) .panel {
+    padding: 16px !important;
+  }
+}
