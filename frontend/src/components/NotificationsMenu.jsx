@@ -172,7 +172,13 @@ function NotificationsMenu() {
   }, []);
 
   useEffect(() => {
-    void loadNotifications();
+    const initialLoadTimer = window.setTimeout(() => {
+      void loadNotifications();
+    }, 0);
+
+    return () => {
+      window.clearTimeout(initialLoadTimer);
+    };
   }, [loadNotifications]);
 
   useEffect(() => {
@@ -191,10 +197,6 @@ function NotificationsMenu() {
     if (!isOpen) {
       return undefined;
     }
-
-    void loadNotifications({
-      silent: true,
-    });
 
     function handlePointerDown(event) {
       if (
@@ -220,7 +222,19 @@ function NotificationsMenu() {
 
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, loadNotifications]);
+  }, [isOpen]);
+
+  function handleToggleNotifications() {
+    const nextIsOpen = !isOpen;
+
+    setIsOpen(nextIsOpen);
+
+    if (nextIsOpen) {
+      void loadNotifications({
+        silent: true,
+      });
+    }
+  }
 
   async function markNotificationAsRead(notificationId) {
     const selectedNotification = notifications.find(
@@ -395,9 +409,7 @@ function NotificationsMenu() {
         aria-expanded={isOpen}
         aria-controls="notifications-panel"
         title="Bildirimler"
-        onClick={() => {
-          setIsOpen((currentValue) => !currentValue);
-        }}
+        onClick={handleToggleNotifications}
       >
         <BellIcon />
 
