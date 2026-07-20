@@ -17,18 +17,25 @@
   color: #f8fafc;
 
   font-size: clamp(30px, 3vw, 42px);
+  line-height: 1.1;
   letter-spacing: -0.045em;
 }
 
 .page:has(.form-panel) .page-header p {
   max-width: 620px;
 
-  color: #95a3b9;
+  color: #9aabc3;
+
+  font-size: 13px;
   line-height: 1.7;
 }
 
 .page:has(.form-panel) .page-eyebrow {
   color: #818cf8;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.17em;
 }
 
 /* =========================================================
@@ -40,7 +47,7 @@
 
   overflow: hidden;
 
-  border: 1px solid rgba(148, 163, 184, 0.17) !important;
+  border: 1px solid rgba(148, 163, 184, 0.19) !important;
 
   border-radius: 19px !important;
 
@@ -48,9 +55,9 @@
 
   color: #dbe4f4;
 
-  background: linear-gradient(145deg, #17243e, #111d34) !important;
+  background: linear-gradient(145deg, #18253f, #111e35) !important;
 
-  box-shadow: 0 24px 65px rgba(2, 6, 23, 0.28) !important;
+  box-shadow: 0 24px 65px rgba(2, 6, 23, 0.3) !important;
 }
 
 .page:has(.form-panel) .form-panel::before {
@@ -66,7 +73,7 @@
 
   border-radius: 50%;
 
-  background: rgba(99, 102, 241, 0.13);
+  background: rgba(99, 102, 241, 0.15);
 
   filter: blur(10px);
 }
@@ -83,12 +90,12 @@
   margin: 0 !important;
   padding: 22px 24px;
 
-  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
 
   background: linear-gradient(
     135deg,
-    rgba(99, 102, 241, 0.09),
-    rgba(255, 255, 255, 0.012)
+    rgba(99, 102, 241, 0.11),
+    rgba(255, 255, 255, 0.02)
   );
 }
 
@@ -98,16 +105,17 @@
   color: #f8fafc;
 
   font-size: 18px;
+  line-height: 1.3;
   letter-spacing: -0.025em;
 }
 
 .page:has(.form-panel) .form-panel-heading p {
   margin: 7px 0 0;
 
-  color: #71819a;
+  color: #91a3bf;
 
-  font-size: 10px;
-  line-height: 1.6;
+  font-size: 11px;
+  line-height: 1.65;
 }
 
 .page:has(.form-panel) .section-kicker {
@@ -121,23 +129,23 @@
 .page:has(.form-panel) .form-step-badge {
   flex: 0 0 auto;
 
+  min-height: 30px;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  min-height: 29px;
-
-  border: 1px solid rgba(129, 140, 248, 0.2);
+  border: 1px solid rgba(129, 140, 248, 0.25);
 
   border-radius: 999px;
 
-  padding: 0 11px;
+  padding: 0 12px;
 
-  color: #a5b4fc;
+  color: #b3bdfd;
 
-  background: rgba(99, 102, 241, 0.09);
+  background: rgba(99, 102, 241, 0.12);
 
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 800;
 }
 
@@ -150,7 +158,7 @@
   z-index: 1;
 
   display: grid;
-  gap: 21px;
+  gap: 22px;
 
   margin: 0 !important;
   padding: 24px;
@@ -170,9 +178,9 @@
 }
 
 .page:has(.form-panel) .form-group label {
-  color: #8c9ab1;
+  color: #9aabc3;
 
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -181,7 +189,7 @@
 .page:has(.form-panel) .required-mark {
   margin-left: 4px;
 
-  color: #f87171;
+  color: #fb7185;
 }
 
 /* =========================================================
@@ -195,16 +203,17 @@
 
   box-sizing: border-box;
 
-  border: 1px solid rgba(148, 163, 184, 0.17) !important;
+  border: 1px solid rgba(148, 163, 184, 0.21) !important;
 
   border-radius: 12px !important;
 
-  color: #e2e8f0 !important;
+  color: #edf2f9 !important;
 
-  background: rgba(9, 20, 39, 0.76) !important;
+  background: rgba(8, 18, 35, 0.74) !important;
 
   font: inherit;
-  font-size: 10px !important;
+  font-size: 11px !important;
+  font-weight: 500;
 
   transition:
     border-color 160ms ease,
@@ -224,19 +233,21 @@
 
   padding: 14px !important;
 
-  line-height: 1.7;
+  line-height: 1.75;
   resize: vertical;
 }
 
 .page:has(.form-panel) input::placeholder,
 .page:has(.form-panel) textarea::placeholder {
-  color: #4f5d75;
+  color: #71819a;
+
+  opacity: 1;
 }
 
 .page:has(.form-panel) input:hover:not(:disabled),
 .page:has(.form-panel) select:hover:not(:disabled),
 .page:has(.form-panel) textarea:hover:not(:disabled) {
-  border-color: rgba(148, 163, 184, 0.28) !important;
+  border-color: rgba(148, 163, 184, 0.32) !important;
 }
 
 .page:has(.form-panel) input:focus,
@@ -244,15 +255,16 @@
 .page:has(.form-panel) textarea:focus {
   outline: none;
 
-  border-color: rgba(129, 140, 248, 0.7) !important;
+  border-color: rgba(129, 140, 248, 0.74) !important;
 
-  background: rgba(10, 22, 42, 0.96) !important;
+  background: rgba(10, 22, 42, 0.97) !important;
 
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.11) !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.13) !important;
 }
 
 .page:has(.form-panel) select option {
-  color: #dbe4f4;
+  color: #edf2f9;
+
   background: #111d34;
 }
 
@@ -261,7 +273,11 @@
 .page:has(.form-panel) textarea:disabled {
   cursor: not-allowed;
 
-  opacity: 0.5;
+  color: #8291a9 !important;
+
+  background: rgba(8, 18, 35, 0.5) !important;
+
+  opacity: 0.62;
 }
 
 /* =========================================================
@@ -277,7 +293,7 @@
   margin-top: 3px;
   padding-top: 21px;
 
-  border-top: 1px solid rgba(148, 163, 184, 0.09);
+  border-top: 1px solid rgba(148, 163, 184, 0.13);
 }
 
 .page:has(.form-panel) .primary-button,
@@ -286,10 +302,10 @@
 
   border-radius: 11px !important;
 
-  padding: 0 17px !important;
+  padding: 0 18px !important;
 
   font: inherit;
-  font-size: 9px !important;
+  font-size: 10px !important;
   font-weight: 800 !important;
 
   cursor: pointer;
@@ -302,41 +318,41 @@
 }
 
 .page:has(.form-panel) .primary-button {
-  border: 1px solid rgba(129, 140, 248, 0.24) !important;
+  border: 1px solid rgba(129, 140, 248, 0.3) !important;
 
   color: #ffffff !important;
 
   background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
 
-  box-shadow: 0 13px 29px rgba(79, 70, 229, 0.24) !important;
+  box-shadow: 0 13px 29px rgba(79, 70, 229, 0.28) !important;
 }
 
 .page:has(.form-panel) .primary-button:hover:not(:disabled) {
   transform: translateY(-1px);
 
-  box-shadow: 0 18px 36px rgba(79, 70, 229, 0.32) !important;
+  box-shadow: 0 18px 36px rgba(79, 70, 229, 0.38) !important;
 }
 
 .page:has(.form-panel) .secondary-button {
-  border: 1px solid rgba(148, 163, 184, 0.16) !important;
+  border: 1px solid rgba(148, 163, 184, 0.22) !important;
 
-  color: #a8b5ca !important;
+  color: #b7c3d6 !important;
 
-  background: rgba(148, 163, 184, 0.055) !important;
+  background: rgba(148, 163, 184, 0.08) !important;
 }
 
 .page:has(.form-panel) .secondary-button:hover:not(:disabled) {
-  border-color: rgba(148, 163, 184, 0.28) !important;
+  border-color: rgba(148, 163, 184, 0.36) !important;
 
-  color: #e2e8f0 !important;
+  color: #f1f5f9 !important;
 
-  background: rgba(148, 163, 184, 0.1) !important;
+  background: rgba(148, 163, 184, 0.14) !important;
 }
 
 .page:has(.form-panel) button:disabled {
   cursor: not-allowed;
 
-  opacity: 0.45;
+  opacity: 0.48;
 }
 
 /* =========================================================
@@ -344,15 +360,18 @@
    ========================================================= */
 
 .page:has(.form-panel) > .error-message {
-  border: 1px solid rgba(248, 113, 113, 0.2);
+  border: 1px solid rgba(248, 113, 113, 0.26);
 
   border-radius: 12px;
 
   padding: 12px 14px;
 
-  color: #fca5a5;
+  color: #fda4af;
 
-  background: rgba(239, 68, 68, 0.08);
+  background: rgba(239, 68, 68, 0.11);
+
+  font-size: 11px;
+  line-height: 1.6;
 }
 
 /* =========================================================

@@ -653,8 +653,6 @@ function MetricCard({
         <span className="dashboard-v2-metric-icon">
           <Icon name={icon} size={19} />
         </span>
-
-        <span className="dashboard-v2-metric-live">LIVE</span>
       </div>
 
       <div className="dashboard-v2-metric-copy">
