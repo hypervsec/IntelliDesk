@@ -23,6 +23,13 @@ const navigationItems = [
     label: "Yeni Ticket",
     icon: "plus",
   },
+  {
+    to: "/users",
+    end: true,
+    label: "Kullanıcılar",
+    icon: "user",
+    adminOnly: true,
+  },
 ];
 
 const roleLabels = {
@@ -55,6 +62,10 @@ function Sidebar({ isOpen = false, onClose }) {
   const navigate = useNavigate();
 
   const { account, logout } = useAuth();
+
+  const visibleNavigationItems = navigationItems.filter(
+    (item) => !item.adminOnly || account?.role === "admin",
+  );
 
   function getLinkClass({ isActive }) {
     return isActive ? "sidebar-link active" : "sidebar-link";
@@ -114,7 +125,7 @@ function Sidebar({ isOpen = false, onClose }) {
       <nav className="sidebar-nav" aria-label="Ana menü">
         <span className="sidebar-section-label">MENÜ</span>
 
-        {navigationItems.map((item) => (
+        {visibleNavigationItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}

@@ -1,0 +1,191 @@
+/* =========================================================
+   AUTH INPUT KESİN RENK DÜZELTMESİ
+   ========================================================= */
+
+/* Koyu tema ve tema belirtilmemiş durum */
+
+html[data-theme="dark"] .auth-page .auth-field input,
+html:not([data-theme="light"]) .auth-page .auth-field input {
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+
+  caret-color: #a5b4fc !important;
+
+  border-color: rgba(148, 163, 184, 0.28) !important;
+
+  background: #0b172b !important;
+  background-color: #0b172b !important;
+
+  opacity: 1 !important;
+
+  color-scheme: dark;
+
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+html[data-theme="dark"] .auth-page .auth-field input::placeholder,
+html:not([data-theme="light"]) .auth-page .auth-field input::placeholder {
+  color: #7f8fa8 !important;
+  -webkit-text-fill-color: #7f8fa8 !important;
+
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .auth-page .auth-field input:focus,
+html:not([data-theme="light"]) .auth-page .auth-field input:focus {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+
+  border-color: #818cf8 !important;
+
+  background: #0d1b31 !important;
+  background-color: #0d1b31 !important;
+
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.18) !important;
+}
+
+/* =========================================================
+   CHROME / EDGE AUTOFILL - KOYU TEMA
+   ========================================================= */
+
+html[data-theme="dark"] .auth-page .auth-field input:-webkit-autofill,
+html[data-theme="dark"] .auth-page .auth-field input:-webkit-autofill:hover,
+html[data-theme="dark"] .auth-page .auth-field input:-webkit-autofill:focus,
+html[data-theme="dark"] .auth-page .auth-field input:-webkit-autofill:active,
+html:not([data-theme="light"]) .auth-page .auth-field input:-webkit-autofill,
+html:not([data-theme="light"])
+  .auth-page
+  .auth-field
+  input:-webkit-autofill:hover,
+html:not([data-theme="light"])
+  .auth-page
+  .auth-field
+  input:-webkit-autofill:focus,
+html:not([data-theme="light"])
+  .auth-page
+  .auth-field
+  input:-webkit-autofill:active {
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+
+  caret-color: #a5b4fc !important;
+
+  border-color: rgba(129, 140, 248, 0.5) !important;
+
+  -webkit-box-shadow: 0 0 0 1000px #0b172b inset !important;
+
+  box-shadow: 0 0 0 1000px #0b172b inset !important;
+
+  background-color: #0b172b !important;
+
+  transition: background-color 9999s ease-out 0s;
+}
+
+/* =========================================================
+   AÇIK TEMA
+   ========================================================= */
+
+html[data-theme="light"] .auth-page .auth-field input {
+  color: #172033 !important;
+  -webkit-text-fill-color: #172033 !important;
+
+  caret-color: #4f46e5 !important;
+
+  border-color: #cbd5e1 !important;
+
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+
+  opacity: 1 !important;
+
+  color-scheme: light;
+
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+html[data-theme="light"] .auth-page .auth-field input::placeholder {
+  color: #718096 !important;
+  -webkit-text-fill-color: #718096 !important;
+
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .auth-page .auth-field input:focus {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+
+  border-color: #6366f1 !important;
+
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.14) !important;
+}
+
+/* =========================================================
+   CHROME / EDGE AUTOFILL - AÇIK TEMA
+   ========================================================= */
+
+html[data-theme="light"] .auth-page .auth-field input:-webkit-autofill,
+html[data-theme="light"] .auth-page .auth-field input:-webkit-autofill:hover,
+html[data-theme="light"] .auth-page .auth-field input:-webkit-autofill:focus,
+html[data-theme="light"] .auth-page .auth-field input:-webkit-autofill:active {
+  color: #172033 !important;
+  -webkit-text-fill-color: #172033 !important;
+
+  caret-color: #4f46e5 !important;
+
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+
+  background-color: #ffffff !important;
+
+  transition: background-color 9999s ease-out 0s;
+}
+
+/* =========================================================
+   FIREFOX AUTOFILL
+   ========================================================= */
+
+html[data-theme="dark"] .auth-page .auth-field input:autofill,
+html:not([data-theme="light"]) .auth-page .auth-field input:autofill {
+  color: #f8fafc !important;
+
+  background: #0b172b !important;
+}
+
+html[data-theme="light"] .auth-page .auth-field input:autofill {
+  color: #172033 !important;
+
+  background: #ffffff !important;
+}
+
+/* =========================================================
+   PAROLA GÖSTER / GİZLE BUTONU
+   ========================================================= */
+
+html[data-theme="dark"] .auth-password-toggle,
+html:not([data-theme="light"]) .auth-password-toggle {
+  color: #c7d2fe !important;
+
+  background: rgba(99, 102, 241, 0.16) !important;
+}
+
+html[data-theme="light"] .auth-password-toggle {
+  color: #4f46e5 !important;
+
+  background: rgba(99, 102, 241, 0.1) !important;
+}
+
+/* =========================================================
+   METİN SEÇİMİ
+   ========================================================= */
+
+.auth-page .auth-field input::selection {
+  color: #ffffff !important;
+
+  background: #4f46e5 !important;
+}

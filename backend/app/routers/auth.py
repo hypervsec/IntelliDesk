@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import Account
 from ..schemas import (
+    AccountAdminUpdate,
     AccountLogin,
     AccountRegister,
     AccountResponse,
@@ -49,7 +50,10 @@ bearer_scheme = HTTPBearer(
 def create_authentication_exception() -> HTTPException:
     return HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Oturum bilgisi geçersiz veya süresi dolmuş.",
+        detail=(
+            "Oturum bilgisi geçersiz "
+            "veya süresi dolmuş."
+        ),
         headers={
             "WWW-Authenticate": "Bearer",
         },
@@ -93,7 +97,10 @@ def get_current_account(
     if not account.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bu kullanıcı hesabı devre dışı bırakılmış.",
+            detail=(
+                "Bu kullanıcı hesabı "
+                "devre dışı bırakılmış."
+            ),
         )
 
     return account
@@ -108,10 +115,6 @@ def get_current_staff_account(
         get_current_account
     ),
 ) -> Account:
-    """
-    Yalnızca teknisyen ve yönetici hesaplarına izin verir.
-    """
-
     if current_account.role not in {
         "technician",
         "admin",
@@ -132,10 +135,6 @@ def get_current_admin_account(
         get_current_account
     ),
 ) -> Account:
-    """
-    Yalnızca yönetici hesaplarına izin verir.
-    """
-
     if current_account.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -245,7 +244,9 @@ def login_account(
     if account is None or not password_is_valid:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="E-posta adresi veya parola hatalı.",
+            detail=(
+                "E-posta adresi veya parola hatalı."
+            ),
             headers={
                 "WWW-Authenticate": "Bearer",
             },
@@ -254,7 +255,10 @@ def login_account(
     if not account.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bu kullanıcı hesabı devre dışı bırakılmış.",
+            detail=(
+                "Bu kullanıcı hesabı "
+                "devre dışı bırakılmış."
+            ),
         )
 
     account.last_login_at = datetime.now()
@@ -290,3 +294,178 @@ def get_my_account(
     ),
 ) -> Account:
     return current_account
+
+
+# =========================================================
+# AKTİF TEKNİK PERSONEL
+# =========================================================
+
+@router.get(
+    "/staff",
+    response_model=list[AccountResponse],
+)
+def list_active_staff_accounts(
+    _current_account: Account = Depends(
+        get_current_staff_account
+    ),
+    db: Session = Depends(get_db),
+) -> list[Account]:
+    staff_accounts = db.scalars(
+        select(Account)
+        .where(
+            Account.is_active.is_(True),
+            Account.role.in_(
+                (
+                    "technician",
+                    "admin",
+                )
+            ),
+        )
+        .order_by(
+            Account.full_name.asc(),
+            Account.account_id.asc(),
+        )
+    ).all()
+
+    return list(staff_accounts)
+
+
+# =========================================================
+# ADMIN - TÜM HESAPLARI LİSTELE
+# =========================================================
+
+@router.get(
+    "/accounts",
+    response_model=list[AccountResponse],
+)
+def list_accounts(
+    _current_admin: Account = Depends(
+        get_current_admin_account
+    ),
+    db: Session = Depends(get_db),
+) -> list[Account]:
+    accounts = db.scalars(
+        select(Account).order_by(
+            Account.created_at.desc(),
+            Account.account_id.desc(),
+        )
+    ).all()
+
+    return list(accounts)
+
+
+# =========================================================
+# ADMIN - HESAP GÜNCELLE
+# =========================================================
+
+@router.patch(
+    "/accounts/{account_id}",
+    response_model=AccountResponse,
+)
+def update_account_by_admin(
+    account_id: int,
+    update_data: AccountAdminUpdate,
+    current_admin: Account = Depends(
+        get_current_admin_account
+    ),
+    db: Session = Depends(get_db),
+) -> Account:
+    account = db.scalar(
+        select(Account).where(
+            Account.account_id == account_id
+        )
+    )
+
+    if account is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Kullanıcı hesabı bulunamadı.",
+        )
+
+    changes = update_data.model_dump(
+        exclude_unset=True
+    )
+
+    requested_role = changes.get("role")
+    requested_is_active = changes.get(
+        "is_active"
+    )
+
+    is_current_account = (
+        account.account_id
+        == current_admin.account_id
+    )
+
+    if (
+        is_current_account
+        and requested_role is not None
+        and requested_role != "admin"
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "Kendi yönetici rolünüzü "
+                "değiştiremezsiniz."
+            ),
+        )
+
+    if (
+        is_current_account
+        and requested_is_active is False
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "Kendi hesabınızı devre dışı "
+                "bırakamazsınız."
+            ),
+        )
+
+    account_is_active_admin = (
+        account.role == "admin"
+        and account.is_active
+    )
+
+    account_will_lose_admin_access = (
+        (
+            requested_role is not None
+            and requested_role != "admin"
+        )
+        or requested_is_active is False
+    )
+
+    if (
+        account_is_active_admin
+        and account_will_lose_admin_access
+    ):
+        active_admin_count = db.scalar(
+            select(
+                func.count(Account.account_id)
+            ).where(
+                Account.role == "admin",
+                Account.is_active.is_(True),
+            )
+        )
+
+        if int(active_admin_count or 0) <= 1:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    "Sistemde en az bir aktif "
+                    "yönetici hesabı bulunmalıdır."
+                ),
+            )
+
+    for field, value in changes.items():
+        setattr(
+            account,
+            field,
+            value,
+        )
+
+    account.updated_at = datetime.now()
+
+    db.commit()
+    db.refresh(account)
+
+    return account

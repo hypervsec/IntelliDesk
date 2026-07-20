@@ -10,6 +10,7 @@ import {
   useLocation,
 } from "react-router-dom";
 
+import { useAuth } from "./auth/AuthContext";
 import ProtectedRoute from "./auth/ProtectedRoute";
 
 import Icon from "./components/Icon";
@@ -22,6 +23,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import TicketDetail from "./pages/TicketDetail";
 import Tickets from "./pages/Tickets";
+import UserManagement from "./pages/UserManagement";
 
 function getPageMeta(pathname) {
   if (pathname === "/") {
@@ -52,10 +54,27 @@ function getPageMeta(pathname) {
     };
   }
 
+  if (pathname === "/users") {
+    return {
+      section: "Yönetim",
+      title: "Kullanıcılar",
+    };
+  }
+
   return {
     section: "IntelliDesk",
     title: "Çalışma Alanı",
   };
+}
+
+function AdminRoute({ children }) {
+  const { account } = useAuth();
+
+  if (account?.role !== "admin") {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
 }
 
 function ProtectedLayout() {
@@ -140,6 +159,15 @@ function App() {
           <Route path="/tickets/new" element={<CreateTicket />} />
 
           <Route path="/tickets/:ticketId" element={<TicketDetail />} />
+
+          <Route
+            path="/users"
+            element={
+              <AdminRoute>
+                <UserManagement />
+              </AdminRoute>
+            }
+          />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

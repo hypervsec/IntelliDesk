@@ -69,8 +69,13 @@ class AccountRegister(BaseModel):
 
     @field_validator("full_name")
     @classmethod
-    def normalize_full_name(cls, value: str) -> str:
-        normalized_value = " ".join(value.strip().split())
+    def normalize_full_name(
+        cls,
+        value: str,
+    ) -> str:
+        normalized_value = " ".join(
+            value.strip().split()
+        )
 
         if len(normalized_value) < 2:
             raise ValueError(
@@ -81,23 +86,38 @@ class AccountRegister(BaseModel):
 
     @field_validator("email")
     @classmethod
-    def normalize_email(cls, value: EmailStr) -> str:
+    def normalize_email(
+        cls,
+        value: EmailStr,
+    ) -> str:
         return str(value).strip().lower()
 
     @field_validator("password")
     @classmethod
-    def validate_password(cls, value: str) -> str:
-        if not any(character.islower() for character in value):
+    def validate_password(
+        cls,
+        value: str,
+    ) -> str:
+        if not any(
+            character.islower()
+            for character in value
+        ):
             raise ValueError(
                 "Parola en az bir küçük harf içermelidir."
             )
 
-        if not any(character.isupper() for character in value):
+        if not any(
+            character.isupper()
+            for character in value
+        ):
             raise ValueError(
                 "Parola en az bir büyük harf içermelidir."
             )
 
-        if not any(character.isdigit() for character in value):
+        if not any(
+            character.isdigit()
+            for character in value
+        ):
             raise ValueError(
                 "Parola en az bir rakam içermelidir."
             )
@@ -126,7 +146,10 @@ class AccountLogin(BaseModel):
 
     @field_validator("email")
     @classmethod
-    def normalize_email(cls, value: EmailStr) -> str:
+    def normalize_email(
+        cls,
+        value: EmailStr,
+    ) -> str:
         return str(value).strip().lower()
 
 
@@ -143,6 +166,26 @@ class AccountResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     last_login_at: datetime | None
+
+
+class AccountAdminUpdate(BaseModel):
+    role: AccountRoleType | None = None
+    is_active: bool | None = None
+
+    @model_validator(mode="after")
+    def validate_update_fields(
+        self,
+    ) -> "AccountAdminUpdate":
+        if (
+            self.role is None
+            and self.is_active is None
+        ):
+            raise ValueError(
+                "Rol veya aktiflik alanlarından "
+                "en az biri gönderilmelidir."
+            )
+
+        return self
 
 
 class TokenResponse(BaseModel):

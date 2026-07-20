@@ -19,7 +19,6 @@ function TicketDetail() {
   const [recommendation, setRecommendation] = useState(null);
 
   const [feedback, setFeedback] = useState("accepted");
-
   const [feedbackNote, setFeedbackNote] = useState("");
 
   const [updateForm, setUpdateForm] = useState({
@@ -32,27 +31,23 @@ function TicketDetail() {
     resolution: "",
   });
 
+  const [staffAccounts, setStaffAccounts] = useState([]);
+
   const [departmentOptions, setDepartmentOptions] = useState([]);
-
   const [categoryOptions, setCategoryOptions] = useState([]);
-
   const [subcategoryOptions, setSubcategoryOptions] = useState([]);
 
   const [loading, setLoading] = useState(true);
-
   const [recommendationLoading, setRecommendationLoading] = useState(false);
-
   const [feedbackLoading, setFeedbackLoading] = useState(false);
-
   const [updateLoading, setUpdateLoading] = useState(false);
-
   const [formOptionsLoading, setFormOptionsLoading] = useState(false);
+  const [staffLoading, setStaffLoading] = useState(false);
 
   const [error, setError] = useState("");
-
   const [message, setMessage] = useState("");
-
   const [formOptionsError, setFormOptionsError] = useState("");
+  const [staffError, setStaffError] = useState("");
 
   const loadDependentOptions = useCallback(
     async (
@@ -137,6 +132,42 @@ function TicketDetail() {
     [],
   );
 
+  const loadStaffAccounts = useCallback(async () => {
+    if (!canManageTicket) {
+      setStaffAccounts([]);
+      setStaffError("");
+      return;
+    }
+
+    try {
+      setStaffLoading(true);
+      setStaffError("");
+
+      const response = await api.get("/auth/staff");
+
+      const accounts = Array.isArray(response.data) ? response.data : [];
+
+      const activeStaff = accounts.filter(
+        (staffAccount) =>
+          staffAccount?.is_active === true &&
+          (staffAccount?.role === "technician" ||
+            staffAccount?.role === "admin"),
+      );
+
+      setStaffAccounts(activeStaff);
+    } catch (err) {
+      console.error(err);
+
+      setStaffAccounts([]);
+
+      setStaffError(
+        getApiErrorMessage(err, "Teknik personel listesi alınamadı."),
+      );
+    } finally {
+      setStaffLoading(false);
+    }
+  }, [canManageTicket]);
+
   const loadTicket = useCallback(
     async (showLoading = true) => {
       try {
@@ -152,17 +183,11 @@ function TicketDetail() {
 
         const nextUpdateForm = {
           status: ticketData.status || "open",
-
           assigned_technician: ticketData.assigned_technician || "",
-
           department: ticketData.department || "",
-
           category: ticketData.category || "",
-
           subcategory: ticketData.subcategory || "",
-
           priority: ticketData.priority || "medium",
-
           resolution: ticketData.resolution || "",
         };
 
@@ -219,6 +244,10 @@ function TicketDetail() {
   useEffect(() => {
     loadTicket();
   }, [loadTicket]);
+
+  useEffect(() => {
+    loadStaffAccounts();
+  }, [loadStaffAccounts]);
 
   function handleUpdateChange(event) {
     const { name, value } = event.target;
@@ -361,7 +390,6 @@ function TicketDetail() {
 
       await api.post(`/tickets/${ticketId}/feedback`, {
         feedback,
-
         note: feedbackNote.trim() || null,
       });
 
@@ -414,6 +442,11 @@ function TicketDetail() {
   const confidenceLevel = getConfidenceLevel(confidenceScore);
 
   const confidenceLabel = getConfidenceLabel(confidenceLevel);
+
+  const technicianOptions = createStaffOptions(
+    staffAccounts,
+    updateForm.assigned_technician,
+  );
 
   return (
     <main className="page">
@@ -597,6 +630,8 @@ function TicketDetail() {
             </div>
           </div>
 
+          {staffError ? <p className="error-message">{staffError}</p> : null}
+
           {formOptionsError ? (
             <p className="error-message">{formOptionsError}</p>
           ) : null}
@@ -632,16 +667,30 @@ function TicketDetail() {
               <div className="form-group">
                 <label htmlFor="assigned_technician">Atanan teknisyen</label>
 
-                <input
+                <select
                   id="assigned_technician"
                   name="assigned_technician"
-                  type="text"
                   value={updateForm.assigned_technician}
-                  disabled={updateLoading}
-                  maxLength={150}
-                  placeholder="Teknisyen adı"
+                  disabled={updateLoading || staffLoading}
                   onChange={handleUpdateChange}
-                />
+                >
+                  <option value="">
+                    {staffLoading
+                      ? "Teknik personel yükleniyor..."
+                      : "Teknik personel seç"}
+                  </option>
+
+                  {technicianOptions.map((staffAccount) => (
+                    <option
+                      key={staffAccount.optionKey}
+                      value={staffAccount.full_name}
+                    >
+                      {staffAccount.full_name}
+                      {" — "}
+                      {getStaffRoleLabel(staffAccount)}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="form-group">
@@ -765,7 +814,7 @@ function TicketDetail() {
               <button
                 type="submit"
                 className="primary-button"
-                disabled={updateLoading || formOptionsLoading}
+                disabled={updateLoading || formOptionsLoading || staffLoading}
               >
                 {updateLoading ? "Güncelleniyor..." : "Ticketı Güncelle"}
               </button>
@@ -875,6 +924,56 @@ function DetailRow({ label, value }) {
       <strong>{value || "Belirtilmemiş"}</strong>
     </div>
   );
+}
+
+function createStaffOptions(staffAccounts, currentTechnician) {
+  const accounts = Array.isArray(staffAccounts) ? staffAccounts : [];
+
+  const options = accounts
+    .filter(
+      (staffAccount) =>
+        staffAccount?.full_name &&
+        staffAccount?.is_active === true &&
+        (staffAccount?.role === "technician" || staffAccount?.role === "admin"),
+    )
+    .map((staffAccount) => ({
+      ...staffAccount,
+      optionKey: `account-${staffAccount.account_id}`,
+      isCurrentOnly: false,
+    }));
+
+  const cleanedCurrentTechnician = String(currentTechnician || "").trim();
+
+  const currentTechnicianExists = options.some(
+    (staffAccount) =>
+      normalizeText(staffAccount.full_name) ===
+      normalizeText(cleanedCurrentTechnician),
+  );
+
+  if (cleanedCurrentTechnician && !currentTechnicianExists) {
+    options.unshift({
+      account_id: null,
+      full_name: cleanedCurrentTechnician,
+      role: null,
+      is_active: true,
+      isCurrentOnly: true,
+      optionKey: `current-${cleanedCurrentTechnician}`,
+    });
+  }
+
+  return options;
+}
+
+function getStaffRoleLabel(staffAccount) {
+  if (staffAccount.isCurrentOnly) {
+    return "Mevcut kayıt";
+  }
+
+  if (staffAccount.role === "admin") {
+    return "Yönetici";
+  }
+
+  return "Teknisyen";
 }
 
 function createUniqueOptions(values, currentValue) {

@@ -15,6 +15,76 @@ router = APIRouter(
 )
 
 
+STAFF_ROLES = (
+    "technician",
+    "admin",
+)
+
+
+# =========================================================
+# YARDIMCI FONKSİYONLAR
+# =========================================================
+
+def normalize_optional_text(
+    value: str | None,
+) -> str | None:
+    if value is None:
+        return None
+
+    normalized_value = " ".join(
+        value.strip().split()
+    )
+
+    if not normalized_value:
+        return None
+
+    return normalized_value
+
+
+def validate_assigned_technician(
+    assigned_technician: str | None,
+    db: Session,
+) -> str | None:
+    normalized_name = normalize_optional_text(
+        assigned_technician
+    )
+
+    if normalized_name is None:
+        return None
+
+    staff_account = db.scalar(
+        select(models.Account)
+        .where(
+            models.Account.is_active.is_(True),
+            models.Account.role.in_(STAFF_ROLES),
+            func.lower(
+                func.trim(
+                    models.Account.full_name
+                )
+            )
+            == normalized_name.lower(),
+        )
+        .order_by(
+            models.Account.account_id.asc()
+        )
+    )
+
+    if staff_account is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "Atanan teknisyen aktif bir teknisyen "
+                "veya yönetici hesabıyla eşleşmelidir."
+            ),
+        )
+
+    return staff_account.full_name
+
+
+# =========================================================
+# TICKET LİSTESİ
+# =========================================================
+
 @router.get(
     "",
     response_model=list[schemas.TicketResponse],
@@ -84,6 +154,10 @@ def list_tickets(
     return db.scalars(query).all()
 
 
+# =========================================================
+# TICKET OLUŞTURMA
+# =========================================================
+
 @router.post(
     "",
     response_model=schemas.TicketResponse,
@@ -111,6 +185,10 @@ def create_ticket(
     return ticket
 
 
+# =========================================================
+# AI GERİ BİLDİRİM İSTATİSTİKLERİ
+# =========================================================
+
 @router.get(
     "/ai-feedback/stats",
     response_model=schemas.FeedbackStatsResponse,
@@ -127,7 +205,8 @@ def get_feedback_stats(
         func.sum(
             case(
                 (
-                    models.Ticket.ai_feedback == "accepted",
+                    models.Ticket.ai_feedback
+                    == "accepted",
                     1,
                 ),
                 else_=0,
@@ -136,7 +215,8 @@ def get_feedback_stats(
         func.sum(
             case(
                 (
-                    models.Ticket.ai_feedback == "rejected",
+                    models.Ticket.ai_feedback
+                    == "rejected",
                     1,
                 ),
                 else_=0,
@@ -162,7 +242,9 @@ def get_feedback_stats(
         acceptance_rate = 0.0
     else:
         acceptance_rate = round(
-            accepted_count / total_feedback * 100,
+            accepted_count
+            / total_feedback
+            * 100,
             2,
         )
 
@@ -173,6 +255,10 @@ def get_feedback_stats(
         "acceptance_rate": acceptance_rate,
     }
 
+
+# =========================================================
+# DASHBOARD ÖZETİ
+# =========================================================
 
 @router.get(
     "/dashboard/summary",
@@ -197,7 +283,8 @@ def get_dashboard_summary(
         func.sum(
             case(
                 (
-                    models.Ticket.status == "resolved",
+                    models.Ticket.status
+                    == "resolved",
                     1,
                 ),
                 else_=0,
@@ -206,7 +293,8 @@ def get_dashboard_summary(
         func.sum(
             case(
                 (
-                    models.Ticket.status == "closed",
+                    models.Ticket.status
+                    == "closed",
                     1,
                 ),
                 else_=0,
@@ -214,9 +302,13 @@ def get_dashboard_summary(
         ).label("closed_tickets"),
         func.count(
             models.Ticket.ticket_id
-        ).filter(
-            models.Ticket.ai_recommendation.is_not(None)
-        ).label("ai_recommendation_count"),
+        )
+        .filter(
+            models.Ticket.ai_recommendation.is_not(
+                None
+            )
+        )
+        .label("ai_recommendation_count"),
         func.avg(
             models.Ticket.ai_confidence_score
         ).label("average_ai_confidence"),
@@ -245,7 +337,9 @@ def get_dashboard_summary(
     )
 
     average_ai_confidence = round(
-        float(result.average_ai_confidence or 0),
+        float(
+            result.average_ai_confidence or 0
+        ),
         4,
     )
 
@@ -254,34 +348,39 @@ def get_dashboard_summary(
         "open_tickets": open_tickets,
         "resolved_tickets": resolved_tickets,
         "closed_tickets": closed_tickets,
-        "ai_recommendation_count": ai_recommendation_count,
-        "average_ai_confidence": average_ai_confidence,
+        "ai_recommendation_count":
+            ai_recommendation_count,
+        "average_ai_confidence":
+            average_ai_confidence,
     }
 
 
+# =========================================================
+# DASHBOARD KATEGORİLERİ
+# =========================================================
+
 @router.get(
     "/dashboard/categories",
-    response_model=list[schemas.CategoryStatsItem],
+    response_model=list[
+        schemas.CategoryStatsItem
+    ],
 )
 def get_category_stats(
     db: Session = Depends(get_db),
 ):
+    category_value = func.coalesce(
+        models.Ticket.category,
+        "Belirtilmemiş",
+    )
+
     query = (
         select(
-            func.coalesce(
-                models.Ticket.category,
-                "Belirtilmemiş",
-            ).label("category"),
+            category_value.label("category"),
             func.count(
                 models.Ticket.ticket_id
             ).label("ticket_count"),
         )
-        .group_by(
-            func.coalesce(
-                models.Ticket.category,
-                "Belirtilmemiş",
-            )
-        )
+        .group_by(category_value)
         .order_by(
             func.count(
                 models.Ticket.ticket_id
@@ -294,22 +393,32 @@ def get_category_stats(
     return [
         {
             "category": row.category,
-            "ticket_count": int(row.ticket_count),
+            "ticket_count": int(
+                row.ticket_count
+            ),
         }
         for row in results
     ]
 
 
+# =========================================================
+# DASHBOARD DURUMLARI
+# =========================================================
+
 @router.get(
     "/dashboard/statuses",
-    response_model=list[schemas.StatusStatsItem],
+    response_model=list[
+        schemas.StatusStatsItem
+    ],
 )
 def get_status_stats(
     db: Session = Depends(get_db),
 ):
     query = (
         select(
-            models.Ticket.status.label("status"),
+            models.Ticket.status.label(
+                "status"
+            ),
             func.count(
                 models.Ticket.ticket_id
             ).label("ticket_count"),
@@ -329,22 +438,32 @@ def get_status_stats(
     return [
         {
             "status": row.status,
-            "ticket_count": int(row.ticket_count),
+            "ticket_count": int(
+                row.ticket_count
+            ),
         }
         for row in results
     ]
 
 
+# =========================================================
+# DASHBOARD ÖNCELİKLERİ
+# =========================================================
+
 @router.get(
     "/dashboard/priorities",
-    response_model=list[schemas.PriorityStatsItem],
+    response_model=list[
+        schemas.PriorityStatsItem
+    ],
 )
 def get_priority_stats(
     db: Session = Depends(get_db),
 ):
     query = (
         select(
-            models.Ticket.priority.label("priority"),
+            models.Ticket.priority.label(
+                "priority"
+            ),
             func.count(
                 models.Ticket.ticket_id
             ).label("ticket_count"),
@@ -364,20 +483,31 @@ def get_priority_stats(
     return [
         {
             "priority": row.priority,
-            "ticket_count": int(row.ticket_count),
+            "ticket_count": int(
+                row.ticket_count
+            ),
         }
         for row in results
     ]
 
 
+# =========================================================
+# DASHBOARD GÜNLÜK TICKET SAYISI
+# =========================================================
+
 @router.get(
     "/dashboard/daily",
-    response_model=list[schemas.DailyTicketStatsItem],
+    response_model=list[
+        schemas.DailyTicketStatsItem
+    ],
 )
 def get_daily_ticket_stats(
     db: Session = Depends(get_db),
 ):
-    start_date = datetime.now().date() - timedelta(days=6)
+    start_date = (
+        datetime.now().date()
+        - timedelta(days=6)
+    )
 
     query = (
         select(
@@ -389,40 +519,56 @@ def get_daily_ticket_stats(
             ).label("ticket_count"),
         )
         .where(
-            models.Ticket.created_at >= start_date
+            models.Ticket.created_at
+            >= start_date
         )
         .group_by(
-            func.date(models.Ticket.created_at)
+            func.date(
+                models.Ticket.created_at
+            )
         )
         .order_by(
-            func.date(models.Ticket.created_at)
+            func.date(
+                models.Ticket.created_at
+            )
         )
     )
 
     results = db.execute(query).all()
 
     counts_by_date = {
-        row.ticket_date: int(row.ticket_count)
+        row.ticket_date: int(
+            row.ticket_count
+        )
         for row in results
     }
 
     return [
         {
             "date": (
-                start_date + timedelta(days=day)
+                start_date
+                + timedelta(days=day)
             ).isoformat(),
-            "ticket_count": counts_by_date.get(
-                start_date + timedelta(days=day),
-                0,
-            ),
+            "ticket_count":
+                counts_by_date.get(
+                    start_date
+                    + timedelta(days=day),
+                    0,
+                ),
         }
         for day in range(7)
     ]
 
 
+# =========================================================
+# DASHBOARD DEPARTMANLARI
+# =========================================================
+
 @router.get(
     "/dashboard/departments",
-    response_model=list[schemas.DepartmentStatsItem],
+    response_model=list[
+        schemas.DepartmentStatsItem
+    ],
 )
 def get_department_stats(
     db: Session = Depends(get_db),
@@ -434,7 +580,9 @@ def get_department_stats(
 
     query = (
         select(
-            department_value.label("department"),
+            department_value.label(
+                "department"
+            ),
             func.count(
                 models.Ticket.ticket_id
             ).label("ticket_count"),
@@ -452,11 +600,17 @@ def get_department_stats(
     return [
         {
             "department": row.department,
-            "ticket_count": int(row.ticket_count),
+            "ticket_count": int(
+                row.ticket_count
+            ),
         }
         for row in results
     ]
 
+
+# =========================================================
+# TICKETLARDA KAYITLI TEKNİSYENLER
+# =========================================================
 
 @router.get("/technicians")
 def get_technicians(
@@ -468,10 +622,14 @@ def get_technicians(
 
     query = (
         select(
-            technician_value.label("technician")
+            technician_value.label(
+                "technician"
+            )
         )
         .where(
-            models.Ticket.assigned_technician.is_not(None),
+            models.Ticket.assigned_technician.is_not(
+                None
+            ),
             technician_value != "",
         )
         .distinct()
@@ -490,6 +648,10 @@ def get_technicians(
         ]
     }
 
+
+# =========================================================
+# TICKET DETAYI
+# =========================================================
 
 @router.get(
     "/{ticket_id}",
@@ -512,6 +674,10 @@ def get_ticket(
 
     return ticket
 
+
+# =========================================================
+# TICKET GÜNCELLEME
+# =========================================================
 
 @router.put(
     "/{ticket_id}",
@@ -537,8 +703,22 @@ def update_ticket(
         exclude_unset=True
     )
 
+    if "assigned_technician" in update_data:
+        update_data["assigned_technician"] = (
+            validate_assigned_technician(
+                assigned_technician=update_data[
+                    "assigned_technician"
+                ],
+                db=db,
+            )
+        )
+
     for field, value in update_data.items():
-        setattr(ticket, field, value)
+        setattr(
+            ticket,
+            field,
+            value,
+        )
 
     now = datetime.now()
 
@@ -559,9 +739,15 @@ def update_ticket(
     return ticket
 
 
+# =========================================================
+# BENZER TICKETLAR
+# =========================================================
+
 @router.post(
     "/{ticket_id}/similar",
-    response_model=list[schemas.SimilarTicketResponse],
+    response_model=list[
+        schemas.SimilarTicketResponse
+    ],
 )
 def get_similar_tickets(
     ticket_id: int,
@@ -580,7 +766,8 @@ def get_similar_tickets(
 
     query_text = (
         f"Konu: {ticket.title}\n"
-        f"Açıklama: {ticket.description or ''}"
+        f"Açıklama: "
+        f"{ticket.description or ''}"
     )
 
     return find_similar_tickets(
@@ -589,9 +776,14 @@ def get_similar_tickets(
     )
 
 
+# =========================================================
+# AI ÇÖZÜM ÖNERİSİ
+# =========================================================
+
 @router.post(
     "/{ticket_id}/recommendation",
-    response_model=schemas.RecommendationResponse,
+    response_model=
+        schemas.RecommendationResponse,
 )
 def create_recommendation(
     ticket_id: int,
@@ -610,7 +802,8 @@ def create_recommendation(
 
     query_text = (
         f"Konu: {ticket.title}\n"
-        f"Açıklama: {ticket.description or ''}"
+        f"Açıklama: "
+        f"{ticket.description or ''}"
     )
 
     similar_tickets = find_similar_tickets(
@@ -621,17 +814,24 @@ def create_recommendation(
     if not similar_tickets:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Benzer geçmiş ticket bulunamadı.",
+            detail=(
+                "Benzer geçmiş ticket "
+                "bulunamadı."
+            ),
         )
 
     best_match = similar_tickets[0]
-    confidence_score = best_match["similarity"]
+
+    confidence_score = best_match[
+        "similarity"
+    ]
 
     if confidence_score < 0.60:
         recommendation = (
-            "Yeterli güven seviyesinde benzer bir geçmiş kayıt "
-            "bulunamadı.\n\n"
-            "Bu ticketın IT personeli tarafından manuel olarak "
+            "Yeterli güven seviyesinde benzer "
+            "bir geçmiş kayıt bulunamadı.\n\n"
+            "Bu ticketın IT personeli "
+            "tarafından manuel olarak "
             "incelenmesi önerilir."
         )
 
@@ -640,11 +840,11 @@ def create_recommendation(
     else:
         recommendation = (
             "Geçmiş kayıtlar incelendi.\n\n"
-            f"En benzer geçmiş sorun: "
+            "En benzer geçmiş sorun: "
             f"{best_match['subject'] or 'Belirtilmemiş'}\n"
-            f"Önerilen çözüm: "
+            "Önerilen çözüm: "
             f"{best_match['resolution']}\n"
-            f"Benzerlik oranı: "
+            "Benzerlik oranı: "
             f"%{confidence_score * 100:.2f}"
         )
 
@@ -653,8 +853,13 @@ def create_recommendation(
             for item in similar_tickets
         ]
 
-    ticket.ai_recommendation = recommendation
-    ticket.ai_confidence_score = confidence_score
+    ticket.ai_recommendation = (
+        recommendation
+    )
+
+    ticket.ai_confidence_score = (
+        confidence_score
+    )
 
     ticket.ai_feedback = None
     ticket.ai_feedback_note = None
@@ -668,18 +873,26 @@ def create_recommendation(
     return {
         "ticket_id": ticket.ticket_id,
         "recommendation": recommendation,
-        "confidence_score": confidence_score,
-        "source_request_ids": source_request_ids,
+        "confidence_score":
+            confidence_score,
+        "source_request_ids":
+            source_request_ids,
     }
 
 
+# =========================================================
+# AI GERİ BİLDİRİMİ
+# =========================================================
+
 @router.post(
     "/{ticket_id}/feedback",
-    response_model=schemas.TicketFeedbackResponse,
+    response_model=
+        schemas.TicketFeedbackResponse,
 )
 def create_ticket_feedback(
     ticket_id: int,
-    feedback_data: schemas.TicketFeedbackCreate,
+    feedback_data:
+        schemas.TicketFeedbackCreate,
     db: Session = Depends(get_db),
 ):
     ticket = db.get(
@@ -695,15 +908,28 @@ def create_ticket_feedback(
 
     if ticket.ai_recommendation is None:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Bu ticket için henüz AI önerisi oluşturulmamış.",
+            status_code=
+                status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "Bu ticket için henüz AI "
+                "önerisi oluşturulmamış."
+            ),
         )
 
     feedback_time = datetime.now()
 
-    ticket.ai_feedback = feedback_data.feedback
-    ticket.ai_feedback_note = feedback_data.note
-    ticket.ai_feedback_at = feedback_time
+    ticket.ai_feedback = (
+        feedback_data.feedback
+    )
+
+    ticket.ai_feedback_note = (
+        feedback_data.note
+    )
+
+    ticket.ai_feedback_at = (
+        feedback_time
+    )
+
     ticket.updated_at = feedback_time
 
     db.commit()
@@ -713,5 +939,6 @@ def create_ticket_feedback(
         "ticket_id": ticket.ticket_id,
         "feedback": ticket.ai_feedback,
         "note": ticket.ai_feedback_note,
-        "feedback_at": ticket.ai_feedback_at,
+        "feedback_at":
+            ticket.ai_feedback_at,
     }

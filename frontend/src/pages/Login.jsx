@@ -4,7 +4,10 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../auth/AuthContext";
 
+import ThemeToggle from "../components/ThemeToggle";
+
 import "../auth/auth.css";
+import "../styles/auth-theme-toggle.css";
 
 function getErrorMessage(error, fallbackMessage) {
   const detail = error.response?.data?.detail;
@@ -31,6 +34,7 @@ function Login() {
 
   const [formData, setFormData] = useState({
     email: location.state?.email || "",
+
     password: "",
   });
 
@@ -52,7 +56,7 @@ function Login() {
     }
   }, [destination, isAuthenticated, navigate]);
 
-  const handleChange = (event) => {
+  function handleChange(event) {
     const { name, value } = event.target;
 
     setFormData((currentData) => ({
@@ -61,9 +65,9 @@ function Login() {
     }));
 
     setErrorMessage("");
-  };
+  }
 
-  const handleSubmit = async (event) => {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     setSubmitting(true);
@@ -83,10 +87,14 @@ function Login() {
     } finally {
       setSubmitting(false);
     }
-  };
+  }
 
   return (
     <div className="auth-page">
+      <div className="auth-theme-toggle">
+        <ThemeToggle />
+      </div>
+
       <section className="auth-brand-panel">
         <div className="auth-brand-content">
           <div className="auth-logo">ID</div>
@@ -132,17 +140,17 @@ function Login() {
             <p>IntelliDesk paneline erişmek için hesap bilgilerini gir.</p>
           </div>
 
-          {registrationMessage && (
+          {registrationMessage ? (
             <div className="auth-message auth-message-success">
               {registrationMessage}
             </div>
-          )}
+          ) : null}
 
-          {errorMessage && (
+          {errorMessage ? (
             <div className="auth-message auth-message-error">
               {errorMessage}
             </div>
-          )}
+          ) : null}
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="auth-field">
@@ -153,10 +161,10 @@ function Login() {
                 name="email"
                 type="email"
                 value={formData.email}
-                onChange={handleChange}
                 placeholder="ornek@intellidesk.com"
                 autoComplete="email"
                 required
+                onChange={handleChange}
               />
             </div>
 
@@ -169,18 +177,18 @@ function Login() {
                   name="password"
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
-                  onChange={handleChange}
                   placeholder="Parolanı gir"
                   autoComplete="current-password"
                   required
+                  onChange={handleChange}
                 />
 
                 <button
                   type="button"
                   className="auth-password-toggle"
-                  onClick={() => {
-                    setShowPassword((currentValue) => !currentValue);
-                  }}
+                  onClick={() =>
+                    setShowPassword((currentValue) => !currentValue)
+                  }
                 >
                   {showPassword ? "Gizle" : "Göster"}
                 </button>

@@ -4,7 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../auth/AuthContext";
 
+import ThemeToggle from "../components/ThemeToggle";
+
 import "../auth/auth.css";
+import "../styles/auth-theme-toggle.css";
 
 function getErrorMessage(error, fallbackMessage) {
   const detail = error.response?.data?.detail;
@@ -49,7 +52,7 @@ function Register() {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleChange = (event) => {
+  function handleChange(event) {
     const { name, value } = event.target;
 
     setFormData((currentData) => ({
@@ -58,9 +61,9 @@ function Register() {
     }));
 
     setErrorMessage("");
-  };
+  }
 
-  const handleSubmit = async (event) => {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     if (formData.password !== formData.password_confirm) {
@@ -77,8 +80,10 @@ function Register() {
 
       navigate("/login", {
         replace: true,
+
         state: {
           email: formData.email,
+
           registrationMessage:
             "Hesabın başarıyla oluşturuldu. Giriş yapabilirsin.",
         },
@@ -88,10 +93,14 @@ function Register() {
     } finally {
       setSubmitting(false);
     }
-  };
+  }
 
   return (
     <div className="auth-page">
+      <div className="auth-theme-toggle">
+        <ThemeToggle />
+      </div>
+
       <section className="auth-brand-panel">
         <div className="auth-brand-content">
           <div className="auth-logo">ID</div>
@@ -137,11 +146,11 @@ function Register() {
             <p>IntelliDesk kullanmaya başlamak için bilgilerini gir.</p>
           </div>
 
-          {errorMessage && (
+          {errorMessage ? (
             <div className="auth-message auth-message-error">
               {errorMessage}
             </div>
-          )}
+          ) : null}
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="auth-field">
@@ -152,12 +161,12 @@ function Register() {
                 name="full_name"
                 type="text"
                 value={formData.full_name}
-                onChange={handleChange}
                 placeholder="Ad Soyad"
                 autoComplete="name"
                 minLength={2}
                 maxLength={150}
                 required
+                onChange={handleChange}
               />
             </div>
 
@@ -169,10 +178,10 @@ function Register() {
                 name="email"
                 type="email"
                 value={formData.email}
-                onChange={handleChange}
                 placeholder="ornek@intellidesk.com"
                 autoComplete="email"
                 required
+                onChange={handleChange}
               />
             </div>
 
@@ -185,20 +194,20 @@ function Register() {
                   name="password"
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
-                  onChange={handleChange}
                   placeholder="En az 8 karakter"
                   autoComplete="new-password"
                   minLength={8}
                   maxLength={128}
                   required
+                  onChange={handleChange}
                 />
 
                 <button
                   type="button"
                   className="auth-password-toggle"
-                  onClick={() => {
-                    setShowPassword((currentValue) => !currentValue);
-                  }}
+                  onClick={() =>
+                    setShowPassword((currentValue) => !currentValue)
+                  }
                 >
                   {showPassword ? "Gizle" : "Göster"}
                 </button>
@@ -213,12 +222,12 @@ function Register() {
                 name="password_confirm"
                 type={showPassword ? "text" : "password"}
                 value={formData.password_confirm}
-                onChange={handleChange}
                 placeholder="Parolanı tekrar gir"
                 autoComplete="new-password"
                 minLength={8}
                 maxLength={128}
                 required
+                onChange={handleChange}
               />
             </div>
 
