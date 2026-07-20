@@ -4,222 +4,85 @@
 
 ### Yapay Zekâ Destekli Service Desk ve Ticket Yönetim Sistemi
 
-IntelliDesk; geçmiş Service Desk kayıtlarını, çözümleri ve vektör benzerliği yöntemini kullanarak yeni destek talepleri için çözüm önerileri üreten modern bir yardım masası uygulamasıdır.
+Geçmiş destek kayıtlarını ve çözümlerini kullanarak yeni ticketlar için
+çözüm önerileri üreten full-stack Service Desk uygulaması.
 
 [![Python](https://img.shields.io/badge/Python-Backend-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-API-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-Frontend-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![pgvector](https://img.shields.io/badge/pgvector-Vector_Search-336791?style=flat-square)](https://github.com/pgvector/pgvector)
-[![JWT](https://img.shields.io/badge/JWT-Authentication-000000?style=flat-square&logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
 
 </div>
 
 ---
 
-## İçindekiler
-
-- [Proje Hakkında](#proje-hakkında)
-- [Çözülen Problem](#çözülen-problem)
-- [Temel Özellikler](#temel-özellikler)
-- [Sistem Mimarisi](#sistem-mimarisi)
-- [RAG ve AI Öneri Sistemi](#rag-ve-ai-öneri-sistemi)
-- [Kullanıcı Rolleri](#kullanıcı-rolleri)
-- [Ticket İş Akışı](#ticket-iş-akışı)
-- [Kullanılan Teknolojiler](#kullanılan-teknolojiler)
-- [Proje Yapısı](#proje-yapısı)
-- [Kurulum](#kurulum)
-- [PostgreSQL ve pgvector Hazırlığı](#postgresql-ve-pgvector-hazırlığı)
-- [Ortam Değişkenleri](#ortam-değişkenleri)
-- [Veritabanı Migration İşlemleri](#veritabanı-migration-işlemleri)
-- [Uygulamayı Çalıştırma](#uygulamayı-çalıştırma)
-- [İlk Admin Hesabını Oluşturma](#ilk-admin-hesabını-oluşturma)
-- [API Endpointleri](#api-endpointleri)
-- [Frontend Sayfaları](#frontend-sayfaları)
-- [Güvenlik Özellikleri](#güvenlik-özellikleri)
-- [Test ve Derleme](#test-ve-derleme)
-- [Proje Durumu](#proje-durumu)
-- [Gelecek Geliştirmeler](#gelecek-geliştirmeler)
-- [Lisans ve Kullanım](#lisans-ve-kullanım)
-- [Geliştirici](#geliştirici)
-
----
-
 ## Proje Hakkında
 
-IntelliDesk, şirketlerde kullanılan klasik Service Desk sistemlerini yapay zekâ destekli çözüm önerileriyle geliştirmeyi amaçlayan full-stack bir web uygulamasıdır.
+IntelliDesk, şirketlerde tekrar eden bilgi işlem sorunlarının daha hızlı
+çözülmesini amaçlayan yapay zekâ destekli bir yardım masası sistemidir.
 
-Sistem, geçmişte çözülmüş ticket kayıtlarını analiz eder. Yeni bir ticket oluşturulduğunda veya teknisyen AI önerisi istediğinde, geçmiş kayıtlar arasından anlamsal olarak en benzer sorunlar bulunur.
+Yeni bir ticket oluşturulduğunda sistem:
 
-Bulunan geçmiş çözümler kullanılarak teknik personele:
+1. Ticket konusu ve açıklamasından embedding oluşturur.
+2. Geçmiş çözülmüş kayıtlarla benzerlik karşılaştırması yapar.
+3. En uygun geçmiş ticketları sıralar.
+4. Teknik personele çözüm önerisi ve güven puanı sunar.
+5. Önerinin kabul veya reddedilmesini kaydeder.
 
-- Önerilen çözüm
-- Benzerlik oranı
-- AI güven puanı
-- Kaynak geçmiş ticketlar
-- Manuel inceleme uyarısı
-
-sunulur.
-
-IntelliDesk yalnızca AI önerisi üreten bir prototip değildir. Aynı zamanda:
-
-- Kullanıcı girişi
-- Rol tabanlı yetkilendirme
-- Ticket yönetimi
-- Teknik personel atama
-- Kullanıcı yönetimi
-- Dashboard istatistikleri
-- AI geri bildirimi
-- Açık ve koyu tema
-
-özelliklerini içeren çalışır durumda bir Service Desk uygulamasıdır.
-
----
-
-## Çözülen Problem
-
-Şirketlerin bilgi işlem ekiplerinde benzer sorunlar farklı tarihlerde tekrar tekrar açılabilir.
-
-Örneğin:
-
-> Bir çalışan yazıcıda belirli bir hata kodu için ticket açar.  
-> IT personeli sorunu çözer ve uygulanan çözümü ticket kaydına yazar.  
-> Aylar sonra başka bir çalışan aynı veya benzer hatayı yaşar.
-
-Klasik sistemlerde teknisyen:
-
-1. Geçmiş kayıtları manuel olarak arar.
-2. Benzer ticketları tek tek inceler.
-3. Uygulanmış çözümleri karşılaştırır.
-4. Uygun çözümü yeniden uygular.
-
-IntelliDesk bu süreci hızlandırır.
-
-Yeni ticketın konusu ve açıklaması embedding modeline gönderilir. Oluşturulan vektör, PostgreSQL üzerindeki geçmiş ticket vektörleriyle karşılaştırılır. En benzer kayıtların çözüm bilgileri teknik personele sunulur.
-
-Bu sayede:
-
-- Tekrarlanan sorunlar daha hızlı çözülür.
-- Kurumsal bilgi kaybı azaltılır.
-- Geçmiş çözümler tekrar kullanılabilir.
-- Yeni teknisyenlerin sisteme uyumu kolaylaşır.
-- Ortalama çözüm süresinin azaltılması hedeflenir.
+Sistem yalnızca AI önerisi üretmez. Kullanıcı, teknisyen ve yönetici
+rolleriyle tam bir ticket yönetim süreci sağlar.
 
 ---
 
 ## Temel Özellikler
 
-### Kimlik Doğrulama
-
-- Yeni kullanıcı kaydı
-- E-posta ve parola ile giriş
-- JWT tabanlı oturum yönetimi
-- Parolaların Argon2 ile hashlenmesi
-- Aktif ve pasif hesap kontrolü
-- Oturum süresi yönetimi
-- Yetkisiz isteklerde otomatik oturum kapatma
-
-### Rol Tabanlı Yetkilendirme
-
-Sistemde üç farklı kullanıcı rolü bulunur:
-
-- `user`
-- `technician`
-- `admin`
-
-Her rol yalnızca yetkili olduğu işlemlere erişebilir.
-
 ### Ticket Yönetimi
 
 - Yeni ticket oluşturma
-- Ticketları listeleme
-- Ticket detayını görüntüleme
-- Ticket durumunu güncelleme
-- Öncelik belirleme
-- Departman seçme
-- Kategori seçme
-- Alt kategori seçme
+- Ticket listeleme ve detay görüntüleme
+- Durum ve öncelik güncelleme
+- Departman, kategori ve alt kategori seçme
 - Teknik personel atama
-- Uygulanan çözümü kaydetme
+- Çözüm bilgisini kaydetme
+- Arama, filtreleme, sıralama ve sayfalama
 
-### Arama ve Filtreleme
+### Yapay Zekâ ve RAG
 
-- Başlığa göre arama
-- Açıklamaya göre arama
-- Kullanıcı adına göre arama
-- Departmana göre filtreleme
-- Kategoriye göre filtreleme
-- Duruma göre filtreleme
-- Önceliğe göre filtreleme
-- Tarihe göre sıralama
-- Önceliğe göre sıralama
-- Sayfalama
-
-### AI ve RAG
-
-- Yeni ticket için embedding oluşturma
-- Geçmiş ticketlarla anlamsal benzerlik karşılaştırması
-- pgvector ile vektör arama
-- En benzer geçmiş kayıtları bulma
-- AI çözüm önerisi oluşturma
+- Türkçe destekli embedding modeli
+- pgvector ile anlamsal benzerlik araması
+- Semantik ve kelime tabanlı hibrit sıralama
+- En benzer geçmiş ticketları listeleme
+- Çözüm önerisi oluşturma
 - Güven puanı gösterme
-- Kaynak ticketları listeleme
 - Düşük güven durumunda manuel inceleme uyarısı
+- AI önerisini kabul veya reddetme
+- Geri bildirim açıklaması kaydetme
 
-### AI Geri Bildirimi
+### Kimlik Doğrulama ve Yetkilendirme
 
-Teknik personel AI önerisini:
-
-- Kabul edebilir
-- Reddedebilir
-- Açıklama ekleyebilir
-
-Bu geri bildirimler AI önerilerinin başarısını değerlendirmek için saklanır.
+- JWT tabanlı oturum yönetimi
+- Argon2 parola hashleme
+- Aktif ve pasif hesap kontrolü
+- Rol tabanlı endpoint yetkilendirmesi
+- Kullanıcı, teknisyen ve yönetici rolleri
+- Yönetici kullanıcı yönetimi
 
 ### Dashboard
 
-Dashboard üzerinde:
-
 - Toplam ticket sayısı
-- Açık ticket sayısı
-- Çözülmüş ticket sayısı
-- Kapatılmış ticket sayısı
+- Açık, çözülmüş ve kapatılmış ticket sayıları
 - AI önerisi oluşturulan ticket sayısı
 - Ortalama AI güven puanı
-- Kategori dağılımı
-- Departman dağılımı
-- Durum dağılımı
-- Öncelik dağılımı
-- Son yedi günlük ticket hareketi
-- Son ticketlar
-
-görüntülenir.
-
-### Kullanıcı Yönetimi
-
-Yalnızca admin kullanıcılar:
-
-- Tüm kullanıcı hesaplarını görüntüleyebilir.
-- Kullanıcı rolünü değiştirebilir.
-- Hesabı aktif veya pasif yapabilir.
-- Normal kullanıcıyı teknisyen yapabilir.
-- Teknisyeni yönetici yapabilir.
-
-Sistem güvenliği için:
-
-- Admin kendi hesabını pasif yapamaz.
-- Admin kendi yönetici rolünü kaldıramaz.
-- Sistemdeki son aktif admin devre dışı bırakılamaz.
+- Durum, öncelik, kategori ve departman dağılımları
+- Son yedi günlük ticket hareketleri
+- Son oluşturulan ticketlar
 
 ### Arayüz
 
-- Modern dashboard tasarımı
-- Responsive yapı
-- Mobil sidebar
-- Açık tema
-- Koyu tema
-- Tema tercihinin tarayıcıda saklanması
-- Login ve Register sayfalarında tema değiştirme
+- React tabanlı responsive tasarım
+- Açık ve koyu tema
+- Mobil uyumlu sidebar
 - Türkçe kullanıcı arayüzü
 - Form hata ve başarı mesajları
 
@@ -234,216 +97,67 @@ flowchart LR
     B --> A[JWT Kimlik Doğrulama]
     B --> P[(PostgreSQL)]
     B --> V[(pgvector)]
-    B --> M[Sentence Transformer Modeli]
+    B --> M[Sentence Transformer]
     M --> V
-    V --> R[Benzer Ticket Sonuçları]
+    V --> R[Benzer Ticketlar]
     R --> B
     B --> F
 ```
 
-### Katmanlar
+### Teknoloji Yığını
 
-#### Frontend
-
-Kullanıcı arayüzü React ile geliştirilmiştir.
-
-Frontend sorumlulukları:
-
-- Sayfa yönlendirme
-- Form yönetimi
-- API istekleri
-- JWT token saklama
-- Kullanıcı rolüne göre bileşen gösterme
-- Tema yönetimi
-- Dashboard görselleştirmeleri
-- Responsive arayüz
-
-#### Backend
-
-Backend FastAPI ile geliştirilmiştir.
-
-Backend sorumlulukları:
-
-- Kimlik doğrulama
-- Rol kontrolü
-- Ticket işlemleri
-- Veritabanı erişimi
-- Teknik personel doğrulaması
-- AI önerisi oluşturma
-- Benzer ticket arama
-- Dashboard istatistikleri
-- Kullanıcı yönetimi
-
-#### Veritabanı
-
-PostgreSQL aşağıdaki verileri saklar:
-
-- Kullanıcı hesapları
-- Ticket kayıtları
-- AI önerileri
-- AI güven puanları
-- AI geri bildirimleri
-- Geçmiş Service Desk verileri
-- Ticket embedding vektörleri
-
-#### Vektör Arama
-
-`pgvector`, PostgreSQL içerisinde embedding vektörlerinin saklanması ve karşılaştırılması için kullanılır.
+| Katman           | Teknolojiler                |
+| ---------------- | --------------------------- |
+| Frontend         | React, Vite, React Router   |
+| Backend          | Python, FastAPI, SQLAlchemy |
+| Veritabanı       | PostgreSQL                  |
+| Vektör Arama     | pgvector                    |
+| AI Modeli        | Sentence Transformers       |
+| Kimlik Doğrulama | JWT, Argon2                 |
+| Migration        | Alembic                     |
+| Test             | pytest                      |
 
 ---
 
-## RAG ve AI Öneri Sistemi
+## RAG Yapısı
 
-IntelliDesk, Retrieval-Augmented Generation yaklaşımına benzer bir bilgi getirme akışı kullanır.
-
-Bu projedeki öneri sistemi doğrudan genel amaçlı bir dil modeline soru sormak yerine geçmiş çözülmüş ticket kayıtlarını temel alır.
-
-### Kullanılan Embedding Modeli
+Kullanılan embedding modeli:
 
 ```text
 sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
 ```
 
-Bu model çok dilli metinleri vektörlere dönüştürür ve Türkçe Service Desk kayıtlarında anlamsal karşılaştırma yapılmasını sağlar.
+Sıralama sistemi aşağıdaki bilgileri birlikte değerlendirir:
 
-Model ilk kez çalıştırıldığında gerekli model dosyaları otomatik olarak indirilebilir.
+- Embedding benzerliği
+- Konu ve açıklamadaki ortak kelimeler
+- Kelime kökü benzerlikleri
+- Ticket konusunun eşleşme oranı
+- Dahili numara veya hata kodu gibi tanımlayıcılar
 
-### AI Akışı
+Geçmiş Service Desk verileri normal kullanıcı ticketlarından ayrı tutulur:
 
-```mermaid
-flowchart TD
-    A[Yeni Ticket] --> B[Başlık ve Açıklamayı Birleştir]
-    B --> C[Embedding Oluştur]
-    C --> D[pgvector Benzerlik Araması]
-    D --> E[En Benzer 5 Geçmiş Ticket]
-    E --> F{Güven Puanı Yeterli mi?}
-    F -->|Evet| G[Geçmiş Çözümü Öner]
-    F -->|Hayır| H[Manuel İnceleme Öner]
-    G --> I[Kaynak Ticketları Göster]
-    H --> J[Teknik Personele Uyarı Göster]
-```
+- `rag_ticket_data`: Geçmiş ticket metinleri ve çözümleri
+- `ticket_embeddings`: Geçmiş kayıtların embedding vektörleri
+- `tickets`: Uygulama üzerinden oluşturulan normal ticketlar
 
-### Benzerlik Hesabı
-
-Sistem pgvector cosine distance operatörünü kullanır.
-
-Temel hesaplama:
-
-```text
-similarity = 1 - cosine_distance
-```
-
-### Güven Eşiği
-
-Benzerlik puanı `0.60` değerinin altındaysa sistem doğrudan geçmiş çözümü önermek yerine ticketın teknik personel tarafından manuel incelenmesini önerir.
-
-### Veri Kalitesi Kontrolü
-
-RAG sorgusunda:
-
-- Çözümü boş olan kayıtlar kullanılmaz.
-- Çok kısa çözüm metinleri kullanılmaz.
-- “Problem giderildi” gibi açıklayıcı olmayan genel çözümler filtrelenir.
-
-Bu sayede öneri kalitesinin artırılması amaçlanır.
+Projede kullanılan 4993 geçmiş kayıt yalnızca RAG veri tablolarında tutulur.
 
 ---
 
 ## Kullanıcı Rolleri
 
-| İşlem                                 | Kullanıcı | Teknisyen | Yönetici |
-| ------------------------------------- | :-------: | :-------: | :------: |
-| Kayıt olma                            |    ✅     |    ✅     |    ✅    |
-| Giriş yapma                           |    ✅     |    ✅     |    ✅    |
-| Dashboard görüntüleme                 |    ✅     |    ✅     |    ✅    |
-| Ticketları listeleme                  |    ✅     |    ✅     |    ✅    |
-| Ticket detayını görüntüleme           |    ✅     |    ✅     |    ✅    |
-| Yeni ticket oluşturma                 |    ✅     |    ✅     |    ✅    |
-| Ticket güncelleme                     |    ❌     |    ✅     |    ✅    |
-| Teknik personel atama                 |    ❌     |    ✅     |    ✅    |
-| Çözüm bilgisi girme                   |    ❌     |    ✅     |    ✅    |
-| Benzer ticket arama                   |    ❌     |    ✅     |    ✅    |
-| AI önerisi oluşturma                  |    ❌     |    ✅     |    ✅    |
-| AI geri bildirimi verme               |    ❌     |    ✅     |    ✅    |
-| Teknik personel listesini görüntüleme |    ❌     |    ✅     |    ✅    |
-| Kullanıcıları yönetme                 |    ❌     |    ❌     |    ✅    |
-| Hesap rolü değiştirme                 |    ❌     |    ❌     |    ✅    |
-| Hesabı aktif/pasif yapma              |    ❌     |    ❌     |    ✅    |
+| Rol          | Yetkiler                                           |
+| ------------ | -------------------------------------------------- |
+| `user`       | Ticket oluşturma ve kendi ticketlarını görüntüleme |
+| `technician` | Atanan ticketları yönetme ve AI önerisi kullanma   |
+| `admin`      | Tüm ticketları ve kullanıcı hesaplarını yönetme    |
 
----
+Yönetici güvenliği için:
 
-## Ticket İş Akışı
-
-Ticket durumları:
-
-| Durum          | Açıklama                                 |
-| -------------- | ---------------------------------------- |
-| `open`         | Ticket yeni oluşturuldu                  |
-| `assigned`     | Ticket teknik personele atandı           |
-| `in_progress`  | Ticket üzerinde işlem yapılıyor          |
-| `waiting_user` | Kullanıcıdan bilgi veya işlem bekleniyor |
-| `resolved`     | Sorun çözüldü                            |
-| `closed`       | Ticket kapatıldı                         |
-| `cancelled`    | Ticket iptal edildi                      |
-
-Ticket öncelikleri:
-
-| Öncelik    | Açıklama         |
-| ---------- | ---------------- |
-| `low`      | Düşük öncelikli  |
-| `medium`   | Normal öncelikli |
-| `high`     | Yüksek öncelikli |
-| `critical` | Kritik öncelikli |
-
-Örnek iş akışı:
-
-```text
-Açık
-  ↓
-Atandı
-  ↓
-İşlemde
-  ↓
-Kullanıcı Bekleniyor
-  ↓
-Çözüldü
-  ↓
-Kapalı
-```
-
----
-
-## Kullanılan Teknolojiler
-
-### Backend
-
-| Teknoloji             | Kullanım Amacı                    |
-| --------------------- | --------------------------------- |
-| Python                | Backend geliştirme dili           |
-| FastAPI               | REST API                          |
-| Uvicorn               | ASGI sunucusu                     |
-| SQLAlchemy            | ORM ve veritabanı işlemleri       |
-| Pydantic              | İstek ve cevap doğrulama          |
-| PostgreSQL            | Ana veritabanı                    |
-| psycopg2              | PostgreSQL bağlantısı             |
-| pgvector              | Vektör saklama ve benzerlik arama |
-| Alembic               | Veritabanı migration yönetimi     |
-| PyJWT                 | JWT oluşturma ve doğrulama        |
-| pwdlib / Argon2       | Parola hashleme                   |
-| python-dotenv         | Ortam değişkenlerini yükleme      |
-| NumPy                 | Embedding verisi hazırlama        |
-| Sentence Transformers | Metin embedding üretimi           |
-
-### Frontend
-
-| Teknoloji    | Kullanım Amacı             |
-| ------------ | -------------------------- |
-| React        | Kullanıcı arayüzü          |
-| Vite         | Geliştirme ve build aracı  |
-| Axios        | API istekleri              |
-| React Router | Sayfa yönlendirme          |
-| Context API  | Auth ve tema yönetimi      |
-| CSS          | Responsive ve özel tasarım |
+- Admin kendi hesabını pasif yapamaz.
+- Admin kendi rolünü düşüremez.
+- Sistemdeki son aktif admin devre dışı bırakılamaz.
 
 ---
 
@@ -454,37 +168,28 @@ IntelliDesk/
 │
 ├── backend/
 │   ├── alembic/
-│   │   └── versions/
-│   │
 │   ├── app/
 │   │   ├── routers/
-│   │   │   ├── auth.py
-│   │   │   ├── ticket_pagination.py
-│   │   │   └── tickets.py
-│   │   │
 │   │   ├── database.py
 │   │   ├── main.py
 │   │   ├── models.py
 │   │   ├── schemas.py
 │   │   ├── security.py
 │   │   └── services.py
-│   │
+│   ├── tests/
+│   │   ├── conftest.py
+│   │   ├── test_rag_ranking.py
+│   │   └── README.md
+│   ├── .env.example
 │   ├── alembic.ini
-│   └── .env
+│   └── requirements-dev.txt
 │
 ├── frontend/
-│   ├── public/
-│   │
 │   ├── src/
 │   │   ├── api/
 │   │   ├── auth/
 │   │   ├── components/
-│   │   ├── pages/
-│   │   ├── styles/
-│   │   ├── theme/
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   │
+│   │   └── pages/
 │   ├── package.json
 │   └── vite.config.js
 │
@@ -496,18 +201,7 @@ IntelliDesk/
 
 ## Kurulum
 
-### Gereksinimler
-
-Kurulumdan önce sistemde şunlar bulunmalıdır:
-
-- Python
-- Node.js
-- npm
-- PostgreSQL
-- pgvector PostgreSQL eklentisi
-- Git
-
-### Projeyi Klonlama
+### 1. Repoyu Klonlama
 
 ```powershell
 git clone https://github.com/hypervsec/IntelliDesk.git
@@ -515,182 +209,87 @@ git clone https://github.com/hypervsec/IntelliDesk.git
 cd IntelliDesk
 ```
 
----
+### 2. Python Sanal Ortamı
 
-## PostgreSQL ve pgvector Hazırlığı
+```powershell
+python -m venv .venv
 
-### Veritabanı Oluşturma
-
-pgAdmin veya PostgreSQL Query Tool üzerinden:
-
-```sql
-CREATE DATABASE "Intellidesk";
+.\.venv\Scripts\Activate.ps1
 ```
 
-Daha sonra `Intellidesk` veritabanına bağlanıp:
+### 3. Backend Bağımlılıkları
+
+Backend bağımlılık dosyanızı kullanarak paketleri kurun.
+
+Geliştirme ve test bağımlılıkları:
+
+```powershell
+python -m pip install -r backend\requirements-dev.txt
+```
+
+### 4. Frontend Bağımlılıkları
+
+```powershell
+cd frontend
+
+npm install
+```
+
+---
+
+## PostgreSQL ve pgvector
+
+PostgreSQL üzerinde proje veritabanını oluşturun ve pgvector
+eklentisini etkinleştirin:
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS vector;
 ```
 
-komutunu çalıştırın.
-
-> `CREATE EXTENSION vector` komutu hata verirse pgvector eklentisinin PostgreSQL sunucusuna ayrıca kurulması gerekir.
-
-### Temel Veritabanı Yapısı
-
-Uygulama iki temel veri grubuyla çalışır:
-
-#### Uygulama Tabloları
-
-- `accounts`
-- `tickets`
-
-Bu tablolar kullanıcı hesaplarını ve uygulama içerisinde oluşturulan ticketları saklar.
-
-#### RAG Tabloları
-
-- `rag_ticket_data`
-- `ticket_embeddings`
-
-Bu tablolar geçmiş Service Desk kayıtlarını ve embedding vektörlerini saklar.
-
-AI önerisinin çalışabilmesi için geçmiş ticket verilerinin ve embedding kayıtlarının hazırlanmış olması gerekir.
-
----
-
-## Backend Kurulumu
-
-Proje ana dizininde sanal ortam oluşturun:
-
-```powershell
-python -m venv .venv
-```
-
-Sanal ortamı etkinleştirin:
-
-```powershell
-.\.venv\Scripts\Activate.ps1
-```
-
-PowerShell script çalıştırma hatası alınırsa yalnızca açık terminal için:
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
-```
-
-Temel backend paketlerini yükleyin:
-
-```powershell
-pip install fastapi "uvicorn[standard]" sqlalchemy psycopg2-binary pgvector python-dotenv pyjwt "pwdlib[argon2]" "pydantic[email]" alembic numpy sentence-transformers
-```
-
-Backend klasörüne geçin:
-
-```powershell
-cd backend
-```
+Projede geliştirme veritabanı varsayılan olarak `5433` portunu kullanır.
 
 ---
 
 ## Ortam Değişkenleri
 
-`backend` klasörü içerisinde `.env` dosyası oluşturun:
+Örnek dosyayı kopyalayın:
+
+```powershell
+Copy-Item backend\.env.example backend\.env
+```
+
+`backend/.env` dosyasındaki değerleri kendi sisteminize göre düzenleyin.
+
+Örnek değişkenler:
 
 ```env
 DB_HOST=127.0.0.1
 DB_PORT=5433
 DB_NAME=Intellidesk
 DB_USER=postgres
-DB_PASSWORD=postgres_sifreniz
+DB_PASSWORD=your_database_password
 
-JWT_SECRET_KEY=en_az_32_karakter_uzunlugunda_guvenli_bir_anahtar
+JWT_SECRET_KEY=your_secure_random_secret
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 ```
 
-### Güvenli JWT Anahtarı Üretme
-
-PowerShell üzerinden:
-
-```powershell
-python -c "import secrets; print(secrets.token_urlsafe(48))"
-```
-
-Üretilen değeri:
-
-```env
-JWT_SECRET_KEY=uretilen_deger
-```
-
-şeklinde `.env` dosyasına ekleyin.
-
-### Frontend API Adresi
-
-Gerekirse `frontend/.env` dosyası oluşturulabilir:
-
-```env
-VITE_API_URL=http://127.0.0.1:8000
-```
-
-Bu değişken tanımlanmazsa frontend varsayılan olarak:
-
-```text
-http://127.0.0.1:8000
-```
-
-adresini kullanır.
-
-### Güvenlik Uyarısı
-
-Aşağıdaki dosyalar GitHub'a gönderilmemelidir:
-
-```text
-.env
-backend/.env
-frontend/.env
-.venv/
-node_modules/
-```
-
-Veritabanı parolası, JWT anahtarı veya herhangi bir API anahtarı README içerisine gerçek değerleriyle yazılmamalıdır.
+Gerçek parola ve gizli anahtarlar GitHub'a gönderilmemelidir.
 
 ---
 
 ## Veritabanı Migration İşlemleri
 
-Backend klasöründe:
-
 ```powershell
+cd backend
+
 alembic upgrade head
 ```
 
-komutunu çalıştırın.
-
-Mevcut migration durumunu görüntülemek için:
+Yeni migration oluşturmak için:
 
 ```powershell
-alembic current
+alembic revision --autogenerate -m "migration description"
 ```
-
-Migration geçmişini görüntülemek için:
-
-```powershell
-alembic history
-```
-
-Model değişikliği sonrasında yeni migration oluşturmak için:
-
-```powershell
-alembic revision --autogenerate -m "migration aciklamasi"
-```
-
-Ardından:
-
-```powershell
-alembic upgrade head
-```
-
-çalıştırın.
 
 ---
 
@@ -698,56 +297,27 @@ alembic upgrade head
 
 ### Backend
 
-Proje ana dizininde:
+Sanal ortam açıkken:
 
 ```powershell
-.\.venv\Scripts\Activate.ps1
-
-cd backend
+cd C:\Users\enesm\Desktop\IntelliDesk\backend
 
 python -m uvicorn app.main:app --reload
 ```
 
-Backend adresi:
+Backend adresleri:
 
 ```text
 http://127.0.0.1:8000
-```
-
-Swagger API dokümantasyonu:
-
-```text
 http://127.0.0.1:8000/docs
-```
-
-ReDoc dokümantasyonu:
-
-```text
-http://127.0.0.1:8000/redoc
-```
-
-Health kontrolü:
-
-```text
-http://127.0.0.1:8000/health
-```
-
-Beklenen cevap:
-
-```json
-{
-  "status": "ok"
-}
 ```
 
 ### Frontend
 
-Yeni bir PowerShell terminali açın:
+İkinci bir terminalde:
 
 ```powershell
-cd IntelliDesk\frontend
-
-npm install
+cd C:\Users\enesm\Desktop\IntelliDesk\frontend
 
 npm run dev
 ```
@@ -760,340 +330,46 @@ http://localhost:5173
 
 ---
 
-## İlk Admin Hesabını Oluşturma
+## Önemli API Endpointleri
 
-Güvenlik nedeniyle kayıt ekranından oluşturulan her hesap varsayılan olarak:
-
-```text
-user
-```
-
-rolüyle oluşturulur.
-
-İlk admin hesabını oluşturmak için önce uygulamanın Register sayfasından normal bir hesap oluşturun.
-
-Örnek:
+### Kimlik Doğrulama
 
 ```text
-Ad Soyad: IntelliDesk Admin
-E-posta: admin@intellidesk.com
-Parola: Admin1234
-```
-
-Ardından PostgreSQL Query Tool üzerinde:
-
-```sql
-UPDATE accounts
-SET
-    role = 'admin',
-    updated_at = NOW()
-WHERE LOWER(email) = LOWER('admin@intellidesk.com');
-```
-
-Kontrol:
-
-```sql
-SELECT
-    account_id,
-    full_name,
-    email,
-    role,
-    is_active
-FROM accounts
-WHERE LOWER(email) = LOWER('admin@intellidesk.com');
-```
-
-Admin hesabıyla giriş yapıldıktan sonra diğer kullanıcıların rolleri uygulamadaki **Kullanıcılar** sayfasından yönetilebilir.
-
----
-
-## API Endpointleri
-
-### Genel Endpointler
-
-| Metot | Endpoint  | Açıklama           | Yetki        |
-| ----- | --------- | ------------------ | ------------ |
-| `GET` | `/`       | API çalışma mesajı | Herkese açık |
-| `GET` | `/health` | Health kontrolü    | Herkese açık |
-
-### Auth Endpointleri
-
-| Metot   | Endpoint                      | Açıklama                              | Yetki             |
-| ------- | ----------------------------- | ------------------------------------- | ----------------- |
-| `POST`  | `/auth/register`              | Yeni hesap oluşturur                  | Herkese açık      |
-| `POST`  | `/auth/login`                 | Giriş yapar ve JWT döndürür           | Herkese açık      |
-| `GET`   | `/auth/me`                    | Oturum açmış hesabı döndürür          | Giriş gerekli     |
-| `GET`   | `/auth/staff`                 | Aktif teknisyen ve adminleri listeler | Teknisyen / Admin |
-| `GET`   | `/auth/accounts`              | Tüm kullanıcı hesaplarını listeler    | Admin             |
-| `PATCH` | `/auth/accounts/{account_id}` | Rol veya aktiflik günceller           | Admin             |
-
-### Ticket Endpointleri
-
-| Metot  | Endpoint                              | Açıklama                                                   | Yetki             |
-| ------ | ------------------------------------- | ---------------------------------------------------------- | ----------------- |
-| `GET`  | `/tickets`                            | Ticketları listeler                                        | Giriş gerekli     |
-| `POST` | `/tickets`                            | Yeni ticket oluşturur                                      | Giriş gerekli     |
-| `GET`  | `/tickets/paged`                      | Sayfalanmış ticket listesini döndürür                      | Giriş gerekli     |
-| `GET`  | `/tickets/filter-options`             | Filtre seçeneklerini döndürür                              | Giriş gerekli     |
-| `GET`  | `/tickets/form-options`               | Departman, kategori ve alt kategori seçeneklerini döndürür | Giriş gerekli     |
-| `GET`  | `/tickets/{ticket_id}`                | Ticket detayını döndürür                                   | Giriş gerekli     |
-| `PUT`  | `/tickets/{ticket_id}`                | Ticket bilgilerini günceller                               | Teknisyen / Admin |
-| `POST` | `/tickets/{ticket_id}/similar`        | Benzer ticketları bulur                                    | Teknisyen / Admin |
-| `POST` | `/tickets/{ticket_id}/recommendation` | AI çözüm önerisi oluşturur                                 | Teknisyen / Admin |
-| `POST` | `/tickets/{ticket_id}/feedback`       | AI geri bildirimi kaydeder                                 | Teknisyen / Admin |
-
-### Dashboard Endpointleri
-
-| Metot | Endpoint                         | Açıklama                                   |
-| ----- | -------------------------------- | ------------------------------------------ |
-| `GET` | `/tickets/dashboard/summary`     | Genel ticket özetini döndürür              |
-| `GET` | `/tickets/dashboard/categories`  | Kategori dağılımını döndürür               |
-| `GET` | `/tickets/dashboard/statuses`    | Durum dağılımını döndürür                  |
-| `GET` | `/tickets/dashboard/priorities`  | Öncelik dağılımını döndürür                |
-| `GET` | `/tickets/dashboard/daily`       | Son yedi günlük ticket sayılarını döndürür |
-| `GET` | `/tickets/dashboard/departments` | Departman dağılımını döndürür              |
-| `GET` | `/tickets/ai-feedback/stats`     | AI geri bildirim istatistiklerini döndürür |
-
----
-
-## Örnek API Kullanımı
-
-### Kayıt
-
-```json
 POST /auth/register
-
-{
-  "full_name": "Enes Menus",
-  "email": "enes@example.com",
-  "password": "Password123",
-  "password_confirm": "Password123"
-}
-```
-
-### Giriş
-
-```json
 POST /auth/login
-
-{
-  "email": "enes@example.com",
-  "password": "Password123"
-}
+GET  /auth/me
 ```
 
-Örnek cevap:
-
-```json
-{
-  "access_token": "jwt_token",
-  "token_type": "bearer",
-  "expires_in": 3600,
-  "account": {
-    "account_id": 1,
-    "full_name": "Enes Menus",
-    "email": "enes@example.com",
-    "role": "user",
-    "is_active": true
-  }
-}
-```
-
-Yetki gerektiren isteklerde:
-
-```http
-Authorization: Bearer jwt_token
-```
-
-headerı gönderilmelidir.
-
-### Ticket Oluşturma
-
-```json
-POST /tickets
-
-{
-  "title": "Yazıcı bağlantı hatası",
-  "description": "Muhasebe departmanındaki yazıcıya bağlantı kurulamıyor.",
-  "requester_name": "Örnek Kullanıcı",
-  "department": "Muhasebe",
-  "category": "Donanım",
-  "subcategory": "Yazıcı",
-  "priority": "medium"
-}
-```
-
-### Ticket Güncelleme
-
-```json
-PUT /tickets/1
-
-{
-  "status": "in_progress",
-  "assigned_technician": "IntelliDesk Teknisyen",
-  "department": "Muhasebe",
-  "category": "Donanım",
-  "subcategory": "Yazıcı",
-  "priority": "high",
-  "resolution": "Yazıcı sürücüsü yeniden kuruldu."
-}
-```
-
-### Kullanıcı Rolü Güncelleme
-
-```json
-PATCH /auth/accounts/3
-
-{
-  "role": "technician",
-  "is_active": true
-}
-```
-
----
-
-## Frontend Sayfaları
-
-| Sayfa              | Adres                | Yetki         |
-| ------------------ | -------------------- | ------------- |
-| Login              | `/login`             | Herkese açık  |
-| Register           | `/register`          | Herkese açık  |
-| Dashboard          | `/`                  | Giriş gerekli |
-| Ticket Listesi     | `/tickets`           | Giriş gerekli |
-| Yeni Ticket        | `/tickets/new`       | Giriş gerekli |
-| Ticket Detayı      | `/tickets/:ticketId` | Giriş gerekli |
-| Kullanıcı Yönetimi | `/users`             | Admin         |
-
-### Login ve Register
-
-- E-posta ve parola alanları
-- Parola göster/gizle
-- Form doğrulama
-- API hata mesajları
-- Tema değiştirme butonu
-- Oturum açıldığında otomatik yönlendirme
-
-### Dashboard
-
-- Ticket özet kartları
-- Grafikler
-- Son ticketlar
-- Durum ve kategori dağılımları
-- AI performans bilgileri
-
-### Ticket Listesi
-
-- Arama
-- Filtreleme
-- Sıralama
-- Sayfalama
-- Ticket detayına geçiş
-
-### Ticket Detayı
-
-- Ticket bilgileri
-- AI çözüm önerisi
-- AI güven puanı
-- Kaynak ticketlar
-- Teknik personel atama
-- Ticket durum yönetimi
-- Çözüm bilgisi
-- AI geri bildirimi
-
-### Kullanıcı Yönetimi
-
-- Toplam hesap sayısı
-- Aktif hesap sayısı
-- Aktif admin sayısı
-- Aktif teknisyen sayısı
-- Rol değiştirme
-- Hesabı aktif/pasif yapma
-
----
-
-## Güvenlik Özellikleri
-
-### Parola Güvenliği
-
-Parolalar düz metin olarak saklanmaz.
-
-Parolalar Argon2 algoritmasıyla hashlenir.
-
-Parola kuralları:
-
-- En az 8 karakter
-- En az bir küçük harf
-- En az bir büyük harf
-- En az bir rakam
-
-### JWT Güvenliği
-
-JWT içerisinde:
-
-- Kullanıcı kimliği
-- Token türü
-- Oluşturulma zamanı
-- Son kullanma zamanı
-- Issuer
-- Audience
-
-bilgileri doğrulanır.
-
-### Sabit Zamanlı Giriş Kontrolü
-
-Sistemde bulunmayan kullanıcılar için de sahte parola hash kontrolü yapılır. Bu yöntem kullanıcı varlığının giriş süresinden tahmin edilmesini zorlaştırır.
-
-### Rol Kontrolü
-
-Backend yalnızca frontend arayüzüne güvenmez.
-
-Her korumalı endpointte rol ve aktiflik kontrolü backend tarafında tekrar gerçekleştirilir.
-
-### Teknik Personel Doğrulaması
-
-Ticketa atanan kişi:
-
-- Aktif bir hesap olmalıdır.
-- `technician` veya `admin` rolünde olmalıdır.
-- Sistemde kayıtlı gerçek kullanıcı adıyla eşleşmelidir.
-
-Rastgele bir isim teknik personel olarak atanamaz.
-
-### Admin Koruması
-
-- Admin kendi hesabını pasif yapamaz.
-- Admin kendi rolünü düşüremez.
-- Son aktif admin kaldırılamaz.
-- Pasif hesap giriş yapamaz.
-
-### CORS
-
-Backend yalnızca geliştirme ortamındaki frontend adreslerine izin verir:
+### Ticket İşlemleri
 
 ```text
-http://localhost:5173
-http://127.0.0.1:5173
+GET    /tickets
+POST   /tickets
+GET    /tickets/{ticket_id}
+PUT    /tickets/{ticket_id}
+DELETE /tickets/{ticket_id}
 ```
 
-Production ortamında CORS listesi deployment adresine göre güncellenmelidir.
+### AI İşlemleri
 
----
+```text
+POST /tickets/{ticket_id}/recommendation
+POST /tickets/{ticket_id}/feedback
+```
 
-## Tema Sistemi
+### Dashboard ve Kullanıcılar
 
-IntelliDesk açık ve koyu tema desteğine sahiptir.
+```text
+GET /dashboard/summary
+GET /users
+PUT /users/{user_id}
+```
 
-Tema butonu şu sayfalarda kullanılabilir:
+Tüm endpointler ve istek modelleri Swagger arayüzünden incelenebilir:
 
-- Login
-- Register
-- Dashboard
-- Ticket listesi
-- Yeni ticket
-- Ticket detayı
-- Kullanıcı yönetimi
-
-Seçilen tema tarayıcıda saklanır ve sayfa yenilendiğinde korunur.
+```text
+http://127.0.0.1:8000/docs
+```
 
 ---
 
@@ -1104,179 +380,95 @@ Seçilen tema tarayıcıda saklanır ve sayfa yenilendiğinde korunur.
 ```powershell
 cd backend
 
-python -m compileall app
+python -m compileall app tests
 ```
 
-### Backend Çalıştırma
+### RAG Regresyon Testleri
+
+Testler gerçek PostgreSQL veritabanını ve geçmiş RAG kayıtlarını kullanır.
 
 ```powershell
-python -m uvicorn app.main:app --reload
+cd backend
+
+python -m pytest -v
 ```
 
-### Frontend Lint
+Yalnızca RAG sıralama testlerini çalıştırmak için:
+
+```powershell
+python -m pytest tests\test_rag_ranking.py -v
+```
+
+Mevcut testler:
+
+- DECT sorgusunda `21373` numaralı kaydın ilk sırada bulunması
+- Yazıcı görüntüleme birimi sorgusunda `17832` numaralı kaydın ilk sırada bulunması
+
+Ayrıntılı test açıklaması:
+
+```text
+backend/tests/README.md
+```
+
+### Frontend Kontrolleri
 
 ```powershell
 cd frontend
 
 npm run lint
-```
 
-### Frontend Production Build
-
-```powershell
 npm run build
 ```
 
-Başarılı build sonrasında:
+Başarılı production build çıktısı:
 
 ```text
 frontend/dist
 ```
 
-klasörü oluşturulur.
-
-### Frontend Preview
-
-```powershell
-npm run preview
-```
-
 ---
 
-## Manuel Test Senaryoları
+## Güvenlik
 
-### Kimlik Doğrulama
-
-- Yeni kullanıcı oluşturma
-- Aynı e-posta ile ikinci kayıt denemesi
-- Yanlış parola ile giriş denemesi
-- Pasif hesapla giriş denemesi
-- Token olmadan korumalı endpoint çağırma
-- Süresi dolmuş token testi
-
-### Rol Kontrolü
-
-- Normal kullanıcının ticket oluşturması
-- Normal kullanıcının ticket güncellemeye çalışması
-- Teknisyenin ticket güncellemesi
-- Teknisyenin AI önerisi oluşturması
-- Normal kullanıcının kullanıcı yönetimine erişmeye çalışması
-- Adminin kullanıcı rolü değiştirmesi
-
-### Teknik Personel Atama
-
-- Aktif teknisyen atama
-- Aktif admin atama
-- Rastgele isim atama
-- Pasif teknisyen atama
-- Atamayı kaldırma
-
-### AI Sistemi
-
-- Benzer geçmiş ticket bulunan kayıt
-- Düşük güven puanlı kayıt
-- AI önerisi yenileme
-- Öneriyi kabul etme
-- Öneriyi reddetme
-- Geri bildirim açıklaması ekleme
-
-### Tema
-
-- Login sayfasında tema değiştirme
-- Register sayfasında tema değiştirme
-- Sayfa yenilendiğinde temanın korunması
-- Açık temada form kontrastı
-- Koyu temada form kontrastı
+- Parolalar düz metin olarak saklanmaz.
+- Parolalar Argon2 ile hashlenir.
+- JWT issuer, audience ve süre bilgileri doğrulanır.
+- Backend endpointlerinde rol kontrolü yapılır.
+- Pasif kullanıcıların giriş yapması engellenir.
+- Teknik personel atamaları backend tarafından doğrulanır.
+- `.env` ve yerel veritabanı yedekleri Git tarafından dışlanır.
 
 ---
 
 ## Proje Durumu
 
-Aşağıdaki özellikler tamamlanmıştır:
+Tamamlanan temel bölümler:
 
-- [x] FastAPI backend
-- [x] PostgreSQL bağlantısı
-- [x] pgvector entegrasyonu
-- [x] Ticket modeli
-- [x] Ticket oluşturma
-- [x] Ticket listeleme
-- [x] Ticket detay sayfası
-- [x] Ticket güncelleme
-- [x] Arama ve filtreleme
-- [x] Sıralama
-- [x] Sayfalama
-- [x] Dashboard
-- [x] Geçmiş ticket verisi hazırlama
-- [x] Embedding üretimi
-- [x] Benzer ticket arama
-- [x] AI çözüm önerisi
-- [x] AI güven puanı
-- [x] AI geri bildirimi
-- [x] Kullanıcı kaydı
-- [x] Kullanıcı girişi
-- [x] JWT kimlik doğrulama
-- [x] Rol tabanlı yetkilendirme
-- [x] Admin kullanıcı yönetimi
-- [x] Aktif/pasif hesap yönetimi
-- [x] Teknik personel atama
-- [x] Teknik personel backend doğrulaması
-- [x] Alembic migration altyapısı
-- [x] Açık tema
-- [x] Koyu tema
-- [x] Responsive arayüz
+- Kimlik doğrulama
+- Rol tabanlı yetkilendirme
+- Ticket CRUD işlemleri
+- Arama, filtreleme ve sayfalama
+- Teknik personel atama
+- Dashboard
+- Kullanıcı yönetimi
+- AI çözüm önerisi
+- Hibrit RAG sıralaması
+- AI geri bildirim sistemi
+- Açık ve koyu tema
+- Alembic migration yapısı
+- RAG regresyon testleri
 
 ---
 
 ## Gelecek Geliştirmeler
 
-- [ ] Ticket yorum ve aktivite geçmişi
-- [ ] Dosya ve ekran görüntüsü ekleme
-- [ ] E-posta bildirimleri
-- [ ] Uygulama içi bildirim sistemi
-- [ ] SLA süre takibi
-- [ ] Ticket otomatik yönlendirme
-- [ ] Teknik personel iş yükü analizi
-- [ ] Gelişmiş raporlama
-- [ ] CSV ve Excel dışa aktarma
-- [ ] AI geri bildirimleriyle yeniden sıralama
-- [ ] Daha gelişmiş RAG pipeline
-- [ ] LLM tabanlı çözüm metni üretimi
-- [ ] Refresh token sistemi
-- [ ] Parola sıfırlama
-- [ ] E-posta doğrulama
-- [ ] Audit log
-- [ ] Docker ve Docker Compose
-- [ ] Otomatik testler
-- [ ] CI/CD pipeline
-- [ ] Production deployment
-
----
-
-## Bilinen Teknik Notlar
-
-- İlk embedding modeli yüklenirken indirme nedeniyle başlangıç süresi uzayabilir.
-- AI önerisinin çalışması için `ticket_embeddings` tablosunda veri bulunmalıdır.
-- `pgvector` yalnızca Python paketi olarak değil, PostgreSQL sunucusu üzerinde de kurulu olmalıdır.
-- PostgreSQL portu ortam değişkeniyle değiştirilebilir.
-- Varsayılan geliştirme portu bu projede `5433` olarak ayarlanmıştır.
-- Production ortamında güçlü bir JWT anahtarı kullanılmalıdır.
-- Production ortamında CORS adresleri güncellenmelidir.
-- `.env` dosyaları GitHub'a gönderilmemelidir.
-
----
-
-## Lisans ve Kullanım
-
-Bu proje eğitim, staj, araştırma ve portföy amacıyla geliştirilmiştir.
-
-Projede kullanılan gerçek veya örnek Service Desk kayıtları paylaşılırken:
-
-- Kişisel veriler kaldırılmalıdır.
-- Şirket içi gizli bilgiler anonimleştirilmelidir.
-- Parolalar, kullanıcı kimlikleri ve özel sistem adresleri paylaşılmamalıdır.
-- KVKK ve ilgili veri güvenliği kurallarına uyulmalıdır.
-
-Depoya henüz ayrı bir açık kaynak lisans dosyası eklenmemiştir.
+- Daha fazla RAG regresyon senaryosu
+- Otomatik testlerin GitHub Actions üzerinde çalıştırılması
+- Dosya ve ekran görüntüsü ekleme
+- Bildirim sistemi
+- Gelişmiş raporlama
+- Production deployment
+- RAG performans ve doğruluk metrikleri
 
 ---
 
@@ -1284,28 +476,11 @@ Depoya henüz ayrı bir açık kaynak lisans dosyası eklenmemiştir.
 
 **Enes Menus**
 
-Computer Engineering Student  
-Software & Game Developer  
-Cyber Security Enthusiast
-
-GitHub:
-
-```text
-https://github.com/hypervsec
-```
-
-IntelliDesk Repository:
-
-```text
-https://github.com/hypervsec/IntelliDesk
-```
+- GitHub: [hypervsec](https://github.com/hypervsec)
+- Proje: [IntelliDesk](https://github.com/hypervsec/IntelliDesk)
 
 ---
 
-<div align="center">
+## Lisans
 
-### IntelliDesk
-
-Geçmiş çözümleri kurumsal bilgiye, kurumsal bilgiyi akıllı önerilere dönüştürür.
-
-</div>
+Bu proje eğitim, staj ve portföy çalışması amacıyla geliştirilmiştir.
