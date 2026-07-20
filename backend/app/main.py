@@ -7,9 +7,11 @@ from fastapi import (
 )
 from fastapi.middleware.cors import CORSMiddleware
 
+from . import notification_events  # noqa: F401
 from .models import Account
 from .routers import assigned_tickets
 from .routers import auth
+from .routers import notifications
 from .routers import ticket_pagination
 from .routers import tickets
 from .routers.auth import get_current_account
@@ -125,6 +127,13 @@ app.include_router(
 # teknisyen ve yöneticiler içindir.
 app.include_router(
     assigned_tickets.router
+)
+
+
+# Bildirim endpointlerinde her kullanıcı yalnızca
+# kendi bildirimlerini görüntüleyebilir ve yönetebilir.
+app.include_router(
+    notifications.router
 )
 
 

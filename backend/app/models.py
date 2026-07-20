@@ -6,6 +6,7 @@ from sqlalchemy import (
     Boolean,
     CheckConstraint,
     DateTime,
+    ForeignKey,
     Index,
     Numeric,
     String,
@@ -234,6 +235,79 @@ class Account(Base):
     )
 
     last_login_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    __table_args__ = (
+        Index(
+            "ix_notifications_account_unread_created",
+            "account_id",
+            "is_read",
+            "created_at",
+        ),
+        Index(
+            "ix_notifications_ticket_id",
+            "ticket_id",
+        ),
+    )
+
+    notification_id: Mapped[int] = mapped_column(
+        BigInteger,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    account_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey(
+            "accounts.account_id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+    )
+
+    ticket_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey(
+            "tickets.ticket_id",
+            ondelete="SET NULL",
+        ),
+        nullable=True,
+    )
+
+    notification_type: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+    )
+
+    title: Mapped[str] = mapped_column(
+        String(200),
+        nullable=False,
+    )
+
+    message: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
+
+    is_read: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        default=datetime.now,
+    )
+
+    read_at: Mapped[datetime | None] = mapped_column(
         DateTime,
         nullable=True,
     )

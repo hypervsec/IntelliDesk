@@ -1,33 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
+import { useNavigate } from "react-router-dom";
+
+import api from "../api/api";
 import { useTheme } from "../theme/ThemeContext";
-
-const initialNotifications = [
-  {
-    id: 1,
-    title: "Yeni ticket atandı",
-    description: "Yazıcı bağlantı sorunu ticketı size atandı.",
-    time: "5 dakika önce",
-    type: "Ticket",
-    isUnread: true,
-  },
-  {
-    id: 2,
-    title: "AI önerisi hazır",
-    description: "Outlook bağlantı sorunu için çözüm önerisi oluşturuldu.",
-    time: "18 dakika önce",
-    type: "AI",
-    isUnread: true,
-  },
-  {
-    id: 3,
-    title: "Ticket durumu değişti",
-    description: "Ağ erişimi ticketı çözüldü olarak işaretlendi.",
-    time: "1 saat önce",
-    type: "Durum",
-    isUnread: false,
-  },
-];
 
 const containerStyle = {
   position: "relative",
@@ -68,7 +44,6 @@ const markAllButtonLayoutStyle = {
   background: "transparent",
   fontSize: "11px",
   fontWeight: 800,
-  cursor: "pointer",
 };
 
 const listStyle = {
@@ -87,7 +62,6 @@ const notificationButtonLayoutStyle = {
   padding: "15px 18px",
   border: 0,
   textAlign: "left",
-  cursor: "pointer",
 };
 
 const typeBadgeLayoutStyle = {
@@ -133,6 +107,13 @@ const unreadDotLayoutStyle = {
   borderRadius: "50%",
 };
 
+const panelMessageLayoutStyle = {
+  padding: "30px 20px",
+  fontSize: "12px",
+  lineHeight: 1.6,
+  textAlign: "center",
+};
+
 const panelFooterLayoutStyle = {
   padding: "13px 18px",
   fontSize: "11px",
@@ -142,22 +123,78 @@ const panelFooterLayoutStyle = {
 function NotificationsMenu() {
   const containerRef = useRef(null);
 
+  const navigate = useNavigate();
+
   const { isDark } = useTheme();
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const [notifications, setNotifications] = useState([]);
+
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [isMarkingAll, setIsMarkingAll] = useState(false);
+
+  const [readingNotificationId, setReadingNotificationId] = useState(null);
+
+  const [errorMessage, setErrorMessage] = useState("");
 
   const colors = getThemeColors(isDark);
 
-  const unreadCount = notifications.filter(
-    (notification) => notification.isUnread,
-  ).length;
+  const loadNotifications = useCallback(async ({ silent = false } = {}) => {
+    if (!silent) {
+      setIsLoading(true);
+    }
+
+    try {
+      const response = await api.get("/notifications", {
+        params: {
+          limit: 20,
+        },
+      });
+
+      setNotifications(response.data.notifications || []);
+
+      setUnreadCount(response.data.unread_count || 0);
+
+      setErrorMessage("");
+    } catch (error) {
+      setErrorMessage(
+        error.response?.data?.detail || "Bildirimler yüklenemedi.",
+      );
+    } finally {
+      if (!silent) {
+        setIsLoading(false);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadNotifications();
+  }, [loadNotifications]);
+
+  useEffect(() => {
+    const refreshInterval = window.setInterval(() => {
+      void loadNotifications({
+        silent: true,
+      });
+    }, 15000);
+
+    return () => {
+      window.clearInterval(refreshInterval);
+    };
+  }, [loadNotifications]);
 
   useEffect(() => {
     if (!isOpen) {
       return undefined;
     }
+
+    void loadNotifications({
+      silent: true,
+    });
 
     function handlePointerDown(event) {
       if (
@@ -183,28 +220,95 @@ function NotificationsMenu() {
 
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen]);
+  }, [isOpen, loadNotifications]);
 
-  function markNotificationAsRead(notificationId) {
-    setNotifications((currentNotifications) =>
-      currentNotifications.map((notification) =>
-        notification.id === notificationId
-          ? {
-              ...notification,
-              isUnread: false,
-            }
-          : notification,
-      ),
+  async function markNotificationAsRead(notificationId) {
+    const selectedNotification = notifications.find(
+      (notification) => notification.notification_id === notificationId,
     );
+
+    if (!selectedNotification || selectedNotification.is_read) {
+      return true;
+    }
+
+    if (readingNotificationId !== null) {
+      return false;
+    }
+
+    setReadingNotificationId(notificationId);
+
+    try {
+      const response = await api.patch(`/notifications/${notificationId}/read`);
+
+      setNotifications((currentNotifications) =>
+        currentNotifications.map((notification) =>
+          notification.notification_id === notificationId
+            ? response.data
+            : notification,
+        ),
+      );
+
+      setUnreadCount((currentCount) => Math.max(currentCount - 1, 0));
+
+      setErrorMessage("");
+
+      return true;
+    } catch (error) {
+      setErrorMessage(
+        error.response?.data?.detail || "Bildirim güncellenemedi.",
+      );
+
+      return false;
+    } finally {
+      setReadingNotificationId(null);
+    }
   }
 
-  function markAllAsRead() {
-    setNotifications((currentNotifications) =>
-      currentNotifications.map((notification) => ({
-        ...notification,
-        isUnread: false,
-      })),
+  async function handleNotificationClick(notification) {
+    const readWasSuccessful = await markNotificationAsRead(
+      notification.notification_id,
     );
+
+    if (!readWasSuccessful) {
+      return;
+    }
+
+    setIsOpen(false);
+
+    if (notification.ticket_id) {
+      navigate(`/tickets/${notification.ticket_id}`);
+    }
+  }
+
+  async function markAllAsRead() {
+    if (unreadCount === 0 || isMarkingAll) {
+      return;
+    }
+
+    setIsMarkingAll(true);
+
+    try {
+      await api.patch("/notifications/read-all");
+
+      const readTime = new Date().toISOString();
+
+      setNotifications((currentNotifications) =>
+        currentNotifications.map((notification) => ({
+          ...notification,
+          is_read: true,
+          read_at: notification.read_at || readTime,
+        })),
+      );
+
+      setUnreadCount(0);
+      setErrorMessage("");
+    } catch (error) {
+      setErrorMessage(
+        error.response?.data?.detail || "Bildirimler güncellenemedi.",
+      );
+    } finally {
+      setIsMarkingAll(false);
+    }
   }
 
   const triggerStyle = {
@@ -261,6 +365,18 @@ function NotificationsMenu() {
   const markAllButtonStyle = {
     ...markAllButtonLayoutStyle,
     color: colors.primary,
+    cursor: isMarkingAll ? "wait" : "pointer",
+    opacity: isMarkingAll ? 0.65 : 1,
+  };
+
+  const panelMessageStyle = {
+    ...panelMessageLayoutStyle,
+    color: colors.muted,
+  };
+
+  const errorMessageStyle = {
+    ...panelMessageLayoutStyle,
+    color: colors.error,
   };
 
   const panelFooterStyle = {
@@ -318,90 +434,180 @@ function NotificationsMenu() {
               <button
                 type="button"
                 style={markAllButtonStyle}
-                onClick={markAllAsRead}
+                disabled={isMarkingAll}
+                onClick={() => {
+                  void markAllAsRead();
+                }}
               >
-                Tümünü okundu yap
+                {isMarkingAll ? "Güncelleniyor..." : "Tümünü okundu yap"}
               </button>
             ) : null}
           </header>
 
           <div style={listStyle}>
-            {notifications.map((notification) => {
-              const notificationStyle = {
-                ...notificationButtonLayoutStyle,
-                borderBottom: `1px solid ${colors.divider}`,
-                background: notification.isUnread
-                  ? colors.unread
-                  : colors.panel,
-                color: colors.text,
-              };
+            {isLoading ? (
+              <div style={panelMessageStyle}>Bildirimler yükleniyor...</div>
+            ) : null}
 
-              const typeBadgeStyle = {
-                ...typeBadgeLayoutStyle,
-                background: colors.typeBackground,
-                color: colors.primary,
-              };
+            {!isLoading && errorMessage ? (
+              <div style={errorMessageStyle} role="alert">
+                {errorMessage}
+              </div>
+            ) : null}
 
-              const notificationTitleStyle = {
-                ...notificationTitleLayoutStyle,
-                color: colors.text,
-              };
+            {!isLoading && !errorMessage && notifications.length === 0 ? (
+              <div style={panelMessageStyle}>
+                Henüz bildiriminiz bulunmuyor.
+              </div>
+            ) : null}
 
-              const notificationDescriptionStyle = {
-                ...notificationDescriptionLayoutStyle,
-                color: colors.muted,
-              };
+            {!isLoading && !errorMessage
+              ? notifications.map((notification) => {
+                  const isUnread = !notification.is_read;
 
-              const notificationTimeStyle = {
-                ...notificationTimeLayoutStyle,
-                color: colors.time,
-              };
+                  const isReading =
+                    readingNotificationId === notification.notification_id;
 
-              const unreadDotStyle = {
-                ...unreadDotLayoutStyle,
-                background: colors.primary,
-                boxShadow: `0 0 0 4px ${colors.dotShadow}`,
-              };
+                  const notificationStyle = {
+                    ...notificationButtonLayoutStyle,
+                    borderBottom: `1px solid ${colors.divider}`,
+                    background: isUnread ? colors.unread : colors.panel,
+                    color: colors.text,
+                    cursor: isReading
+                      ? "wait"
+                      : notification.ticket_id
+                        ? "pointer"
+                        : "default",
+                    opacity: isReading ? 0.7 : 1,
+                  };
 
-              return (
-                <button
-                  key={notification.id}
-                  type="button"
-                  style={notificationStyle}
-                  onClick={() => {
-                    markNotificationAsRead(notification.id);
-                  }}
-                >
-                  <span style={typeBadgeStyle}>{notification.type}</span>
+                  const typeBadgeStyle = {
+                    ...typeBadgeLayoutStyle,
+                    background: colors.typeBackground,
+                    color: colors.primary,
+                  };
 
-                  <span style={notificationContentStyle}>
-                    <strong style={notificationTitleStyle}>
-                      {notification.title}
-                    </strong>
+                  const notificationTitleStyle = {
+                    ...notificationTitleLayoutStyle,
+                    color: colors.text,
+                  };
 
-                    <span style={notificationDescriptionStyle}>
-                      {notification.description}
-                    </span>
+                  const notificationDescriptionStyle = {
+                    ...notificationDescriptionLayoutStyle,
+                    color: colors.muted,
+                  };
 
-                    <span style={notificationTimeStyle}>
-                      {notification.time}
-                    </span>
-                  </span>
+                  const notificationTimeStyle = {
+                    ...notificationTimeLayoutStyle,
+                    color: colors.time,
+                  };
 
-                  {notification.isUnread ? (
-                    <span style={unreadDotStyle} aria-label="Okunmamış" />
-                  ) : null}
-                </button>
-              );
-            })}
+                  const unreadDotStyle = {
+                    ...unreadDotLayoutStyle,
+                    background: colors.primary,
+                    boxShadow: `0 0 0 4px ${colors.dotShadow}`,
+                  };
+
+                  return (
+                    <button
+                      key={notification.notification_id}
+                      type="button"
+                      style={notificationStyle}
+                      disabled={isReading}
+                      onClick={() => {
+                        void handleNotificationClick(notification);
+                      }}
+                    >
+                      <span style={typeBadgeStyle}>
+                        {getNotificationTypeLabel(
+                          notification.notification_type,
+                        )}
+                      </span>
+
+                      <span style={notificationContentStyle}>
+                        <strong style={notificationTitleStyle}>
+                          {notification.title}
+                        </strong>
+
+                        <span style={notificationDescriptionStyle}>
+                          {notification.message}
+                        </span>
+
+                        <span style={notificationTimeStyle}>
+                          {formatNotificationTime(notification.created_at)}
+                        </span>
+                      </span>
+
+                      {isUnread ? (
+                        <span style={unreadDotStyle} aria-label="Okunmamış" />
+                      ) : null}
+                    </button>
+                  );
+                })
+              : null}
           </div>
 
           <footer style={panelFooterStyle}>
-            Bildirimler şu an örnek veriyle gösterilmektedir.
+            Bildirimler 15 saniyede bir otomatik yenilenir.
           </footer>
         </section>
       ) : null}
     </div>
+  );
+}
+
+function getNotificationTypeLabel(notificationType) {
+  const typeLabels = {
+    ticket_assigned: "Ticket",
+    ticket_status_changed: "Durum",
+    ai_recommendation_created: "AI",
+  };
+
+  return typeLabels[notificationType] || "Bilgi";
+}
+
+function formatNotificationTime(createdAt) {
+  if (!createdAt) {
+    return "";
+  }
+
+  const createdDate = new Date(createdAt);
+
+  if (Number.isNaN(createdDate.getTime())) {
+    return "";
+  }
+
+  const differenceInSeconds = Math.round(
+    (createdDate.getTime() - Date.now()) / 1000,
+  );
+
+  const absoluteDifference = Math.abs(differenceInSeconds);
+
+  if (absoluteDifference < 60) {
+    return "Az önce";
+  }
+
+  const relativeTimeFormat = new Intl.RelativeTimeFormat("tr", {
+    numeric: "auto",
+  });
+
+  if (absoluteDifference < 3600) {
+    return relativeTimeFormat.format(
+      Math.round(differenceInSeconds / 60),
+      "minute",
+    );
+  }
+
+  if (absoluteDifference < 86400) {
+    return relativeTimeFormat.format(
+      Math.round(differenceInSeconds / 3600),
+      "hour",
+    );
+  }
+
+  return relativeTimeFormat.format(
+    Math.round(differenceInSeconds / 86400),
+    "day",
   );
 }
 
@@ -421,9 +627,11 @@ function getThemeColors(isDark) {
       muted: "#a4b2c5",
       time: "#7f91aa",
       primary: "#60a5fa",
+      error: "#fda4af",
       typeBackground: "rgb(59 130 246 / 17%)",
       dotShadow: "rgb(96 165 250 / 15%)",
       badgeBorder: "#1b2636",
+      panelShadow: "0 24px 60px rgb(2 6 23 / 36%)",
     };
   }
 
@@ -441,9 +649,11 @@ function getThemeColors(isDark) {
     muted: "#66758b",
     time: "#8b98aa",
     primary: "#2563eb",
+    error: "#be123c",
     typeBackground: "rgb(37 99 235 / 12%)",
     dotShadow: "rgb(37 99 235 / 12%)",
     badgeBorder: "#eef3f9",
+    panelShadow: "0 24px 60px rgb(31 45 72 / 18%)",
   };
 }
 
@@ -460,7 +670,7 @@ function BellIcon() {
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+      <path d={"M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"} />
 
       <path d="M10 21h4" />
     </svg>
