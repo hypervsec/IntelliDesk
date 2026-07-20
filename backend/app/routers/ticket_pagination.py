@@ -29,6 +29,16 @@ SortType = Literal[
 ]
 
 
+INVALID_OPTION_VALUES = {
+    "",
+    "string",
+    "null",
+    "none",
+    "nan",
+    "not assigned",
+}
+
+
 router = APIRouter(
     prefix="/tickets",
     tags=["Ticket Pagination"],
@@ -205,7 +215,9 @@ def clean_option_values(
         if not value:
             continue
 
-        cleaned_value = value.strip()
+        cleaned_value = " ".join(
+            value.strip().split()
+        )
 
         if not cleaned_value:
             continue
@@ -214,11 +226,22 @@ def clean_option_values(
             cleaned_value.casefold()
         )
 
+        if (
+            normalized_value
+            in INVALID_OPTION_VALUES
+        ):
+            continue
+
         if normalized_value in seen_values:
             continue
 
-        seen_values.add(normalized_value)
-        cleaned_values.append(cleaned_value)
+        seen_values.add(
+            normalized_value
+        )
+
+        cleaned_values.append(
+            cleaned_value
+        )
 
     return sorted(
         cleaned_values,
@@ -242,15 +265,17 @@ def get_ticket_form_options(
     db: Session = Depends(get_db),
 ):
     department_query = (
-        select(models.Ticket.department)
+        select(
+            models.ServiceCatalog.department
+        )
         .where(
-            models.Ticket.department.is_not(
+            models.ServiceCatalog.department.is_not(
                 None
             )
         )
         .where(
             func.trim(
-                models.Ticket.department
+                models.ServiceCatalog.department
             )
             != ""
         )
@@ -265,89 +290,95 @@ def get_ticket_form_options(
         )
     )
 
-    category_query = (
-        select(models.Ticket.category)
-        .where(
-            models.Ticket.category.is_not(
-                None
-            )
-        )
-        .where(
-            func.trim(
-                models.Ticket.category
-            )
-            != ""
-        )
+    selected_department = (
+        department.strip()
+        if department and department.strip()
+        else None
     )
 
-    if department and department.strip():
+    selected_category = (
+        category.strip()
+        if category and category.strip()
+        else None
+    )
+
+    categories: list[str] = []
+    subcategories: list[str] = []
+
+    if selected_department:
         category_query = (
-            category_query.where(
+            select(
+                models.ServiceCatalog.category
+            )
+            .where(
                 func.trim(
-                    models.Ticket.department
+                    models.ServiceCatalog.department
                 )
-                == department.strip()
+                == selected_department
+            )
+            .where(
+                models.ServiceCatalog.category.is_not(
+                    None
+                )
+            )
+            .where(
+                func.trim(
+                    models.ServiceCatalog.category
+                )
+                != ""
+            )
+            .distinct()
+        )
+
+        categories = clean_option_values(
+            list(
+                db.scalars(
+                    category_query
+                ).all()
             )
         )
 
-    category_query = (
-        category_query.distinct()
-    )
-
-    categories = clean_option_values(
-        list(
-            db.scalars(
-                category_query
-            ).all()
-        )
-    )
-
-    subcategory_query = (
-        select(models.Ticket.subcategory)
-        .where(
-            models.Ticket.subcategory.is_not(
-                None
-            )
-        )
-        .where(
-            func.trim(
-                models.Ticket.subcategory
-            )
-            != ""
-        )
-    )
-
-    if department and department.strip():
+    if (
+        selected_department
+        and selected_category
+    ):
         subcategory_query = (
-            subcategory_query.where(
+            select(
+                models.ServiceCatalog.subcategory
+            )
+            .where(
                 func.trim(
-                    models.Ticket.department
+                    models.ServiceCatalog.department
                 )
-                == department.strip()
+                == selected_department
+            )
+            .where(
+                func.trim(
+                    models.ServiceCatalog.category
+                )
+                == selected_category
+            )
+            .where(
+                models.ServiceCatalog.subcategory.is_not(
+                    None
+                )
+            )
+            .where(
+                func.trim(
+                    models.ServiceCatalog.subcategory
+                )
+                != ""
+            )
+            .distinct()
+        )
+
+        subcategories = clean_option_values(
+            list(
+                db.scalars(
+                    subcategory_query
+                ).all()
             )
         )
-
-    if category and category.strip():
-        subcategory_query = (
-            subcategory_query.where(
-                func.trim(
-                    models.Ticket.category
-                )
-                == category.strip()
-            )
-        )
-
-    subcategory_query = (
-        subcategory_query.distinct()
-    )
-
-    subcategories = clean_option_values(
-        list(
-            db.scalars(
-                subcategory_query
-            ).all()
-        )
-    )
 
     return {
         "departments": departments,
@@ -385,7 +416,9 @@ def get_ticket_filter_options(
     db: Session = Depends(get_db),
 ):
     category_query = (
-        select(models.Ticket.category)
+        select(
+            models.Ticket.category
+        )
         .where(
             models.Ticket.category.is_not(
                 None
@@ -421,7 +454,9 @@ def get_ticket_filter_options(
     )
 
     department_query = (
-        select(models.Ticket.department)
+        select(
+            models.Ticket.department
+        )
         .where(
             models.Ticket.department.is_not(
                 None

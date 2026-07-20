@@ -6,6 +6,7 @@ from sqlalchemy import (
     Boolean,
     CheckConstraint,
     DateTime,
+    Index,
     Numeric,
     String,
     Text,
@@ -123,6 +124,52 @@ class Ticket(Base):
     closed_at: Mapped[datetime | None] = mapped_column(
         DateTime,
         nullable=True,
+    )
+
+
+class ServiceCatalog(Base):
+    __tablename__ = "service_catalog"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "department",
+            "category",
+            "subcategory",
+            name=(
+                "uq_service_catalog_"
+                "department_category_subcategory"
+            ),
+        ),
+        Index(
+            "ix_service_catalog_department",
+            "department",
+        ),
+        Index(
+            "ix_service_catalog_department_category",
+            "department",
+            "category",
+        ),
+    )
+
+    catalog_id: Mapped[int] = mapped_column(
+        BigInteger,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    department: Mapped[str] = mapped_column(
+        String(150),
+        nullable=False,
+    )
+
+    category: Mapped[str] = mapped_column(
+        String(150),
+        nullable=False,
+    )
+
+    subcategory: Mapped[str] = mapped_column(
+        String(150),
+        nullable=False,
     )
 
 
