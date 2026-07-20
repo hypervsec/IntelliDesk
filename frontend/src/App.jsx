@@ -14,6 +14,7 @@ import { useAuth } from "./auth/AuthContext";
 import ProtectedRoute from "./auth/ProtectedRoute";
 
 import Icon from "./components/Icon";
+import NotificationsMenu from "./components/NotificationsMenu";
 import Sidebar from "./components/Sidebar";
 import ThemeToggle from "./components/ThemeToggle";
 
@@ -158,6 +159,8 @@ function ProtectedLayout() {
 
             <div className="app-topbar-actions">
               <ThemeToggle />
+
+              <NotificationsMenu />
 
               {showCreateButton ? (
                 <Link to="/tickets/new" className="topbar-create-button">
