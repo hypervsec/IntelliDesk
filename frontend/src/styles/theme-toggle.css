@@ -1,23 +1,25 @@
+/* =========================================================
+   TEMA DEĞİŞTİRME BUTONU
+   ========================================================= */
+
 .theme-toggle {
-  min-height: 39px;
+  min-height: 40px;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
 
-  border: 1px solid rgba(148, 163, 184, 0.16);
-
+  border: 1px solid var(--color-border);
   border-radius: 11px;
 
   padding: 0 12px;
 
-  color: #cbd5e1;
-
-  background: rgba(255, 255, 255, 0.045);
+  color: var(--color-text-soft);
+  background: var(--color-surface-soft);
 
   font: inherit;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 800;
 
   cursor: pointer;
@@ -26,17 +28,24 @@
     color 160ms ease,
     border-color 160ms ease,
     background-color 160ms ease,
+    box-shadow 160ms ease,
     transform 160ms ease;
 }
 
 .theme-toggle:hover {
-  color: #ffffff;
+  color: var(--color-text);
 
-  border-color: rgba(129, 140, 248, 0.35);
+  border-color: rgba(129, 140, 248, 0.38);
 
-  background: rgba(99, 102, 241, 0.11);
+  background: var(--color-primary-soft);
+
+  box-shadow: var(--shadow-sm);
 
   transform: translateY(-1px);
+}
+
+.theme-toggle:active {
+  transform: translateY(0);
 }
 
 .theme-toggle-icon {
@@ -45,36 +54,29 @@
 
   display: grid;
   place-items: center;
+  flex: 0 0 19px;
 
-  color: #fbbf24;
+  color: var(--color-warning);
 }
 
-html[data-theme="light"] .theme-toggle {
-  color: #475569;
-
-  border-color: rgba(148, 163, 184, 0.3);
-
-  background: #ffffff;
-
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
-}
-
-html[data-theme="light"] .theme-toggle:hover {
-  color: #312e81;
-
-  border-color: rgba(99, 102, 241, 0.32);
-
-  background: #eef2ff;
+.theme-toggle-label {
+  line-height: 1;
+  white-space: nowrap;
 }
 
 html[data-theme="light"] .theme-toggle-icon {
-  color: #4f46e5;
+  color: var(--color-primary-deep);
 }
+
+/* =========================================================
+   MOBİL
+   ========================================================= */
 
 @media (max-width: 650px) {
   .theme-toggle {
-    width: 39px;
-    min-width: 39px;
+    width: 40px;
+    min-width: 40px;
+
     padding: 0;
   }
 

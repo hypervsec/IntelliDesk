@@ -172,20 +172,6 @@ function Sidebar({ isOpen = false, onClose }) {
       </nav>
 
       <div className="sidebar-bottom-area">
-        <div className="sidebar-engine-status">
-          <span className="sidebar-engine-icon">
-            <Icon name="sparkles" size={14} />
-          </span>
-
-          <div>
-            <strong>AI motoru hazır</strong>
-
-            <span>Öneri sistemi çevrimiçi</span>
-          </div>
-
-          <span className="sidebar-engine-dot" />
-        </div>
-
         <div className="sidebar-account-footer">
           <div className="sidebar-account-avatar">{initials}</div>
 

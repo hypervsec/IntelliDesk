@@ -1,5 +1,5 @@
 /* =========================================================
-   YENİ TICKET SAYFASI
+   YENİ TICKET VE AYARLAR FORM SAYFALARI
    ========================================================= */
 
 .page:has(.form-panel) {
@@ -11,31 +11,8 @@
   margin-bottom: 22px;
 }
 
-.page:has(.form-panel) .page-header h1 {
-  margin-top: 8px;
-
-  color: #f8fafc;
-
-  font-size: clamp(30px, 3vw, 42px);
-  line-height: 1.1;
-  letter-spacing: -0.045em;
-}
-
 .page:has(.form-panel) .page-header p {
-  max-width: 620px;
-
-  color: #9aabc3;
-
-  font-size: 13px;
-  line-height: 1.7;
-}
-
-.page:has(.form-panel) .page-eyebrow {
-  color: #818cf8;
-
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.17em;
+  max-width: 640px;
 }
 
 /* =========================================================
@@ -45,19 +22,16 @@
 .page:has(.form-panel) .form-panel {
   position: relative;
 
+  width: 100%;
+
   overflow: hidden;
+  padding: 0;
 
-  border: 1px solid rgba(148, 163, 184, 0.19) !important;
-
-  border-radius: 19px !important;
-
-  padding: 0 !important;
-
-  color: #dbe4f4;
-
-  background: linear-gradient(145deg, #18253f, #111e35) !important;
-
-  box-shadow: 0 24px 65px rgba(2, 6, 23, 0.3) !important;
+  background: linear-gradient(
+    145deg,
+    var(--color-surface-raised),
+    var(--color-surface)
+  );
 }
 
 .page:has(.form-panel) .form-panel::before {
@@ -73,24 +47,23 @@
 
   border-radius: 50%;
 
-  background: rgba(99, 102, 241, 0.15);
+  background: rgba(99, 102, 241, 0.14);
 
   filter: blur(10px);
 }
+
+/* =========================================================
+   PANEL BAŞLIĞI
+   ========================================================= */
 
 .page:has(.form-panel) .form-panel-heading {
   position: relative;
   z-index: 1;
 
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
-
-  margin: 0 !important;
+  margin: 0;
   padding: 22px 24px;
 
-  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+  border-bottom: 1px solid var(--color-divider);
 
   background: linear-gradient(
     135deg,
@@ -100,30 +73,11 @@
 }
 
 .page:has(.form-panel) .form-panel-heading h2 {
-  margin: 7px 0 0;
-
-  color: #f8fafc;
-
-  font-size: 18px;
-  line-height: 1.3;
-  letter-spacing: -0.025em;
+  margin-top: 7px;
 }
 
 .page:has(.form-panel) .form-panel-heading p {
-  margin: 7px 0 0;
-
-  color: #91a3bf;
-
-  font-size: 11px;
-  line-height: 1.65;
-}
-
-.page:has(.form-panel) .section-kicker {
-  color: #818cf8;
-
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.15em;
+  margin-top: 7px;
 }
 
 .page:has(.form-panel) .form-step-badge {
@@ -135,243 +89,115 @@
   align-items: center;
   justify-content: center;
 
-  border: 1px solid rgba(129, 140, 248, 0.25);
-
-  border-radius: 999px;
+  border: 1px solid rgba(129, 140, 248, 0.28);
+  border-radius: var(--radius-pill);
 
   padding: 0 12px;
 
-  color: #b3bdfd;
+  color: #c7d2fe;
 
-  background: rgba(99, 102, 241, 0.12);
+  background: rgba(99, 102, 241, 0.13);
 
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 /* =========================================================
-   FORM YAPISI
+   FORM İÇERİĞİ
    ========================================================= */
 
 .page:has(.form-panel) .ticket-form {
   position: relative;
   z-index: 1;
 
-  display: grid;
-  gap: 22px;
-
-  margin: 0 !important;
+  margin: 0;
   padding: 24px;
 }
 
-.page:has(.form-panel) .form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
+/*
+   Yeni Ticket sayfasında konu ve açıklama alanları
+   panelin tam genişliğini kullanır.
+*/
+
+.page:has(.form-panel) .ticket-form > .form-group:first-child,
+.page:has(.form-panel) .ticket-form > .form-field:first-child {
+  grid-column: 1 / -1;
 }
 
-.page:has(.form-panel) .form-group {
-  min-width: 0;
-
-  display: grid;
-  gap: 8px;
+.page:has(.form-panel) .ticket-form > .form-group:nth-child(2),
+.page:has(.form-panel) .ticket-form > .form-field:nth-child(2) {
+  grid-column: 1 / -1;
 }
-
-.page:has(.form-panel) .form-group label {
-  color: #9aabc3;
-
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.page:has(.form-panel) .required-mark {
-  margin-left: 4px;
-
-  color: #fb7185;
-}
-
-/* =========================================================
-   INPUT / SELECT / TEXTAREA
-   ========================================================= */
-
-.page:has(.form-panel) input,
-.page:has(.form-panel) select,
-.page:has(.form-panel) textarea {
-  width: 100%;
-
-  box-sizing: border-box;
-
-  border: 1px solid rgba(148, 163, 184, 0.21) !important;
-
-  border-radius: 12px !important;
-
-  color: #edf2f9 !important;
-
-  background: rgba(8, 18, 35, 0.74) !important;
-
-  font: inherit;
-  font-size: 11px !important;
-  font-weight: 500;
-
-  transition:
-    border-color 160ms ease,
-    background-color 160ms ease,
-    box-shadow 160ms ease;
-}
-
-.page:has(.form-panel) input,
-.page:has(.form-panel) select {
-  min-height: 47px;
-
-  padding: 0 14px !important;
-}
-
-.page:has(.form-panel) textarea {
-  min-height: 150px;
-
-  padding: 14px !important;
-
-  line-height: 1.75;
-  resize: vertical;
-}
-
-.page:has(.form-panel) input::placeholder,
-.page:has(.form-panel) textarea::placeholder {
-  color: #71819a;
-
-  opacity: 1;
-}
-
-.page:has(.form-panel) input:hover:not(:disabled),
-.page:has(.form-panel) select:hover:not(:disabled),
-.page:has(.form-panel) textarea:hover:not(:disabled) {
-  border-color: rgba(148, 163, 184, 0.32) !important;
-}
-
-.page:has(.form-panel) input:focus,
-.page:has(.form-panel) select:focus,
-.page:has(.form-panel) textarea:focus {
-  outline: none;
-
-  border-color: rgba(129, 140, 248, 0.74) !important;
-
-  background: rgba(10, 22, 42, 0.97) !important;
-
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.13) !important;
-}
-
-.page:has(.form-panel) select option {
-  color: #edf2f9;
-
-  background: #111d34;
-}
-
-.page:has(.form-panel) input:disabled,
-.page:has(.form-panel) select:disabled,
-.page:has(.form-panel) textarea:disabled {
-  cursor: not-allowed;
-
-  color: #8291a9 !important;
-
-  background: rgba(8, 18, 35, 0.5) !important;
-
-  opacity: 0.62;
-}
-
-/* =========================================================
-   FORM AKSİYONLARI
-   ========================================================= */
 
 .page:has(.form-panel) .form-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 11px;
-
   margin-top: 3px;
-  padding-top: 21px;
+  padding-top: 20px;
 
-  border-top: 1px solid rgba(148, 163, 184, 0.13);
+  border-top: 1px solid var(--color-divider);
 }
 
-.page:has(.form-panel) .primary-button,
-.page:has(.form-panel) .secondary-button {
-  min-height: 43px;
-
-  border-radius: 11px !important;
-
-  padding: 0 18px !important;
-
-  font: inherit;
-  font-size: 10px !important;
-  font-weight: 800 !important;
-
-  cursor: pointer;
-
-  transition:
-    border-color 160ms ease,
-    background-color 160ms ease,
-    box-shadow 160ms ease,
-    transform 160ms ease;
-}
-
-.page:has(.form-panel) .primary-button {
-  border: 1px solid rgba(129, 140, 248, 0.3) !important;
-
-  color: #ffffff !important;
-
-  background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
-
-  box-shadow: 0 13px 29px rgba(79, 70, 229, 0.28) !important;
-}
-
-.page:has(.form-panel) .primary-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-
-  box-shadow: 0 18px 36px rgba(79, 70, 229, 0.38) !important;
-}
-
-.page:has(.form-panel) .secondary-button {
-  border: 1px solid rgba(148, 163, 184, 0.22) !important;
-
-  color: #b7c3d6 !important;
-
-  background: rgba(148, 163, 184, 0.08) !important;
-}
-
-.page:has(.form-panel) .secondary-button:hover:not(:disabled) {
-  border-color: rgba(148, 163, 184, 0.36) !important;
-
-  color: #f1f5f9 !important;
-
-  background: rgba(148, 163, 184, 0.14) !important;
-}
-
-.page:has(.form-panel) button:disabled {
-  cursor: not-allowed;
-
-  opacity: 0.48;
+.page:has(.form-panel) > .error-message {
+  margin-bottom: 18px;
 }
 
 /* =========================================================
-   HATA MESAJLARI
+   AYARLAR SAYFASI
    ========================================================= */
 
-.page:has(.form-panel) > .error-message {
-  border: 1px solid rgba(248, 113, 113, 0.26);
+.page:has(.form-panel) .form-field input[readonly] {
+  cursor: default;
 
-  border-radius: 12px;
+  color: var(--color-text-soft);
 
-  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.025);
+}
 
-  color: #fda4af;
+.page:has(.form-panel) .form-field input[readonly]:hover {
+  border-color: var(--color-border-strong);
 
-  background: rgba(239, 68, 68, 0.11);
+  background: rgba(255, 255, 255, 0.035);
+}
 
-  font-size: 11px;
-  line-height: 1.6;
+.page:has(.form-panel) .form-field input[readonly]:focus {
+  border-color: var(--color-border-strong);
+
+  background: rgba(255, 255, 255, 0.035);
+
+  box-shadow: none;
+}
+
+/* =========================================================
+   AÇIK TEMA
+   ========================================================= */
+
+html[data-theme="light"] .page:has(.form-panel) .form-panel-heading {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.08),
+    rgba(255, 255, 255, 0.85)
+  );
+}
+
+html[data-theme="light"] .page:has(.form-panel) .form-step-badge {
+  color: #4338ca;
+
+  background: #eef2ff;
+}
+
+html[data-theme="light"] .page:has(.form-panel) .form-field input[readonly] {
+  background: #f3f6fa;
+}
+
+html[data-theme="light"]
+  .page:has(.form-panel)
+  .form-field
+  input[readonly]:hover,
+html[data-theme="light"]
+  .page:has(.form-panel)
+  .form-field
+  input[readonly]:focus {
+  background: #eef2f7;
 }
 
 /* =========================================================
@@ -382,16 +208,11 @@
   .page:has(.form-panel) {
     width: calc(100% - 30px);
   }
-
-  .page:has(.form-panel) .form-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 560px) {
   .page:has(.form-panel) .form-panel-heading {
     align-items: flex-start;
-    flex-direction: column;
 
     padding: 18px;
   }
@@ -400,13 +221,9 @@
     padding: 18px;
   }
 
-  .page:has(.form-panel) .form-actions {
-    align-items: stretch;
-    flex-direction: column-reverse;
-  }
+  .page:has(.form-panel) .form-step-badge {
+    min-height: 28px;
 
-  .page:has(.form-panel) .primary-button,
-  .page:has(.form-panel) .secondary-button {
-    width: 100%;
+    padding-inline: 10px;
   }
 }

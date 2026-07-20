@@ -1,69 +1,89 @@
 /* =========================================================
-   LOGIN / REGISTER TEMA BUTONU
+   AUTH SAYFASI TEMA BUTONU YERLEŞİMİ
    ========================================================= */
-
-.auth-page {
-  position: relative;
-}
 
 .auth-theme-toggle {
   position: fixed;
-  top: 22px;
-  right: 24px;
-  z-index: 50;
+  top: 20px;
+  right: 22px;
+  z-index: 30;
 }
 
 .auth-theme-toggle .theme-toggle {
   min-height: 42px;
 
-  border-color: rgba(148, 163, 184, 0.24);
+  border-color: rgba(148, 163, 184, 0.22);
 
-  background: rgba(8, 18, 35, 0.76);
+  color: #dbe4f4;
 
-  box-shadow: 0 14px 34px rgba(2, 6, 23, 0.28);
+  background: rgba(15, 27, 49, 0.78);
 
-  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 28px rgba(2, 6, 23, 0.24);
+
+  backdrop-filter: blur(14px);
 }
 
 .auth-theme-toggle .theme-toggle:hover {
-  background: rgba(99, 102, 241, 0.18);
+  border-color: rgba(129, 140, 248, 0.42);
+
+  color: #ffffff;
+
+  background: rgba(30, 44, 72, 0.92);
 }
 
+.auth-theme-toggle .theme-toggle-icon {
+  color: #fbbf24;
+}
+
+/* =========================================================
+   AÇIK TEMA
+   ========================================================= */
+
 html[data-theme="light"] .auth-theme-toggle .theme-toggle {
-  border-color: #cbd5e1;
+  border-color: rgba(100, 116, 139, 0.24);
 
-  color: #475569;
+  color: #334155;
 
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.86);
 
-  box-shadow: 0 12px 30px rgba(30, 41, 59, 0.12);
+  box-shadow: 0 12px 28px rgba(30, 41, 59, 0.12);
 }
 
 html[data-theme="light"] .auth-theme-toggle .theme-toggle:hover {
-  color: #312e81;
+  border-color: rgba(99, 102, 241, 0.38);
 
-  border-color: rgba(99, 102, 241, 0.35);
+  color: #1e293b;
 
-  background: #eef2ff;
+  background: #ffffff;
 }
 
-@media (max-width: 980px) {
+html[data-theme="light"] .auth-theme-toggle .theme-toggle-icon {
+  color: #4f46e5;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
   .auth-theme-toggle {
+    position: absolute;
     top: 18px;
     right: 20px;
   }
 }
 
-@media (max-width: 650px) {
+@media (max-width: 560px) {
   .auth-theme-toggle {
     top: 14px;
     right: 14px;
   }
 
   .auth-theme-toggle .theme-toggle {
-    width: 42px;
-    min-width: 42px;
-    min-height: 42px;
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    min-height: 40px;
 
     padding: 0;
   }

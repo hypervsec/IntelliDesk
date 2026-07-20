@@ -85,9 +85,7 @@ function CreateTicket() {
 
           return {
             ...currentData,
-
             category: categoryIsValid ? currentData.category : "",
-
             subcategory: subcategoryIsValid ? currentData.subcategory : "",
           };
         });
@@ -187,15 +185,10 @@ function CreateTicket() {
       const requestData = {
         title,
         description,
-
         requester_name: formData.requester_name.trim() || null,
-
         department: formData.department,
-
         category: formData.category,
-
         subcategory: formData.subcategory,
-
         priority: formData.priority,
       };
 
@@ -225,7 +218,9 @@ function CreateTicket() {
       <header className="page-header">
         <div>
           <span className="page-eyebrow">YENİ KAYIT</span>
+
           <h1>Yeni Ticket</h1>
+
           <p>Talep bilgilerini eksiksiz doldurarak destek kaydı oluştur.</p>
         </div>
       </header>
@@ -238,10 +233,11 @@ function CreateTicket() {
         <div className="form-panel-heading">
           <div>
             <span className="section-kicker">TICKET BİLGİLERİ</span>
+
             <h2>Destek talebi detayları</h2>
+
             <p>Zorunlu alanlar yıldız işaretiyle belirtilmiştir.</p>
           </div>
-          <span className="form-step-badge">1 adım</span>
         </div>
 
         <form className="ticket-form" onSubmit={handleSubmit}>

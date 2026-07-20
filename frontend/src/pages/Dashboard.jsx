@@ -246,12 +246,7 @@ function Dashboard() {
       </section>
 
       <section className="dashboard-v2-primary-grid">
-        <article
-          className="
-            dashboard-v2-panel
-            dashboard-v2-activity-panel
-          "
-        >
+        <article className="dashboard-v2-panel dashboard-v2-activity-panel">
           <div className="dashboard-v2-panel-header">
             <div>
               <span className="dashboard-v2-section-label">
@@ -310,6 +305,7 @@ function Dashboard() {
 
                     <feMerge>
                       <feMergeNode in="blur" />
+
                       <feMergeNode in="SourceGraphic" />
                     </feMerge>
                   </filter>
@@ -322,14 +318,7 @@ function Dashboard() {
                     y1={lineChart.height * value}
                     x2={lineChart.width}
                     y2={lineChart.height * value}
-                    stroke="
-                        rgba(
-                          148,
-                          163,
-                          184,
-                          0.15
-                        )
-                      "
+                    stroke="rgba(148, 163, 184, 0.15)"
                     strokeDasharray="6 8"
                   />
                 ))}
@@ -409,12 +398,7 @@ function Dashboard() {
           </div>
         </article>
 
-        <article
-          className="
-            dashboard-v2-panel
-            dashboard-v2-status-panel
-          "
-        >
+        <article className="dashboard-v2-panel dashboard-v2-status-panel">
           <div className="dashboard-v2-panel-header">
             <div>
               <span className="dashboard-v2-section-label">DURUM DAĞILIMI</span>
@@ -481,12 +465,7 @@ function Dashboard() {
       </section>
 
       <section className="dashboard-v2-secondary-grid">
-        <article
-          className="
-            dashboard-v2-panel
-            dashboard-v2-recent-panel
-          "
-        >
+        <article className="dashboard-v2-panel dashboard-v2-recent-panel">
           <div className="dashboard-v2-panel-header">
             <div>
               <span className="dashboard-v2-section-label">SON HAREKETLER</span>
@@ -528,6 +507,10 @@ function Dashboard() {
                     {ticket.category || "Kategori yok"}
                   </div>
 
+                  <div className="dashboard-v2-ticket-department">
+                    {ticket.department || "Departman yok"}
+                  </div>
+
                   <span
                     className={`dashboard-v2-priority priority-${ticket.priority}`}
                   >
@@ -553,12 +536,7 @@ function Dashboard() {
           </div>
         </article>
 
-        <article
-          className="
-            dashboard-v2-panel
-            dashboard-v2-workload-panel
-          "
-        >
+        <article className="dashboard-v2-panel dashboard-v2-workload-panel">
           <div className="dashboard-v2-panel-header">
             <div>
               <span className="dashboard-v2-section-label">İŞ YÜKÜ</span>
@@ -580,12 +558,7 @@ function Dashboard() {
 
       <section className="dashboard-v2-lower-grid">
         <article className="dashboard-v2-panel">
-          <div
-            className="
-              dashboard-v2-panel-header
-              dashboard-v2-panel-header-compact
-            "
-          >
+          <div className="dashboard-v2-panel-header dashboard-v2-panel-header-compact">
             <div>
               <span className="dashboard-v2-section-label">KATEGORİLER</span>
 
@@ -606,12 +579,7 @@ function Dashboard() {
         </article>
 
         <article className="dashboard-v2-panel">
-          <div
-            className="
-              dashboard-v2-panel-header
-              dashboard-v2-panel-header-compact
-            "
-          >
+          <div className="dashboard-v2-panel-header dashboard-v2-panel-header-compact">
             <div>
               <span className="dashboard-v2-section-label">ÖNCELİKLER</span>
 
@@ -808,7 +776,7 @@ function buildLineChart(dailyStats) {
 
 function buildDonutGradient(statuses, total) {
   if (!Array.isArray(statuses) || statuses.length === 0 || total <= 0) {
-    return "conic-gradient(" + "#26334d 0% 100%)";
+    return "conic-gradient(#26334d 0% 100%)";
   }
 
   let cursor = 0;
@@ -819,6 +787,7 @@ function buildDonutGradient(statuses, total) {
     const percentage = (count / total) * 100;
 
     const start = cursor;
+
     const end = cursor + percentage;
 
     cursor = end;
