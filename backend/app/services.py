@@ -5,6 +5,7 @@ import os
 import re
 import unicodedata
 from collections import Counter
+from pathlib import Path
 
 import numpy as np
 import psycopg2
@@ -13,7 +14,16 @@ from pgvector.psycopg2 import register_vector
 from sentence_transformers import SentenceTransformer
 
 
-load_dotenv("backend/.env")
+BACKEND_DIRECTORY = (
+    Path(__file__).resolve().parents[1]
+)
+
+ENV_FILE = BACKEND_DIRECTORY / ".env"
+
+load_dotenv(
+    dotenv_path=ENV_FILE,
+    override=False,
+)
 
 DB_CONFIG = {
     "host": os.getenv("DB_HOST", "127.0.0.1"),
