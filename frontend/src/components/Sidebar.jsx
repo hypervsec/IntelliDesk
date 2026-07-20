@@ -18,6 +18,13 @@ const navigationItems = [
     icon: "tickets",
   },
   {
+    to: "/tickets/assigned",
+    end: true,
+    label: "Bana Atananlar",
+    icon: "user",
+    staffOnly: true,
+  },
+  {
     to: "/tickets/new",
     end: false,
     label: "Yeni Ticket",
@@ -37,6 +44,8 @@ const roleLabels = {
   technician: "Teknisyen",
   user: "Kullanıcı",
 };
+
+const staffRoles = new Set(["technician", "admin"]);
 
 function getAccountInitials(fullName) {
   if (!fullName) {
@@ -63,9 +72,17 @@ function Sidebar({ isOpen = false, onClose }) {
 
   const { account, logout } = useAuth();
 
-  const visibleNavigationItems = navigationItems.filter(
-    (item) => !item.adminOnly || account?.role === "admin",
-  );
+  const visibleNavigationItems = navigationItems.filter((item) => {
+    if (item.adminOnly && account?.role !== "admin") {
+      return false;
+    }
+
+    if (item.staffOnly && !staffRoles.has(account?.role)) {
+      return false;
+    }
+
+    return true;
+  });
 
   function getLinkClass({ isActive }) {
     return isActive ? "sidebar-link active" : "sidebar-link";

@@ -8,6 +8,7 @@ from fastapi import (
 from fastapi.middleware.cors import CORSMiddleware
 
 from .models import Account
+from .routers import assigned_tickets
 from .routers import auth
 from .routers import ticket_pagination
 from .routers import tickets
@@ -117,6 +118,13 @@ app.include_router(
     dependencies=[
         Depends(get_current_account),
     ],
+)
+
+
+# Bana atanan ticket endpointleri yalnızca
+# teknisyen ve yöneticiler içindir.
+app.include_router(
+    assigned_tickets.router
 )
 
 

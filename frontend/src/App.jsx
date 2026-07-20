@@ -17,6 +17,7 @@ import Icon from "./components/Icon";
 import Sidebar from "./components/Sidebar";
 import ThemeToggle from "./components/ThemeToggle";
 
+import AssignedTickets from "./pages/AssignedTickets";
 import CreateTicket from "./pages/CreateTicket";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
@@ -37,6 +38,13 @@ function getPageMeta(pathname) {
     return {
       section: "Ticketlar",
       title: "Ticket Yönetimi",
+    };
+  }
+
+  if (pathname === "/tickets/assigned") {
+    return {
+      section: "Ticketlar",
+      title: "Bana Atananlar",
     };
   }
 
@@ -67,6 +75,16 @@ function getPageMeta(pathname) {
   };
 }
 
+function StaffRoute({ children }) {
+  const { account } = useAuth();
+
+  if (account?.role !== "technician" && account?.role !== "admin") {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
+
 function AdminRoute({ children }) {
   const { account } = useAuth();
 
@@ -89,14 +107,21 @@ function ProtectedLayout() {
   return (
     <ProtectedRoute>
       <div className="app-layout">
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <Sidebar
+          isOpen={sidebarOpen}
+          onClose={() => {
+            setSidebarOpen(false);
+          }}
+        />
 
         {sidebarOpen ? (
           <button
             type="button"
             className="sidebar-overlay"
             aria-label="Menüyü kapat"
-            onClick={() => setSidebarOpen(false)}
+            onClick={() => {
+              setSidebarOpen(false);
+            }}
           />
         ) : null}
 
@@ -107,7 +132,9 @@ function ProtectedLayout() {
                 type="button"
                 className="topbar-menu-button"
                 aria-label="Menüyü aç"
-                onClick={() => setSidebarOpen(true)}
+                onClick={() => {
+                  setSidebarOpen(true);
+                }}
               >
                 <Icon name="menu" size={20} />
               </button>
@@ -155,6 +182,15 @@ function App() {
           <Route index element={<Dashboard />} />
 
           <Route path="/tickets" element={<Tickets />} />
+
+          <Route
+            path="/tickets/assigned"
+            element={
+              <StaffRoute>
+                <AssignedTickets />
+              </StaffRoute>
+            }
+          />
 
           <Route path="/tickets/new" element={<CreateTicket />} />
 
