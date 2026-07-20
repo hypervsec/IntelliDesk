@@ -37,6 +37,12 @@ const navigationItems = [
     icon: "user",
     adminOnly: true,
   },
+  {
+    to: "/settings",
+    end: true,
+    label: "Ayarlar",
+    icon: "activity",
+  },
 ];
 
 const roleLabels = {

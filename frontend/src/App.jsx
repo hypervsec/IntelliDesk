@@ -22,6 +22,7 @@ import CreateTicket from "./pages/CreateTicket";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Settings from "./pages/Settings";
 import TicketDetail from "./pages/TicketDetail";
 import Tickets from "./pages/Tickets";
 import UserManagement from "./pages/UserManagement";
@@ -66,6 +67,13 @@ function getPageMeta(pathname) {
     return {
       section: "Yönetim",
       title: "Kullanıcılar",
+    };
+  }
+
+  if (pathname === "/settings") {
+    return {
+      section: "Hesap",
+      title: "Ayarlar",
     };
   }
 
@@ -204,6 +212,8 @@ function App() {
               </AdminRoute>
             }
           />
+
+          <Route path="/settings" element={<Settings />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
