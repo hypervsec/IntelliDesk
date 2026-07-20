@@ -6,7 +6,7 @@ import { useAuth } from "../auth/AuthContext";
 
 import ThemeToggle from "../components/ThemeToggle";
 
-import "../auth/auth.css";
+import "../auth/Auth.css";
 import "../styles/auth-theme-toggle.css";
 
 function getErrorMessage(error, fallbackMessage) {

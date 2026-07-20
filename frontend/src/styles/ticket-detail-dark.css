@@ -50,7 +50,7 @@
   background: transparent;
 
   font: inherit;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
 
   cursor: pointer;
@@ -104,14 +104,14 @@
 .page:has(.detail-grid) .panel-header p {
   color: #91a3bf;
 
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.65;
 }
 
 .page:has(.detail-grid) .section-kicker {
   color: #818cf8;
 
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.15em;
 }
@@ -131,7 +131,7 @@
 .page:has(.detail-grid) .detail-row > span {
   color: #91a3bf;
 
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.04em;
 }
@@ -139,7 +139,7 @@
 .page:has(.detail-grid) .detail-row > strong {
   color: #edf2f9;
 
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1.7;
 }
@@ -147,7 +147,7 @@
 .page:has(.detail-grid) .detail-row p {
   color: #b3bfd1;
 
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.75;
 }
 
@@ -166,7 +166,7 @@
 
   padding: 0 9px;
 
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 800;
 }
 
@@ -255,7 +255,7 @@
 
   color: #d8e0ec;
 
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   line-height: 1.8;
   white-space: pre-line;
@@ -264,7 +264,7 @@
 .page:has(.detail-grid) .confidence-title {
   color: #9aabc3;
 
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.04em;
 }
@@ -276,7 +276,7 @@
 .page:has(.detail-grid) .confidence-row strong {
   color: #f8fafc;
 
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .page:has(.detail-grid) .confidence-track {
@@ -305,7 +305,7 @@
 
   padding: 4px 9px;
 
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 800;
 }
 
@@ -342,7 +342,7 @@
 
   color: #91a3bf;
 
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.65;
 }
 
@@ -366,7 +366,7 @@
 
   background: rgba(99, 102, 241, 0.12);
 
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 700;
 }
 
@@ -387,7 +387,7 @@
 .page:has(.detail-grid) .form-group label {
   color: #9aabc3;
 
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -409,7 +409,7 @@
   background: rgba(8, 18, 35, 0.74) !important;
 
   font: inherit;
-  font-size: 11px !important;
+  font-size: 12px !important;
   font-weight: 500;
 
   transition:
@@ -490,7 +490,7 @@
   padding: 0 16px !important;
 
   font: inherit;
-  font-size: 10px !important;
+  font-size: 11px !important;
   font-weight: 800 !important;
 
   cursor: pointer;
@@ -556,20 +556,20 @@
 .page:has(.detail-grid) .saved-feedback strong {
   color: #edf2f9;
 
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .page:has(.detail-grid) .saved-feedback p {
   color: #b3bfd1;
 
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.7;
 }
 
 .page:has(.detail-grid) .saved-feedback span {
   color: #8291a9;
 
-  font-size: 9px;
+  font-size: 10px;
 }
 
 .page:has(.detail-grid) .feedback-accepted {
@@ -591,7 +591,7 @@
 .page:has(.detail-grid) .empty-message {
   color: #91a3bf;
 
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.65;
 }
 
@@ -602,7 +602,7 @@
 
   padding: 11px 13px;
 
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.6;
 }
 

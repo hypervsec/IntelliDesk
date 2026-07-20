@@ -6,7 +6,7 @@
 }
 
 /* =========================================================
-   BAŞLIK
+   BAÅžLIK
    ========================================================= */
 
 .dashboard-v2-header {
@@ -51,7 +51,7 @@
 }
 
 /* =========================================================
-   METRİKLER
+   METRÄ°KLER
    ========================================================= */
 
 .dashboard-v2-metrics {
@@ -377,7 +377,7 @@
 }
 
 /* =========================================================
-   ÇİZGİ GRAFİĞİ
+   Ã‡Ä°ZGÄ° GRAFÄ°ÄžÄ°
    ========================================================= */
 
 .dashboard-v2-activity-panel {
@@ -774,7 +774,7 @@
 }
 
 /* =========================================================
-   DAĞILIM ÇUBUKLARI
+   DAÄžILIM Ã‡UBUKLARI
    ========================================================= */
 
 .dashboard-v2-bars {
@@ -1006,5 +1006,109 @@
 
   .dashboard-v2-chart-summary > div:last-child {
     border-bottom: 0;
+  }
+}
+
+/* =========================================================
+   DASHBOARD SON 7 GÃœNLÃœK HAREKET GRAFÄ°ÄžÄ° DÃœZELTMELERÄ°
+   ========================================================= */
+
+.dashboard-v2-page .dashboard-v2-activity-panel {
+  min-height: 458px;
+}
+
+.dashboard-v2-page .dashboard-v2-line-chart {
+  height: 252px;
+}
+
+.dashboard-v2-page .dashboard-v2-chart-canvas svg g text:last-child {
+  font-size: 11px;
+  transform: translateY(-7px);
+}
+
+.dashboard-v2-page .dashboard-v2-chart-summary {
+  position: relative;
+  z-index: 2;
+
+  margin-top: 30px;
+  padding-top: 16px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(17, 30, 53, 0),
+    rgba(17, 30, 53, 0.92) 24%
+  );
+}
+
+.dashboard-v2-page .dashboard-v2-chart-summary span {
+  line-height: 1.4;
+}
+
+.dashboard-v2-page .dashboard-v2-chart-summary strong {
+  line-height: 1.3;
+}
+
+/* =========================================================
+   DASHBOARD KÃœÃ‡ÃœK YAZI BOYUTLARI
+   ========================================================= */
+
+.dashboard-v2-page .dashboard-v2-eyebrow,
+.dashboard-v2-page .dashboard-v2-section-label {
+  font-size: 10px;
+}
+
+.dashboard-v2-page .dashboard-v2-panel-header p {
+  font-size: 10px;
+}
+
+.dashboard-v2-page .dashboard-v2-chart-legend span {
+  font-size: 10px;
+}
+
+.dashboard-v2-page .dashboard-v2-metric-copy > span {
+  font-size: 11px;
+}
+
+.dashboard-v2-page .dashboard-v2-metric-copy p {
+  font-size: 10px;
+}
+
+.dashboard-v2-page .dashboard-v2-metric-progress > div:first-child,
+.dashboard-v2-page .dashboard-v2-metric-progress strong {
+  font-size: 9px;
+}
+
+.dashboard-v2-page .dashboard-v2-count-label {
+  font-size: 10px;
+}
+
+.dashboard-v2-page .dashboard-v2-chart-summary span {
+  font-size: 9px;
+}
+
+.dashboard-v2-page .dashboard-v2-chart-summary strong {
+  font-size: 14px;
+}
+
+.dashboard-v2-page .dashboard-v2-donut-center span,
+.dashboard-v2-page .dashboard-v2-donut-center small {
+  font-size: 9px;
+}
+
+.dashboard-v2-page .dashboard-v2-empty {
+  font-size: 10px;
+}
+
+@media (max-width: 680px) {
+  .dashboard-v2-page .dashboard-v2-activity-panel {
+    min-height: auto;
+  }
+
+  .dashboard-v2-page .dashboard-v2-line-chart {
+    height: 230px;
+  }
+
+  .dashboard-v2-page .dashboard-v2-chart-summary {
+    margin-top: 24px;
   }
 }

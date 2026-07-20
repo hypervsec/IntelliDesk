@@ -24,7 +24,7 @@
 .page:has(.ticket-list-panel) .page-header p {
   color: #9aabc3;
 
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.7;
 }
 
@@ -89,7 +89,7 @@
 .ticket-filter-field label {
   color: #91a3bf !important;
 
-  font-size: 9px !important;
+  font-size: 10px !important;
   font-weight: 800 !important;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -112,7 +112,7 @@
 
   background: rgba(7, 16, 31, 0.72) !important;
 
-  font-size: 11px !important;
+  font-size: 12px !important;
   font-weight: 500;
 
   transition:
@@ -168,7 +168,7 @@
 
   background: rgba(239, 68, 68, 0.09) !important;
 
-  font-size: 9px !important;
+  font-size: 10px !important;
   font-weight: 700 !important;
   white-space: nowrap;
 
@@ -209,7 +209,7 @@
 
   background: rgba(255, 255, 255, 0.025);
 
-  font-size: 10px !important;
+  font-size: 11px !important;
   font-weight: 600;
 }
 
@@ -222,6 +222,8 @@
 .ticket-list-panel > .empty-message,
 .ticket-list-panel > p {
   color: #91a3bf;
+
+  font-size: 12px;
 }
 
 /* =========================================================
@@ -249,7 +251,7 @@
 }
 
 .ticket-list-panel .tickets-table th {
-  height: 46px;
+  height: 48px;
 
   border-bottom: 1px solid rgba(148, 163, 184, 0.16);
 
@@ -257,7 +259,7 @@
 
   color: #91a3bf !important;
 
-  font-size: 9px !important;
+  font-size: 10px !important;
   font-weight: 800 !important;
   letter-spacing: 0.08em;
   text-align: left;
@@ -266,16 +268,17 @@
 }
 
 .ticket-list-panel .tickets-table td {
-  height: 64px;
+  height: 68px;
 
   border-bottom: 1px solid rgba(148, 163, 184, 0.11) !important;
 
-  padding: 8px 14px !important;
+  padding: 9px 14px !important;
 
   color: #aab7ca !important;
 
-  font-size: 10px !important;
+  font-size: 12px !important;
   font-weight: 500;
+  line-height: 1.45;
   vertical-align: middle;
 }
 
@@ -300,7 +303,7 @@
 .ticket-list-panel .tickets-table td:first-child {
   color: #9aa5ff !important;
 
-  font-size: 10px !important;
+  font-size: 11px !important;
   font-weight: 800;
 }
 
@@ -312,7 +315,7 @@
   min-width: 190px;
 
   display: grid;
-  gap: 4px;
+  gap: 5px;
 }
 
 .ticket-title-cell strong {
@@ -322,7 +325,7 @@
 
   color: #edf2f9 !important;
 
-  font-size: 11px !important;
+  font-size: 12px !important;
   font-weight: 700 !important;
 
   text-overflow: ellipsis;
@@ -334,9 +337,9 @@
 
   overflow: hidden;
 
-  color: #8291a9 !important;
+  color: #91a0b7 !important;
 
-  font-size: 9px !important;
+  font-size: 11px !important;
   font-weight: 500;
 
   text-overflow: ellipsis;
@@ -348,7 +351,7 @@
    ========================================================= */
 
 .ticket-list-panel .badge {
-  min-height: 24px;
+  min-height: 25px;
 
   display: inline-flex;
   align-items: center;
@@ -360,9 +363,9 @@
 
   border-radius: 999px !important;
 
-  padding: 0 9px !important;
+  padding: 0 10px !important;
 
-  font-size: 8px !important;
+  font-size: 9px !important;
   font-weight: 800 !important;
   white-space: nowrap;
 }
@@ -432,7 +435,7 @@
    ========================================================= */
 
 .ticket-list-panel .detail-link {
-  min-height: 30px;
+  min-height: 32px;
 
   display: inline-flex;
   align-items: center;
@@ -442,13 +445,13 @@
 
   border-radius: 9px;
 
-  padding: 0 11px;
+  padding: 0 12px;
 
   color: #b3bdfd !important;
 
   background: rgba(99, 102, 241, 0.1);
 
-  font-size: 9px !important;
+  font-size: 10px !important;
   font-weight: 700;
   text-decoration: none;
 
@@ -487,7 +490,7 @@
 .ticket-pagination-info {
   color: #8999b1 !important;
 
-  font-size: 9px !important;
+  font-size: 10px !important;
   font-weight: 500;
 }
 
@@ -498,19 +501,19 @@
 }
 
 .ticket-pagination-button {
-  min-height: 33px;
+  min-height: 35px;
 
   border: 1px solid rgba(129, 140, 248, 0.21) !important;
 
   border-radius: 9px !important;
 
-  padding: 0 12px !important;
+  padding: 0 13px !important;
 
   color: #b3bdfd !important;
 
   background: rgba(99, 102, 241, 0.09) !important;
 
-  font-size: 9px !important;
+  font-size: 10px !important;
   font-weight: 700 !important;
 
   cursor: pointer;
@@ -533,7 +536,7 @@
 
   color: #91a3bf !important;
 
-  font-size: 9px !important;
+  font-size: 10px !important;
   font-weight: 700;
   text-align: center;
 }
