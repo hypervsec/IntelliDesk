@@ -3,7 +3,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
-from .models import (
+from ..models import (
     Account,
     Ticket,
     TicketTimelineEntry,

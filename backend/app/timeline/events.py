@@ -7,14 +7,14 @@ from sqlalchemy import (
 from sqlalchemy.engine import Connection
 from sqlalchemy.orm import Mapper
 
-from .models import (
+from ..models import (
     Ticket,
     TicketTimelineEntry,
 )
-from .request_context import (
+from ..request_context import (
     get_request_actor,
 )
-from .timeline_service import (
+from .service import (
     TRACKED_TICKET_FIELDS,
     create_change_description,
     normalize_timeline_value,

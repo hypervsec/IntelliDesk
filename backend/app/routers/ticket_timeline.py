@@ -18,7 +18,7 @@ from ..models import (
 from ..routers.auth import (
     get_current_account,
 )
-from ..timeline_schemas import (
+from ..timeline.schemas import (
     TicketCommentCreate,
     TicketTimelineEntryResponse,
 )
