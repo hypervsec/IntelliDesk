@@ -21,6 +21,17 @@ from .database import Base
 class Ticket(Base):
     __tablename__ = "tickets"
 
+    __table_args__ = (
+        Index(
+            "ix_tickets_first_response_due_at",
+            "first_response_due_at",
+        ),
+        Index(
+            "ix_tickets_resolution_due_at",
+            "resolution_due_at",
+        ),
+    )
+
     ticket_id: Mapped[int] = mapped_column(
         BigInteger,
         primary_key=True,
@@ -108,6 +119,34 @@ class Ticket(Base):
         DateTime,
         nullable=False,
         default=datetime.now,
+    )
+
+    sla_started_at: Mapped[
+        datetime | None
+    ] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
+
+    first_response_due_at: Mapped[
+        datetime | None
+    ] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
+
+    resolution_due_at: Mapped[
+        datetime | None
+    ] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
+
+    first_responded_at: Mapped[
+        datetime | None
+    ] = mapped_column(
+        DateTime,
+        nullable=True,
     )
 
     updated_at: Mapped[datetime] = mapped_column(

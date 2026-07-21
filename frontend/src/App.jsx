@@ -24,6 +24,7 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Settings from "./pages/Settings";
+import SlaManagement from "./pages/SlaManagement";
 import TicketDetail from "./pages/TicketDetail";
 import Tickets from "./pages/Tickets";
 import UserManagement from "./pages/UserManagement";
@@ -47,6 +48,13 @@ function getPageMeta(pathname) {
     return {
       section: "Ticketlar",
       title: "Bana Atananlar",
+    };
+  }
+
+  if (pathname === "/sla") {
+    return {
+      section: "Operasyon",
+      title: "SLA Yönetimi",
     };
   }
 
@@ -199,6 +207,15 @@ function App() {
             element={
               <StaffRoute>
                 <AssignedTickets />
+              </StaffRoute>
+            }
+          />
+
+          <Route
+            path="/sla"
+            element={
+              <StaffRoute>
+                <SlaManagement />
               </StaffRoute>
             }
           />

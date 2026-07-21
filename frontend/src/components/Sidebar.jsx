@@ -25,6 +25,13 @@ const navigationItems = [
     staffOnly: true,
   },
   {
+    to: "/sla",
+    end: true,
+    label: "SLA Yönetimi",
+    icon: "activity",
+    staffOnly: true,
+  },
+  {
     to: "/tickets/new",
     end: false,
     label: "Yeni Ticket",

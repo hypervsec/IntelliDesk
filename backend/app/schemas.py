@@ -7,8 +7,14 @@ from pydantic import (
     ConfigDict,
     EmailStr,
     Field,
+    computed_field,
     field_validator,
     model_validator,
+)
+
+from .sla import (
+    calculate_remaining_minutes,
+    calculate_sla_status,
 )
 
 
@@ -42,6 +48,14 @@ AccountRoleType = Literal[
     "admin",
     "technician",
     "user",
+]
+
+SLAStatusType = Literal[
+    "on_track",
+    "approaching",
+    "breached",
+    "met",
+    "not_set",
 ]
 
 
@@ -265,9 +279,93 @@ class TicketResponse(BaseModel):
     ai_feedback_at: datetime | None
 
     created_at: datetime
+
+    sla_started_at: datetime | None
+    first_response_due_at: datetime | None
+    resolution_due_at: datetime | None
+    first_responded_at: datetime | None
+
     updated_at: datetime
     resolved_at: datetime | None
     closed_at: datetime | None
+
+    @computed_field
+    @property
+    def first_response_sla_status(
+        self,
+    ) -> SLAStatusType:
+        if (
+            self.sla_started_at is None
+            or self.first_response_due_at is None
+        ):
+            return "not_set"
+
+        return calculate_sla_status(
+            started_at=self.sla_started_at,
+            due_at=self.first_response_due_at,
+            completed_at=self.first_responded_at,
+        )
+
+    @computed_field
+    @property
+    def resolution_sla_status(
+        self,
+    ) -> SLAStatusType:
+        if (
+            self.sla_started_at is None
+            or self.resolution_due_at is None
+        ):
+            return "not_set"
+
+        completed_at = (
+            self.resolved_at
+            or self.closed_at
+        )
+
+        return calculate_sla_status(
+            started_at=self.sla_started_at,
+            due_at=self.resolution_due_at,
+            completed_at=completed_at,
+        )
+
+    @computed_field
+    @property
+    def first_response_remaining_minutes(
+        self,
+    ) -> int | None:
+        if (
+            self.sla_started_at is None
+            or self.first_response_due_at is None
+        ):
+            return None
+
+        if self.first_responded_at is not None:
+            return 0
+
+        return calculate_remaining_minutes(
+            due_at=self.first_response_due_at,
+        )
+
+    @computed_field
+    @property
+    def resolution_remaining_minutes(
+        self,
+    ) -> int | None:
+        if (
+            self.sla_started_at is None
+            or self.resolution_due_at is None
+        ):
+            return None
+
+        if (
+            self.resolved_at is not None
+            or self.closed_at is not None
+        ):
+            return 0
+
+        return calculate_remaining_minutes(
+            due_at=self.resolution_due_at,
+        )
 
 
 class TicketUpdate(BaseModel):

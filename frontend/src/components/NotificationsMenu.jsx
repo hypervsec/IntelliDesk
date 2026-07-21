@@ -315,6 +315,7 @@ function NotificationsMenu() {
       );
 
       setUnreadCount(0);
+
       setErrorMessage("");
     } catch (error) {
       setErrorMessage(
@@ -569,6 +570,10 @@ function NotificationsMenu() {
 }
 
 function getNotificationTypeLabel(notificationType) {
+  if (notificationType?.startsWith("sla_")) {
+    return "SLA";
+  }
+
   const typeLabels = {
     ticket_assigned: "Ticket",
     ticket_status_changed: "Durum",
