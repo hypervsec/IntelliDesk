@@ -46,6 +46,8 @@ rolleriyle tam bir ticket yönetim süreci sağlar.
 - Teknik personel atama
 - Çözüm bilgisini kaydetme
 - Arama, filtreleme, sıralama ve sayfalama
+- Ticket yorumları ve işlem geçmişi
+- Kullanıcıya veya teknisyene özel ticket görünümü
 
 ### Yapay Zekâ ve RAG
 
@@ -67,6 +69,24 @@ rolleriyle tam bir ticket yönetim süreci sağlar.
 - Rol tabanlı endpoint yetkilendirmesi
 - Kullanıcı, teknisyen ve yönetici rolleri
 - Yönetici kullanıcı yönetimi
+
+### SLA ve Bildirimler
+
+- Önceliğe göre ilk cevap ve çözüm hedefleri
+- SLA sürelerinin otomatik hesaplanması
+- SLA Yönetimi ekranı
+- Yaklaşan ve ihlal edilen SLA uyarıları
+- Ticket atama bildirimleri
+- Okundu ve okunmadı bildirim yönetimi
+
+### Sistem Takibi
+
+- Ticket oluşturma ve güncelleme kayıtları
+- Ticket yorum geçmişi
+- Başarılı ve başarısız giriş kayıtları
+- Kullanıcı rolü ve hesap durumu değişiklikleri
+- Yöneticiye özel Sistem Logları ekranı
+- İşlem yapan kullanıcı, IP adresi ve endpoint bilgileri
 
 ### Dashboard
 
@@ -151,7 +171,7 @@ Projede kullanılan 4993 geçmiş kayıt yalnızca RAG veri tablolarında tutulu
 | ------------ | -------------------------------------------------- |
 | `user`       | Ticket oluşturma ve kendi ticketlarını görüntüleme |
 | `technician` | Atanan ticketları yönetme ve AI önerisi kullanma   |
-| `admin`      | Tüm ticketları ve kullanıcı hesaplarını yönetme    |
+| `admin`      | Tüm ticketları, kullanıcıları ve logları yönetme   |
 
 Yönetici güvenliği için:
 
@@ -169,7 +189,11 @@ IntelliDesk/
 ├── backend/
 │   ├── alembic/
 │   ├── app/
+│   │   ├── audit/
+│   │   ├── notifications/
 │   │   ├── routers/
+│   │   ├── sla/
+│   │   ├── timeline/
 │   │   ├── database.py
 │   │   ├── main.py
 │   │   ├── models.py
@@ -189,7 +213,8 @@ IntelliDesk/
 │   │   ├── api/
 │   │   ├── auth/
 │   │   ├── components/
-│   │   └── pages/
+│   │   ├── pages/
+│   │   └── styles/
 │   ├── package.json
 │   └── vite.config.js
 │
@@ -219,9 +244,7 @@ python -m venv .venv
 
 ### 3. Backend Bağımlılıkları
 
-Backend bağımlılık dosyanızı kullanarak paketleri kurun.
-
-Geliştirme ve test bağımlılıkları:
+Geliştirme ve test bağımlılıklarını yükleyin:
 
 ```powershell
 python -m pip install -r backend\requirements-dev.txt
@@ -350,11 +373,33 @@ PUT    /tickets/{ticket_id}
 DELETE /tickets/{ticket_id}
 ```
 
+### Ticket Yorumları ve İşlem Geçmişi
+
+```text
+GET  /tickets/{ticket_id}/timeline
+POST /tickets/{ticket_id}/comments
+```
+
 ### AI İşlemleri
 
 ```text
 POST /tickets/{ticket_id}/recommendation
 POST /tickets/{ticket_id}/feedback
+```
+
+### Bildirimler
+
+```text
+GET   /notifications
+PATCH /notifications/read-all
+PATCH /notifications/{notification_id}/read
+```
+
+### Sistem Logları
+
+```text
+GET /audit-logs
+GET /audit-logs/action-types
 ```
 
 ### Dashboard ve Kullanıcılar
@@ -416,7 +461,6 @@ backend/tests/README.md
 cd frontend
 
 npm run lint
-
 npm run build
 ```
 
@@ -436,6 +480,7 @@ frontend/dist
 - Backend endpointlerinde rol kontrolü yapılır.
 - Pasif kullanıcıların giriş yapması engellenir.
 - Teknik personel atamaları backend tarafından doğrulanır.
+- Yönetim işlemleri sistem loglarına kaydedilir.
 - `.env` ve yerel veritabanı yedekleri Git tarafından dışlanır.
 
 ---
@@ -444,16 +489,16 @@ frontend/dist
 
 Tamamlanan temel bölümler:
 
-- Kimlik doğrulama
-- Rol tabanlı yetkilendirme
-- Ticket CRUD işlemleri
-- Arama, filtreleme ve sayfalama
+- Kimlik doğrulama ve rol tabanlı yetkilendirme
+- Ticket CRUD, arama, filtreleme ve sayfalama
 - Teknik personel atama
-- Dashboard
-- Kullanıcı yönetimi
-- AI çözüm önerisi
-- Hibrit RAG sıralaması
+- Dashboard ve kullanıcı yönetimi
+- AI çözüm önerisi ve hibrit RAG sıralaması
 - AI geri bildirim sistemi
+- Ticket yorumları ve işlem geçmişi
+- SLA yönetimi ve otomatik SLA uyarıları
+- Kalıcı bildirim sistemi
+- Sistem ve kullanıcı işlem logları
 - Açık ve koyu tema
 - Alembic migration yapısı
 - RAG regresyon testleri
@@ -465,7 +510,6 @@ Tamamlanan temel bölümler:
 - Daha fazla RAG regresyon senaryosu
 - Otomatik testlerin GitHub Actions üzerinde çalıştırılması
 - Dosya ve ekran görüntüsü ekleme
-- Bildirim sistemi
 - Gelişmiş raporlama
 - Production deployment
 - RAG performans ve doğruluk metrikleri
@@ -474,10 +518,9 @@ Tamamlanan temel bölümler:
 
 ## Geliştirici
 
-**Enes Menus**
+**Enes Menüş**
 
-- GitHub: [hypervsec](https://github.com/hypervsec)
-- Proje: [IntelliDesk](https://github.com/hypervsec/IntelliDesk)
+-[Linkedin](www.linkedin.com/in/enesmenus)
 
 ---
 
