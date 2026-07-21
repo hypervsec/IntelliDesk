@@ -1,6 +1,27 @@
+/* =========================================================
+   SLA SAYFASI VE YATAY TAŞMA KONTROLÜ
+   ========================================================= */
+
+.app-content:has(.sla-page),
+.app-page-region:has(.sla-page) {
+  min-width: 0;
+  overflow-x: clip;
+}
+
 .sla-page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
   display: grid;
   gap: 24px;
+
+  overflow-x: clip;
+}
+
+.sla-page > * {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .sla-page-header {
@@ -11,7 +32,14 @@
   min-width: 145px;
 }
 
+/* =========================================================
+   SLA ÖZET KARTLARI
+   ========================================================= */
+
 .sla-summary-grid {
+  width: 100%;
+  min-width: 0;
+
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
@@ -63,6 +91,7 @@
 
 .sla-summary-label {
   color: var(--color-text-soft);
+
   font-size: 13px;
   font-weight: 700;
 }
@@ -70,7 +99,6 @@
 .sla-summary-dot {
   width: 9px;
   height: 9px;
-
   flex: 0 0 9px;
 
   border-radius: 50%;
@@ -88,6 +116,7 @@
   margin-top: 16px;
 
   color: var(--color-text);
+
   font-size: 34px;
   line-height: 1;
   letter-spacing: -0.04em;
@@ -100,6 +129,7 @@
   margin: 11px 0 0;
 
   color: var(--color-text-muted);
+
   font-size: 12px;
   line-height: 1.55;
 }
@@ -124,12 +154,26 @@
   color: var(--color-success);
 }
 
+/* =========================================================
+   SLA PANELLERİ
+   ========================================================= */
+
 .sla-policy-panel,
 .sla-tracking-panel {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
   padding: 24px;
 }
 
+.sla-tracking-panel {
+  overflow: hidden;
+}
+
 .sla-section-heading {
+  min-width: 0;
+
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -146,6 +190,7 @@
   margin: 6px 0 0;
 
   color: var(--color-text);
+
   font-size: 22px;
   line-height: 1.2;
   letter-spacing: -0.025em;
@@ -157,6 +202,7 @@
   margin: 9px 0 0;
 
   color: var(--color-text-muted);
+
   font-size: 13px;
   line-height: 1.6;
 }
@@ -177,7 +223,14 @@
   font-weight: 700;
 }
 
+/* =========================================================
+   SLA POLİTİKALARI
+   ========================================================= */
+
 .sla-policy-grid {
+  width: 100%;
+  min-width: 0;
+
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 15px;
@@ -227,16 +280,21 @@
   margin: 0;
 
   color: var(--color-text);
+
   font-size: 13px;
   font-weight: 800;
 }
 
+/* =========================================================
+   ÖNCELİK ROZETLERİ
+   ========================================================= */
+
 .priority-badge {
+  min-width: 66px;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  min-width: 66px;
 
   padding: 6px 10px;
 
@@ -272,7 +330,14 @@
   background: rgba(56, 189, 248, 0.1);
 }
 
+/* =========================================================
+   SLA FİLTRELERİ
+   ========================================================= */
+
 .sla-toolbar {
+  width: 100%;
+  min-width: 0;
+
   display: grid;
   grid-template-columns:
     minmax(240px, 1.6fr)
@@ -300,6 +365,7 @@
   margin-bottom: 7px;
 
   color: var(--color-text-soft);
+
   font-size: 12px;
   font-weight: 700;
 }
@@ -307,6 +373,7 @@
 .sla-filter-field input,
 .sla-filter-field select {
   width: 100%;
+  min-width: 0;
   min-height: 42px;
 
   border: 1px solid var(--color-border);
@@ -326,6 +393,8 @@
 }
 
 .sla-filter-actions {
+  min-width: 0;
+
   display: flex;
   align-items: flex-end;
 }
@@ -334,6 +403,10 @@
   min-height: 42px;
   white-space: nowrap;
 }
+
+/* =========================================================
+   YÜKLEME VE BOŞ DURUMLAR
+   ========================================================= */
 
 .sla-loading-state,
 .sla-empty-state {
@@ -347,8 +420,8 @@
 
   padding: 32px;
 
-  text-align: center;
   color: var(--color-text-muted);
+  text-align: center;
 }
 
 .sla-empty-state strong {
@@ -361,12 +434,38 @@
   font-size: 13px;
 }
 
+/* =========================================================
+   SLA TABLOSU
+   ========================================================= */
+
 .sla-table-wrapper {
+  display: block;
+
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
   overflow-x: auto;
+  overflow-y: hidden;
 
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
+
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sla-table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.sla-table-wrapper::-webkit-scrollbar-track {
+  background: var(--color-surface-soft);
+}
+
+.sla-table-wrapper::-webkit-scrollbar-thumb {
+  border-radius: var(--radius-pill);
+  background: var(--color-border-strong);
 }
 
 .sla-table {
@@ -411,6 +510,10 @@
   border-bottom: 0;
 }
 
+/* =========================================================
+   SLA TABLO HÜCRELERİ
+   ========================================================= */
+
 .sla-ticket-cell {
   width: 250px;
   max-width: 250px;
@@ -423,6 +526,7 @@
   width: fit-content;
 
   color: var(--color-primary);
+
   font-size: 12px;
   font-weight: 800;
   text-decoration: none;
@@ -436,6 +540,7 @@
   overflow: hidden;
 
   color: var(--color-text);
+
   font-size: 13px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -445,6 +550,7 @@
   overflow: hidden;
 
   color: var(--color-text-muted);
+
   font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -458,6 +564,7 @@
   overflow: hidden;
 
   color: var(--color-text-soft);
+
   font-size: 12px;
   font-weight: 600;
   text-overflow: ellipsis;
@@ -473,15 +580,21 @@
 
 .sla-deadline-cell > strong {
   color: var(--color-text);
+
   font-size: 12px;
   line-height: 1.35;
 }
 
 .sla-deadline-cell > span {
   color: var(--color-text-muted);
+
   font-size: 10px;
   white-space: nowrap;
 }
+
+/* =========================================================
+   SLA DURUM ROZETLERİ
+   ========================================================= */
 
 .sla-status-badge {
   width: fit-content;
@@ -534,12 +647,16 @@
   background: var(--color-surface-soft);
 }
 
+/* =========================================================
+   TICKET DETAY BAĞLANTISI
+   ========================================================= */
+
 .sla-detail-link {
+  min-height: 32px;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  min-height: 32px;
 
   padding: 0 11px;
 
@@ -561,6 +678,10 @@
   background: var(--color-primary-soft);
 }
 
+/* =========================================================
+   ORTA EKRANLAR
+   ========================================================= */
+
 @media (max-width: 1280px) {
   .sla-summary-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -579,7 +700,25 @@
   }
 }
 
+@media (max-width: 980px) {
+  .sla-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sla-section-heading {
+    gap: 16px;
+  }
+}
+
+/* =========================================================
+   MOBİL EKRANLAR
+   ========================================================= */
+
 @media (max-width: 760px) {
+  .sla-page {
+    gap: 18px;
+  }
+
   .sla-page-header,
   .sla-section-heading {
     align-items: stretch;
@@ -611,5 +750,25 @@
   .sla-policy-badge,
   .sla-result-count {
     width: fit-content;
+  }
+
+  .sla-table-wrapper {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .sla-policy-panel,
+  .sla-tracking-panel {
+    padding: 15px;
+  }
+
+  .sla-summary-card {
+    padding: 17px;
+  }
+
+  .sla-toolbar {
+    padding: 14px;
   }
 }

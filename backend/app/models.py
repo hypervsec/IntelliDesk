@@ -279,6 +279,89 @@ class Account(Base):
     )
 
 
+class TicketTimelineEntry(Base):
+    __tablename__ = "ticket_timeline_entries"
+
+    __table_args__ = (
+        Index(
+            "ix_ticket_timeline_ticket_created",
+            "ticket_id",
+            "created_at",
+        ),
+        Index(
+            "ix_ticket_timeline_actor_account_id",
+            "actor_account_id",
+        ),
+    )
+
+    entry_id: Mapped[int] = mapped_column(
+        BigInteger,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    ticket_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey(
+            "tickets.ticket_id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+    )
+
+    actor_account_id: Mapped[
+        int | None
+    ] = mapped_column(
+        BigInteger,
+        ForeignKey(
+            "accounts.account_id",
+            ondelete="SET NULL",
+        ),
+        nullable=True,
+    )
+
+    actor_name: Mapped[str] = mapped_column(
+        String(150),
+        nullable=False,
+    )
+
+    actor_role: Mapped[str | None] = mapped_column(
+        String(30),
+        nullable=True,
+    )
+
+    entry_type: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+    )
+
+    field_name: Mapped[str | None] = mapped_column(
+        String(50),
+        nullable=True,
+    )
+
+    old_value: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    new_value: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    content: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        default=datetime.now,
+    )
+
+
 class Notification(Base):
     __tablename__ = "notifications"
 

@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 import api from "../api/api";
 import { useAuth } from "../auth/AuthContext";
+import TicketTimelinePanel from "../components/TicketTimelinePanel";
 
 function TicketDetail() {
   const { ticketId } = useParams();
@@ -448,6 +449,12 @@ function TicketDetail() {
     updateForm.assigned_technician,
   );
 
+  const timelineRefreshKey = [
+    ticket.ticket_id,
+    ticket.updated_at,
+    ticket.first_responded_at,
+  ].join("-");
+
   return (
     <main className="page">
       <header className="page-header">
@@ -822,6 +829,12 @@ function TicketDetail() {
           </form>
         </section>
       ) : null}
+
+      <TicketTimelinePanel
+        key={timelineRefreshKey}
+        ticketId={ticket.ticket_id}
+        onTimelineChanged={() => loadTicket(false)}
+      />
 
       {canManageTicket || ticket.ai_feedback ? (
         <section className="panel feedback-panel">

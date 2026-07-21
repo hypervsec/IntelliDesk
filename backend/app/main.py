@@ -1,4 +1,5 @@
 import asyncio
+from collections.abc import AsyncGenerator
 from contextlib import (
     asynccontextmanager,
     suppress,
@@ -16,11 +17,17 @@ from fastapi.middleware.cors import (
 )
 
 from . import notification_events  # noqa: F401
+from . import timeline_events  # noqa: F401
 from .models import Account
+from .request_context import (
+    reset_request_actor,
+    set_request_actor,
+)
 from .routers import assigned_tickets
 from .routers import auth
 from .routers import notifications
 from .routers import ticket_pagination
+from .routers import ticket_timeline
 from .routers import tickets
 from .routers.auth import (
     get_current_account,
@@ -85,29 +92,18 @@ app.add_middleware(
 
 
 # =========================================================
-# TICKET YETKİ KONTROLÜ
+# TICKET YETKİ VE İŞLEM BAĞLAMI
 # =========================================================
 
-def authorize_ticket_request(
+async def authorize_ticket_request(
     request: Request,
     current_account: Account = Depends(
         get_current_account
     ),
-) -> Account:
-    """
-    Ticket endpointlerinde rol kontrolü yapar.
-
-    Tüm giriş yapan kullanıcılar:
-    - Ticketları görüntüleyebilir.
-    - Yeni ticket oluşturabilir.
-
-    Yalnızca teknisyen ve yöneticiler:
-    - Ticket güncelleyebilir.
-    - Benzer ticket araması yapabilir.
-    - AI önerisi oluşturabilir.
-    - AI önerisine geri bildirim verebilir.
-    """
-
+) -> AsyncGenerator[
+    Account,
+    None,
+]:
     request_method = (
         request.method.upper()
     )
@@ -117,19 +113,17 @@ def authorize_ticket_request(
         or "/"
     )
 
-    if request_method == "GET":
-        return current_account
+    request_is_allowed = (
+        request_method == "GET"
+        or (
+            request_method == "POST"
+            and request_path == "/tickets"
+        )
+        or current_account.role
+        in STAFF_ROLES
+    )
 
-    if (
-        request_method == "POST"
-        and request_path == "/tickets"
-    ):
-        return current_account
-
-    if (
-        current_account.role
-        not in STAFF_ROLES
-    ):
+    if not request_is_allowed:
         raise HTTPException(
             status_code=(
                 status.HTTP_403_FORBIDDEN
@@ -141,7 +135,22 @@ def authorize_ticket_request(
             ),
         )
 
-    return current_account
+    actor_token = set_request_actor(
+        account_id=(
+            current_account.account_id
+        ),
+        name=(
+            current_account.full_name
+        ),
+        role=current_account.role,
+    )
+
+    try:
+        yield current_account
+    finally:
+        reset_request_actor(
+            actor_token
+        )
 
 
 # =========================================================
@@ -170,6 +179,11 @@ app.include_router(
 
 app.include_router(
     notifications.router
+)
+
+
+app.include_router(
+    ticket_timeline.router
 )
 
 
