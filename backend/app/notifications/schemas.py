@@ -1,6 +1,14 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    field_validator,
+)
+
+from ..text_encoding import (
+    repair_mojibake,
+)
 
 
 class NotificationResponse(BaseModel):
@@ -20,7 +28,24 @@ class NotificationResponse(BaseModel):
     created_at: datetime
     read_at: datetime | None
 
+    @field_validator(
+        "title",
+        "message",
+        mode="before",
+    )
+    @classmethod
+    def repair_notification_text(
+        cls,
+        value: str | None,
+    ) -> str | None:
+        return repair_mojibake(
+            value
+        )
+
 
 class NotificationListResponse(BaseModel):
-    notifications: list[NotificationResponse]
+    notifications: list[
+        NotificationResponse
+    ]
+
     unread_count: int

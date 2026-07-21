@@ -19,6 +19,9 @@ from fastapi.middleware.cors import (
 )
 
 from .audit import events as audit_events  # noqa: F401
+from .audit.failures import (
+    record_failed_request_audit,
+)
 from .notifications import events as notification_events  # noqa: F401
 from .timeline import events as timeline_events  # noqa: F401
 from .models import Account
@@ -146,6 +149,11 @@ async def attach_request_metadata(
     try:
         response = await call_next(
             request
+        )
+
+        record_failed_request_audit(
+            request,
+            response.status_code,
         )
 
         return response

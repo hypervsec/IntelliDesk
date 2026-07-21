@@ -15,6 +15,9 @@ from ..models import (
     Ticket,
 )
 from ..sla import calculate_sla_deadlines
+from ..text_encoding import (
+    repair_mojibake,
+)
 
 
 FIRST_RESPONSE_STATUSES = {
@@ -24,6 +27,40 @@ FIRST_RESPONSE_STATUSES = {
     "resolved",
     "closed",
 }
+
+
+# =========================================================
+# BİLDİRİM METİNLERİNİ DÜZELT
+# =========================================================
+
+@event.listens_for(
+    Notification,
+    "before_insert",
+)
+@event.listens_for(
+    Notification,
+    "before_update",
+)
+def normalize_notification_text(
+    _mapper: Mapper,
+    _connection: Connection,
+    notification: Notification,
+) -> None:
+    repaired_title = repair_mojibake(
+        notification.title
+    )
+
+    repaired_message = repair_mojibake(
+        notification.message
+    )
+
+    if repaired_title is not None:
+        notification.title = repaired_title
+
+    if repaired_message is not None:
+        notification.message = (
+            repaired_message
+        )
 
 
 # =========================================================

@@ -3,6 +3,11 @@ from datetime import datetime
 from pydantic import (
     BaseModel,
     ConfigDict,
+    field_validator,
+)
+
+from ..text_encoding import (
+    repair_mojibake,
 )
 
 
@@ -35,9 +40,26 @@ class AuditLogResponse(BaseModel):
 
     created_at: datetime
 
+    @field_validator(
+        "actor_name",
+        "description",
+        "details",
+        mode="before",
+    )
+    @classmethod
+    def repair_audit_text(
+        cls,
+        value: str | None,
+    ) -> str | None:
+        return repair_mojibake(
+            value
+        )
+
 
 class AuditLogPageResponse(BaseModel):
-    items: list[AuditLogResponse]
+    items: list[
+        AuditLogResponse
+    ]
 
     total: int
     page: int
