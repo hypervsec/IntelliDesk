@@ -13,6 +13,7 @@ import "./styles/ticket-detail-dark.css";
 import "./styles/create-ticket-dark.css";
 import "./styles/theme-toggle.css";
 import "./styles/theme-light.css";
+import "./styles/settings.css";
 import "./styles/auth-input-fix.css";
 import "./styles/user-management.css";
 

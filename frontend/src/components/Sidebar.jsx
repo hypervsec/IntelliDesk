@@ -4,58 +4,74 @@ import { useAuth } from "../auth/AuthContext";
 
 import Icon from "./Icon";
 
-const navigationItems = [
+const navigationSections = [
   {
-    to: "/",
-    end: true,
-    label: "Dashboard",
-    icon: "dashboard",
+    label: "GENEL",
+    items: [
+      {
+        to: "/",
+        end: true,
+        label: "Dashboard",
+        icon: "dashboard",
+      },
+      {
+        to: "/tickets",
+        end: true,
+        label: "Ticketlar",
+        icon: "tickets",
+      },
+      {
+        to: "/tickets/new",
+        end: false,
+        label: "Yeni Ticket",
+        icon: "plus",
+        emphasis: true,
+      },
+    ],
   },
   {
-    to: "/tickets",
-    end: true,
-    label: "Ticketlar",
-    icon: "tickets",
+    label: "OPERASYON",
+    items: [
+      {
+        to: "/tickets/assigned",
+        end: true,
+        label: "Bana Atananlar",
+        icon: "user",
+        staffOnly: true,
+      },
+      {
+        to: "/sla",
+        end: true,
+        label: "SLA Yönetimi",
+        icon: "activity",
+        staffOnly: true,
+      },
+    ],
   },
   {
-    to: "/tickets/assigned",
-    end: true,
-    label: "Bana Atananlar",
-    icon: "user",
-    staffOnly: true,
-  },
-  {
-    to: "/sla",
-    end: true,
-    label: "SLA Yönetimi",
-    icon: "activity",
-    staffOnly: true,
-  },
-  {
-    to: "/tickets/new",
-    end: false,
-    label: "Yeni Ticket",
-    icon: "plus",
-  },
-  {
-    to: "/users",
-    end: true,
-    label: "Kullanıcılar",
-    icon: "user",
-    adminOnly: true,
-  },
-  {
-    to: "/system-logs",
-    end: true,
-    label: "Sistem Logları",
-    icon: "logs",
-    adminOnly: true,
-  },
-  {
-    to: "/settings",
-    end: true,
-    label: "Ayarlar",
-    icon: "activity",
+    label: "YÖNETİM",
+    items: [
+      {
+        to: "/users",
+        end: true,
+        label: "Kullanıcılar",
+        icon: "user",
+        adminOnly: true,
+      },
+      {
+        to: "/system-logs",
+        end: true,
+        label: "Sistem Logları",
+        icon: "logs",
+        adminOnly: true,
+      },
+      {
+        to: "/settings",
+        end: true,
+        label: "Ayarlar",
+        icon: "activity",
+      },
+    ],
   },
 ];
 
@@ -92,20 +108,33 @@ function Sidebar({ isOpen = false, onClose }) {
 
   const { account, logout } = useAuth();
 
-  const visibleNavigationItems = navigationItems.filter((item) => {
-    if (item.adminOnly && account?.role !== "admin") {
-      return false;
-    }
+  const visibleNavigationSections = navigationSections
+    .map((section) => ({
+      ...section,
 
-    if (item.staffOnly && !staffRoles.has(account?.role)) {
-      return false;
-    }
+      items: section.items.filter((item) => {
+        if (item.adminOnly && account?.role !== "admin") {
+          return false;
+        }
 
-    return true;
-  });
+        if (item.staffOnly && !staffRoles.has(account?.role)) {
+          return false;
+        }
 
-  function getLinkClass({ isActive }) {
-    return isActive ? "sidebar-link active" : "sidebar-link";
+        return true;
+      }),
+    }))
+    .filter((section) => section.items.length > 0);
+
+  function getLinkClass(item) {
+    return ({ isActive }) =>
+      [
+        "sidebar-link",
+        item.emphasis ? "sidebar-link-emphasis" : "",
+        isActive ? "active" : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
   }
 
   function handleNavigation() {
@@ -145,7 +174,7 @@ function Sidebar({ isOpen = false, onClose }) {
           <div className="sidebar-brand-copy">
             <strong>IntelliDesk</strong>
 
-            <span>AI Service Desk</span>
+            <span>AI Destek Operasyonları</span>
           </div>
         </Link>
 
@@ -160,28 +189,34 @@ function Sidebar({ isOpen = false, onClose }) {
       </div>
 
       <nav className="sidebar-nav" aria-label="Ana menü">
-        <span className="sidebar-section-label">MENÜ</span>
+        {visibleNavigationSections.map((section) => (
+          <div className="sidebar-nav-section" key={section.label}>
+            <span className="sidebar-section-label">{section.label}</span>
 
-        {visibleNavigationItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            className={getLinkClass}
-            onClick={handleNavigation}
-          >
-            <span className="sidebar-link-icon">
-              <Icon name={item.icon} size={18} />
-            </span>
+            <div className="sidebar-nav-list">
+              {section.items.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.end}
+                  className={getLinkClass(item)}
+                  onClick={handleNavigation}
+                >
+                  <span className="sidebar-link-icon">
+                    <Icon name={item.icon} size={18} />
+                  </span>
 
-            <span className="sidebar-link-label">{item.label}</span>
+                  <span className="sidebar-link-label">{item.label}</span>
 
-            <Icon
-              name="chevronRight"
-              size={15}
-              className="sidebar-link-arrow"
-            />
-          </NavLink>
+                  <Icon
+                    name="chevronRight"
+                    size={15}
+                    className="sidebar-link-arrow"
+                  />
+                </NavLink>
+              ))}
+            </div>
+          </div>
         ))}
       </nav>
 

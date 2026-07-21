@@ -4,38 +4,97 @@
 
 .page:has(.detail-grid) {
   width: min(1480px, calc(100% - 52px));
-  padding-top: 30px;
+  padding-top: 26px;
+  padding-bottom: 60px;
 }
+
+/* =========================================================
+   ÜST TICKET KARTI
+   ========================================================= */
 
 .page:has(.detail-grid) .page-header {
-  align-items: flex-end;
-  margin-bottom: 22px;
-}
+  position: relative;
 
-.page:has(.detail-grid) .page-header h1 {
-  max-width: 980px;
-}
-
-.page:has(.detail-grid) .header-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: 9px;
+  gap: 28px;
+
+  overflow: hidden;
+
+  margin-bottom: 20px;
+
+  border: 1px solid rgba(129, 140, 248, 0.22);
+  border-radius: 21px;
+
+  padding: 24px 26px;
+
+  background:
+    radial-gradient(
+      circle at 92% 10%,
+      rgba(99, 102, 241, 0.18),
+      transparent 19rem
+    ),
+    radial-gradient(
+      circle at 5% 100%,
+      rgba(56, 189, 248, 0.07),
+      transparent 18rem
+    ),
+    linear-gradient(145deg, rgba(26, 44, 73, 0.98), rgba(15, 28, 51, 0.99));
+
+  box-shadow:
+    0 20px 48px rgba(2, 6, 23, 0.23),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
 }
 
-.page:has(.detail-grid) .header-actions .badge {
-  min-height: 30px;
-  padding: 0 12px;
-  font-size: 11px;
+.page:has(.detail-grid) .page-header::before {
+  position: absolute;
+  inset: 0 0 auto;
+
+  height: 3px;
+
+  content: "";
+
+  background: linear-gradient(90deg, #6366f1, #8b5cf6 48%, #38bdf8);
+}
+
+.page:has(.detail-grid) .page-header::after {
+  position: absolute;
+  top: -92px;
+  right: 34px;
+
+  width: 225px;
+  height: 225px;
+
+  pointer-events: none;
+
+  border: 1px solid rgba(129, 140, 248, 0.1);
+  border-radius: 50%;
+
+  content: "";
+
+  background: rgba(99, 102, 241, 0.035);
+
+  box-shadow:
+    0 0 0 34px rgba(99, 102, 241, 0.022),
+    0 0 0 68px rgba(99, 102, 241, 0.012);
+}
+
+.page:has(.detail-grid) .page-header > div {
+  position: relative;
+  z-index: 1;
+
+  min-width: 0;
 }
 
 .page:has(.detail-grid) .back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  width: fit-content;
 
-  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  margin-bottom: 15px;
 
   border: 0;
   padding: 0;
@@ -45,32 +104,209 @@
 
   font: inherit;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 750;
+  line-height: 1;
+
   text-decoration: none;
 
   cursor: pointer;
+
+  transition:
+    color 160ms ease,
+    transform 160ms ease;
 }
 
 .page:has(.detail-grid) .back-link:hover {
-  color: #d2d8ff;
+  color: #dbeafe;
+  transform: translateX(-2px);
+}
+
+.page:has(.detail-grid) .page-eyebrow {
+  width: fit-content;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 8px;
+
+  color: #818cf8;
+
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.page:has(.detail-grid) .page-eyebrow::before {
+  width: 7px;
+  height: 7px;
+
+  flex: 0 0 auto;
+
+  border-radius: 50%;
+
+  content: "";
+
+  background: #818cf8;
+
+  box-shadow:
+    0 0 0 4px rgba(129, 140, 248, 0.1),
+    0 0 14px rgba(129, 140, 248, 0.45);
+}
+
+.page:has(.detail-grid) .page-header h1 {
+  max-width: 1000px;
+
+  margin: 0;
+
+  color: var(--color-text);
+
+  font-size: clamp(27px, 2.5vw, 38px);
+  font-weight: 850;
+  line-height: 1.14;
+  letter-spacing: -0.045em;
+
+  overflow-wrap: anywhere;
+}
+
+.page:has(.detail-grid) .page-header p {
+  width: fit-content;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  margin: 13px 0 0;
+
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: var(--radius-pill);
+
+  padding: 7px 11px;
+
+  color: var(--color-text-soft);
+  background: rgba(8, 18, 35, 0.38);
+
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.page:has(.detail-grid) .page-header p::before {
+  width: 7px;
+  height: 7px;
+
+  flex: 0 0 auto;
+
+  border-radius: 50%;
+
+  content: "";
+
+  background: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.48);
+}
+
+.page:has(.detail-grid) .header-actions {
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.page:has(.detail-grid) .header-actions .badge {
+  min-height: 32px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: var(--radius-pill);
+
+  padding: 0 13px;
+
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.025em;
+
+  box-shadow: 0 8px 18px rgba(2, 6, 23, 0.15);
 }
 
 /* =========================================================
-   DETAY PANELLERİ
+   MESAJLAR
+   ========================================================= */
+
+.page:has(.detail-grid) > .error-message,
+.page:has(.detail-grid) > .success-message {
+  margin: 0 0 18px;
+}
+
+/* =========================================================
+   ORTAK TICKET PANELLERİ
+   ========================================================= */
+
+.page:has(.detail-grid) .panel {
+  border-color: rgba(148, 163, 184, 0.17);
+
+  background:
+    radial-gradient(
+      circle at 100% 0,
+      rgba(99, 102, 241, 0.045),
+      transparent 15rem
+    ),
+    linear-gradient(145deg, rgba(27, 45, 74, 0.98), rgba(20, 36, 61, 0.98));
+
+  box-shadow:
+    0 18px 42px rgba(2, 6, 23, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.page:has(.detail-grid) .panel:hover {
+  border-color: rgba(129, 140, 248, 0.28);
+
+  box-shadow:
+    0 21px 48px rgba(2, 6, 23, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.page:has(.detail-grid) .panel-header {
+  align-items: flex-start;
+
+  margin-bottom: 0;
+  padding-bottom: 17px;
+
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.page:has(.detail-grid) .panel-header h2 {
+  margin-top: 4px;
+}
+
+.page:has(.detail-grid) .panel-header p {
+  max-width: 560px;
+}
+
+/* =========================================================
+   ANA İKİLİ PANEL DÜZENİ
    ========================================================= */
 
 .detail-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
   align-items: stretch;
-  gap: 20px;
+  gap: 18px;
 
-  margin-bottom: 22px;
+  margin-bottom: 20px;
 }
 
 .detail-grid > .panel {
   position: relative;
+
   min-width: 0;
+
   overflow: hidden;
 }
 
@@ -89,13 +325,8 @@
   background: linear-gradient(90deg, #8b5cf6, #6366f1);
 }
 
-.page:has(.detail-grid) .panel-header {
-  padding-bottom: 17px;
-  border-bottom: 1px solid var(--color-divider);
-}
-
 /* =========================================================
-   GENEL BİLGİLER
+   TICKET BİLGİ SATIRLARI
    ========================================================= */
 
 .page:has(.detail-grid) .detail-row {
@@ -104,27 +335,37 @@
   align-items: start;
   gap: 18px;
 
-  padding: 15px 0;
+  margin-top: 8px;
 
-  border-bottom: 1px solid var(--color-divider);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 11px;
+
+  padding: 11px 13px;
+
+  background: rgba(8, 18, 35, 0.18);
 }
 
-.page:has(.detail-grid) .detail-row:last-child {
-  border-bottom: 0;
+.page:has(.detail-grid) .detail-row:first-of-type {
+  margin-top: 17px;
+}
+
+.page:has(.detail-grid) .detail-row:nth-child(even) {
+  background: rgba(99, 102, 241, 0.035);
 }
 
 .page:has(.detail-grid) .detail-row > span {
   color: var(--color-text-muted);
 
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.6;
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.65;
+  letter-spacing: 0.02em;
 }
 
 .page:has(.detail-grid) .detail-row > strong {
   color: var(--color-text-soft);
 
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   line-height: 1.7;
 
@@ -133,7 +374,7 @@
 }
 
 /* =========================================================
-   AI ÖNERİSİ
+   AI ÖNERİ KUTUSU
    ========================================================= */
 
 .page:has(.detail-grid) .recommendation-box {
@@ -141,20 +382,24 @@
 
   overflow: hidden;
 
-  border: 1px solid rgba(129, 140, 248, 0.26);
-  border-radius: 15px;
+  margin-top: 17px;
+
+  border: 1px solid rgba(129, 140, 248, 0.25);
+  border-radius: 16px;
 
   padding: 20px;
 
   background:
     radial-gradient(
       circle at 100% 0,
-      rgba(99, 102, 241, 0.16),
+      rgba(139, 92, 246, 0.2),
       transparent 14rem
     ),
-    linear-gradient(145deg, rgba(99, 102, 241, 0.13), rgba(8, 18, 35, 0.72));
+    linear-gradient(145deg, rgba(99, 102, 241, 0.13), rgba(8, 18, 35, 0.7));
 
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 12px 28px rgba(2, 6, 23, 0.12);
 }
 
 .page:has(.detail-grid) .recommendation-box::before {
@@ -162,34 +407,34 @@
   top: 16px;
   right: 17px;
 
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
 
   display: grid;
   place-items: center;
 
   content: "AI";
 
-  border: 1px solid rgba(129, 140, 248, 0.25);
-  border-radius: 10px;
+  border: 1px solid rgba(129, 140, 248, 0.26);
+  border-radius: 11px;
 
   color: #c7d2fe;
-  background: rgba(99, 102, 241, 0.13);
+  background: rgba(99, 102, 241, 0.14);
 
   font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
+  font-weight: 850;
+  letter-spacing: 0.06em;
 }
 
 .page:has(.detail-grid) .recommendation-text {
-  max-width: calc(100% - 48px);
+  max-width: calc(100% - 50px);
 
   margin: 0 0 22px;
 
   color: var(--color-text-soft);
 
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 520;
   line-height: 1.8;
 
   overflow-wrap: anywhere;
@@ -218,6 +463,7 @@
 
 .page:has(.detail-grid) .confidence-row strong {
   color: var(--color-text);
+
   font-size: 14px;
 }
 
@@ -226,7 +472,7 @@
 
   overflow: hidden;
 
-  border: 1px solid rgba(129, 140, 248, 0.1);
+  border: 1px solid rgba(129, 140, 248, 0.11);
   border-radius: var(--radius-pill);
 
   background: rgba(148, 163, 184, 0.17);
@@ -238,6 +484,7 @@
   border-radius: inherit;
 
   background: linear-gradient(90deg, #6366f1, #38bdf8);
+
   box-shadow: 0 0 15px rgba(56, 189, 248, 0.24);
 
   transition: width 400ms ease;
@@ -256,23 +503,26 @@
   padding: 0 9px;
 
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 850;
 }
 
 .page:has(.detail-grid) .confidence-badge-low {
   border-color: rgba(248, 113, 113, 0.28);
+
   color: #fca5a5;
   background: rgba(239, 68, 68, 0.12);
 }
 
 .page:has(.detail-grid) .confidence-badge-medium {
   border-color: rgba(251, 191, 36, 0.28);
+
   color: #fcd34d;
   background: rgba(245, 158, 11, 0.12);
 }
 
 .page:has(.detail-grid) .confidence-badge-high {
   border-color: rgba(52, 211, 153, 0.28);
+
   color: #6ee7b7;
   background: rgba(16, 185, 129, 0.12);
 }
@@ -302,12 +552,13 @@
 
 .page:has(.detail-grid) .source-list > span {
   display: block;
+
   margin-bottom: 10px;
 
   color: var(--color-text-muted);
 
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 750;
 }
 
 .page:has(.detail-grid) .source-list > div {
@@ -332,29 +583,57 @@
   background: rgba(99, 102, 241, 0.12);
 
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 850;
   text-decoration: none;
+
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
 }
 
 .page:has(.detail-grid) .source-badge:hover {
   color: #ffffff;
   border-color: rgba(129, 140, 248, 0.48);
   background: rgba(99, 102, 241, 0.2);
+
   transform: translateY(-1px);
 }
 
 /* =========================================================
-   YÖNETİM VE GERİ BİLDİRİM
+   BOŞ AI MESAJI
+   ========================================================= */
+
+.page:has(.detail-grid) .empty-message {
+  margin: 17px 0 0;
+
+  border: 1px dashed rgba(148, 163, 184, 0.2);
+  border-radius: 14px;
+
+  padding: 28px 18px;
+
+  color: var(--color-text-muted);
+  background: rgba(148, 163, 184, 0.035);
+
+  font-size: 13px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+/* =========================================================
+   YÖNETİM, ZAMAN ÇİZELGESİ VE GERİ BİLDİRİM
    ========================================================= */
 
 .page:has(.detail-grid) .management-panel,
 .page:has(.detail-grid) .feedback-panel {
   position: relative;
+
   overflow: hidden;
 }
 
 .page:has(.detail-grid) .management-panel {
-  margin-bottom: 22px;
+  margin-bottom: 20px;
 }
 
 .page:has(.detail-grid) .feedback-panel {
@@ -379,14 +658,27 @@
 
 .page:has(.detail-grid) .management-panel .ticket-form,
 .page:has(.detail-grid) .feedback-panel .feedback-form {
-  padding-top: 2px;
+  padding-top: 4px;
+}
+
+.page:has(.detail-grid) .management-panel .form-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.page:has(.detail-grid) .management-panel input,
+.page:has(.detail-grid) .management-panel select,
+.page:has(.detail-grid) .management-panel textarea,
+.page:has(.detail-grid) .feedback-panel input,
+.page:has(.detail-grid) .feedback-panel select,
+.page:has(.detail-grid) .feedback-panel textarea {
+  background: rgba(8, 18, 35, 0.48);
 }
 
 .page:has(.detail-grid) .saved-feedback {
   margin-bottom: 19px;
 
   border: 1px solid;
-  border-radius: 13px;
+  border-radius: 14px;
 
   padding: 15px;
 
@@ -396,7 +688,9 @@
 
 .page:has(.detail-grid) .saved-feedback strong {
   display: block;
+
   color: var(--color-text);
+
   font-size: 13px;
 }
 
@@ -423,11 +717,13 @@
 
 .page:has(.detail-grid) .feedback-accepted {
   border-color: rgba(52, 211, 153, 0.27);
+
   background: rgba(16, 185, 129, 0.1);
 }
 
 .page:has(.detail-grid) .feedback-rejected {
   border-color: rgba(248, 113, 113, 0.27);
+
   background: rgba(239, 68, 68, 0.1);
 }
 
@@ -435,23 +731,187 @@
    AÇIK TEMA
    ========================================================= */
 
+html[data-theme="light"] .page:has(.detail-grid) .page-header {
+  border-color: rgba(99, 102, 241, 0.18);
+
+  background:
+    radial-gradient(
+      circle at 91% 10%,
+      rgba(99, 102, 241, 0.13),
+      transparent 19rem
+    ),
+    radial-gradient(
+      circle at 4% 100%,
+      rgba(14, 165, 233, 0.08),
+      transparent 18rem
+    ),
+    linear-gradient(145deg, #fbfcff, #eef2ff);
+
+  box-shadow:
+    0 18px 42px rgba(51, 65, 85, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .page-header::after {
+  border-color: rgba(79, 70, 229, 0.09);
+
+  background: rgba(99, 102, 241, 0.035);
+}
+
 html[data-theme="light"] .page:has(.detail-grid) .back-link {
   color: #4f46e5;
 }
 
-html[data-theme="light"] .page:has(.detail-grid) .recommendation-box {
+html[data-theme="light"] .page:has(.detail-grid) .back-link:hover {
+  color: #312e81;
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .page-eyebrow {
+  color: #4f46e5;
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .page-eyebrow::before {
+  background: #6366f1;
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .page-header h1 {
+  color: #172033;
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .page-header p {
+  border-color: rgba(99, 102, 241, 0.15);
+
+  color: #475569;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+/* =========================================================
+   AÇIK TEMA PANELLERİ
+   ========================================================= */
+
+html[data-theme="light"] .page:has(.detail-grid) .panel {
+  border-color: rgba(99, 102, 241, 0.13);
+
+  color: #334155;
+
   background:
     radial-gradient(
       circle at 100% 0,
-      rgba(99, 102, 241, 0.12),
+      rgba(99, 102, 241, 0.055),
+      transparent 15rem
+    ),
+    linear-gradient(145deg, #f9faff, #f1f5fb);
+
+  box-shadow:
+    0 15px 36px rgba(51, 65, 85, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .panel:hover {
+  border-color: rgba(99, 102, 241, 0.23);
+
+  box-shadow:
+    0 19px 42px rgba(51, 65, 85, 0.105),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+html[data-theme="light"] .detail-grid > .panel:first-child {
+  background:
+    radial-gradient(
+      circle at 100% 0,
+      rgba(14, 165, 233, 0.055),
+      transparent 15rem
+    ),
+    linear-gradient(145deg, #f8fbff, #edf4fb);
+}
+
+html[data-theme="light"] .detail-grid > .panel:nth-child(2) {
+  background:
+    radial-gradient(
+      circle at 100% 0,
+      rgba(139, 92, 246, 0.075),
+      transparent 15rem
+    ),
+    linear-gradient(145deg, #faf9ff, #f0efff);
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .panel-header {
+  border-color: rgba(100, 116, 139, 0.15);
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .panel-header h2 {
+  color: #172033;
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .panel-header p {
+  color: #64748b;
+}
+
+/* =========================================================
+   AÇIK TEMA BİLGİ SATIRLARI
+   ========================================================= */
+
+html[data-theme="light"] .page:has(.detail-grid) .detail-row {
+  border-color: rgba(100, 116, 139, 0.12);
+
+  background: rgba(255, 255, 255, 0.62);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 3px 10px rgba(51, 65, 85, 0.025);
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .detail-row:nth-child(even) {
+  background: rgba(238, 242, 255, 0.72);
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .detail-row > span {
+  color: #64748b;
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .detail-row > strong {
+  color: #27364d;
+}
+
+/* =========================================================
+   AÇIK TEMA AI
+   ========================================================= */
+
+html[data-theme="light"] .page:has(.detail-grid) .recommendation-box {
+  border-color: rgba(99, 102, 241, 0.2);
+
+  background:
+    radial-gradient(
+      circle at 100% 0,
+      rgba(139, 92, 246, 0.13),
       transparent 14rem
     ),
-    linear-gradient(145deg, #f8faff, #eef2ff);
+    linear-gradient(145deg, #f8f7ff, #e9edff);
+
+  box-shadow:
+    0 12px 28px rgba(79, 70, 229, 0.075),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 html[data-theme="light"] .page:has(.detail-grid) .recommendation-box::before {
   color: #4338ca;
-  background: #eef2ff;
+  background: rgba(238, 242, 255, 0.94);
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .recommendation-text {
+  color: #334155;
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .confidence-row {
+  color: #64748b;
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .confidence-row strong {
+  color: #172033;
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .confidence-track {
+  background: rgba(148, 163, 184, 0.2);
 }
 
 html[data-theme="light"] .page:has(.detail-grid) .source-badge {
@@ -474,9 +934,95 @@ html[data-theme="light"] .page:has(.detail-grid) .confidence-badge-high {
   background: #d1fae5;
 }
 
+html[data-theme="light"] .page:has(.detail-grid) .empty-message {
+  border-color: rgba(99, 102, 241, 0.17);
+
+  color: #64748b;
+  background: rgba(238, 242, 255, 0.56);
+}
+
+/* =========================================================
+   AÇIK TEMA YÖNETİM VE GERİ BİLDİRİM
+   ========================================================= */
+
+html[data-theme="light"] .page:has(.detail-grid) .management-panel {
+  background:
+    radial-gradient(
+      circle at 100% 0,
+      rgba(14, 165, 233, 0.06),
+      transparent 17rem
+    ),
+    linear-gradient(145deg, #f8fbff, #edf5fb);
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .feedback-panel {
+  background:
+    radial-gradient(
+      circle at 100% 0,
+      rgba(139, 92, 246, 0.065),
+      transparent 17rem
+    ),
+    linear-gradient(145deg, #faf9ff, #f1effb);
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .management-panel input,
+html[data-theme="light"] .page:has(.detail-grid) .management-panel select,
+html[data-theme="light"] .page:has(.detail-grid) .management-panel textarea,
+html[data-theme="light"] .page:has(.detail-grid) .feedback-panel input,
+html[data-theme="light"] .page:has(.detail-grid) .feedback-panel select,
+html[data-theme="light"] .page:has(.detail-grid) .feedback-panel textarea {
+  border-color: rgba(100, 116, 139, 0.18);
+
+  color: #1e293b;
+  background: rgba(255, 255, 255, 0.74);
+}
+
+html[data-theme="light"]
+  .page:has(.detail-grid)
+  .management-panel
+  input:hover:not(:disabled),
+html[data-theme="light"]
+  .page:has(.detail-grid)
+  .management-panel
+  select:hover:not(:disabled),
+html[data-theme="light"]
+  .page:has(.detail-grid)
+  .management-panel
+  textarea:hover:not(:disabled),
+html[data-theme="light"]
+  .page:has(.detail-grid)
+  .feedback-panel
+  input:hover:not(:disabled),
+html[data-theme="light"]
+  .page:has(.detail-grid)
+  .feedback-panel
+  select:hover:not(:disabled),
+html[data-theme="light"]
+  .page:has(.detail-grid)
+  .feedback-panel
+  textarea:hover:not(:disabled) {
+  border-color: rgba(99, 102, 241, 0.34);
+
+  background: rgba(255, 255, 255, 0.92);
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .saved-feedback strong {
+  color: #172033;
+}
+
+html[data-theme="light"] .page:has(.detail-grid) .saved-feedback p {
+  color: #475569;
+}
+
 /* =========================================================
    RESPONSIVE
    ========================================================= */
+
+@media (max-width: 1180px) {
+  .page:has(.detail-grid) .management-panel .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 
 @media (max-width: 1080px) {
   .detail-grid {
@@ -490,12 +1036,25 @@ html[data-theme="light"] .page:has(.detail-grid) .confidence-badge-high {
   }
 
   .page:has(.detail-grid) .page-header {
+    grid-template-columns: 1fr;
     align-items: flex-start;
-    flex-direction: column;
+    gap: 18px;
+  }
+
+  .page:has(.detail-grid) .header-actions {
+    justify-content: flex-start;
   }
 }
 
 @media (max-width: 700px) {
+  .page:has(.detail-grid) {
+    padding-top: 18px;
+  }
+
+  .page:has(.detail-grid) .page-header {
+    padding: 21px 19px;
+  }
+
   .page:has(.detail-grid) .detail-row {
     grid-template-columns: 1fr;
     gap: 5px;
@@ -516,12 +1075,23 @@ html[data-theme="light"] .page:has(.detail-grid) .confidence-badge-high {
     flex-direction: column;
     gap: 7px;
   }
+
+  .page:has(.detail-grid) .management-panel .form-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 560px) {
+  .page:has(.detail-grid) {
+    width: calc(100% - 22px);
+  }
+
+  .page:has(.detail-grid) .page-header h1 {
+    font-size: 25px;
+  }
+
   .page:has(.detail-grid) .header-actions {
     width: 100%;
-    justify-content: flex-start;
   }
 
   .page:has(.detail-grid) .management-panel::before,

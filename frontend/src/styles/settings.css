@@ -1,0 +1,876 @@
+/* =========================================================
+   AYARLAR SAYFASI
+   ========================================================= */
+
+.settings-page {
+  display: grid;
+  gap: 20px;
+}
+
+.settings-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.settings-page-header h1 {
+  margin: 7px 0 0;
+
+  color: var(--color-text);
+
+  font-size: clamp(30px, 3vw, 42px);
+  line-height: 1.12;
+  letter-spacing: -0.045em;
+}
+
+.settings-page-header p {
+  max-width: 720px;
+
+  margin: 10px 0 0;
+
+  color: var(--color-text-muted);
+
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* =========================================================
+   HESAP DURUMU
+   ========================================================= */
+
+.settings-account-status {
+  min-height: 34px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  flex: 0 0 auto;
+
+  border: 1px solid;
+  border-radius: var(--radius-pill);
+
+  padding: 0 13px;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.settings-account-status > span {
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+}
+
+.settings-account-status-active {
+  color: #6ee7b7;
+  border-color: rgba(52, 211, 153, 0.25);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.settings-account-status-active > span {
+  background: #34d399;
+
+  box-shadow:
+    0 0 0 4px rgba(52, 211, 153, 0.1),
+    0 0 12px rgba(52, 211, 153, 0.25);
+}
+
+.settings-account-status-passive {
+  color: #fca5a5;
+  border-color: rgba(248, 113, 113, 0.25);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.settings-account-status-passive > span {
+  background: #f87171;
+
+  box-shadow:
+    0 0 0 4px rgba(248, 113, 113, 0.1),
+    0 0 12px rgba(248, 113, 113, 0.2);
+}
+
+/* =========================================================
+   ÜST PROFİL KARTI
+   ========================================================= */
+
+.settings-profile-card {
+  position: relative;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.72fr);
+  align-items: center;
+  gap: 28px;
+
+  overflow: hidden;
+
+  border: 1px solid rgba(129, 140, 248, 0.21);
+  border-radius: 21px;
+
+  padding: 25px;
+
+  background:
+    radial-gradient(
+      circle at 94% 8%,
+      rgba(99, 102, 241, 0.19),
+      transparent 20rem
+    ),
+    radial-gradient(
+      circle at 5% 100%,
+      rgba(56, 189, 248, 0.07),
+      transparent 18rem
+    ),
+    linear-gradient(145deg, rgba(26, 44, 73, 0.99), rgba(15, 28, 51, 0.99));
+
+  box-shadow:
+    0 20px 48px rgba(2, 6, 23, 0.23),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.settings-profile-card::before {
+  position: absolute;
+  inset: 0 0 auto;
+
+  height: 3px;
+
+  content: "";
+
+  background: linear-gradient(90deg, #6366f1, #8b5cf6 48%, #38bdf8);
+}
+
+.settings-profile-card::after {
+  position: absolute;
+  top: -95px;
+  right: -65px;
+
+  width: 220px;
+  height: 220px;
+
+  border: 1px solid rgba(129, 140, 248, 0.09);
+  border-radius: 50%;
+
+  content: "";
+  pointer-events: none;
+
+  box-shadow:
+    0 0 0 34px rgba(99, 102, 241, 0.025),
+    0 0 0 68px rgba(99, 102, 241, 0.015);
+}
+
+.settings-profile-main,
+.settings-profile-metrics {
+  position: relative;
+  z-index: 1;
+}
+
+.settings-profile-main {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.settings-profile-avatar {
+  width: 74px;
+  height: 74px;
+  flex: 0 0 74px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid rgba(165, 180, 252, 0.3);
+  border-radius: 22px;
+
+  color: #ffffff;
+
+  background: linear-gradient(145deg, #818cf8, #4f46e5 58%, #312e81);
+
+  box-shadow:
+    0 17px 34px rgba(79, 70, 229, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.settings-profile-copy {
+  min-width: 0;
+}
+
+.settings-profile-label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #818cf8;
+
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.14em;
+}
+
+.settings-profile-copy h2 {
+  overflow: hidden;
+
+  margin: 0;
+
+  color: #f8fafc;
+
+  font-size: 25px;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-profile-copy > p {
+  overflow: hidden;
+
+  margin: 7px 0 0;
+
+  color: #94a3b8;
+
+  font-size: 13px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-profile-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  margin-top: 13px;
+}
+
+.settings-role-badge,
+.settings-status-badge {
+  min-height: 27px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid;
+  border-radius: var(--radius-pill);
+
+  padding: 0 10px;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.settings-role-badge {
+  color: #c7d2fe;
+  border-color: rgba(129, 140, 248, 0.24);
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.settings-status-badge-active {
+  color: #6ee7b7;
+  border-color: rgba(52, 211, 153, 0.24);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.settings-status-badge-passive {
+  color: #fca5a5;
+  border-color: rgba(248, 113, 113, 0.24);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* =========================================================
+   PROFİL METRİKLERİ
+   ========================================================= */
+
+.settings-profile-metrics {
+  min-width: 0;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.settings-profile-metric {
+  min-width: 0;
+
+  display: grid;
+  gap: 7px;
+
+  border: 1px solid rgba(148, 163, 184, 0.13);
+  border-radius: 14px;
+
+  padding: 14px;
+
+  background: rgba(8, 18, 35, 0.32);
+
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.settings-profile-metric span {
+  color: #7f8ea5;
+
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.settings-profile-metric strong {
+  color: #e2e8f0;
+
+  font-size: 12px;
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   YAN YANA AYAR PANELLERİ
+   ========================================================= */
+
+.settings-content-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 20px;
+}
+
+.settings-panel {
+  position: relative;
+
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 100% 0,
+      rgba(99, 102, 241, 0.055),
+      transparent 16rem
+    ),
+    linear-gradient(145deg, rgba(27, 45, 74, 0.99), rgba(20, 36, 61, 0.99));
+}
+
+.settings-panel::before {
+  position: absolute;
+  inset: 0 0 auto;
+
+  height: 3px;
+
+  content: "";
+
+  background: linear-gradient(90deg, #6366f1, #38bdf8);
+}
+
+.settings-password-panel::before {
+  background: linear-gradient(90deg, #38bdf8, #6366f1, #8b5cf6);
+}
+
+.settings-panel-header {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 13px;
+
+  margin-bottom: 19px;
+  padding-bottom: 17px;
+
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.settings-panel-icon {
+  width: 42px;
+  height: 42px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid rgba(129, 140, 248, 0.19);
+  border-radius: 13px;
+
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.settings-password-icon {
+  color: #7dd3fc;
+  border-color: rgba(56, 189, 248, 0.2);
+  background: rgba(56, 189, 248, 0.09);
+}
+
+.settings-panel-header h2 {
+  margin: 4px 0 0;
+
+  color: var(--color-text);
+
+  font-size: 18px;
+  letter-spacing: -0.025em;
+}
+
+.settings-panel-header p {
+  margin: 6px 0 0;
+
+  color: var(--color-text-muted);
+
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.settings-coming-soon-badge {
+  min-height: 27px;
+
+  display: inline-flex;
+  align-items: center;
+
+  border: 1px solid rgba(251, 191, 36, 0.22);
+  border-radius: var(--radius-pill);
+
+  padding: 0 10px;
+
+  color: #fcd34d;
+  background: rgba(245, 158, 11, 0.09);
+
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.03em;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   HESAP BİLGİLERİ
+   ========================================================= */
+
+.settings-info-list {
+  flex: 1;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 10px;
+}
+
+.settings-info-item {
+  min-width: 0;
+
+  display: grid;
+  align-content: center;
+  gap: 7px;
+
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 12px;
+
+  padding: 13px;
+
+  background: rgba(8, 18, 35, 0.2);
+
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.settings-info-item:hover {
+  border-color: rgba(129, 140, 248, 0.2);
+  background: rgba(99, 102, 241, 0.055);
+
+  transform: translateY(-1px);
+}
+
+.settings-info-item span {
+  color: var(--color-text-muted);
+
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.settings-info-item strong {
+  color: var(--color-text-soft);
+
+  font-size: 12px;
+  line-height: 1.55;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   PAROLA DEĞİŞTİRME
+   ========================================================= */
+
+.settings-password-form {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.settings-password-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 13px;
+}
+
+.settings-password-field {
+  min-width: 0;
+
+  display: grid;
+  gap: 8px;
+}
+
+.settings-password-field label {
+  color: var(--color-text-soft);
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.settings-password-field input {
+  width: 100%;
+  min-height: 45px;
+
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 12px;
+  outline: none;
+
+  padding: 0 13px;
+
+  color: var(--color-text-faint);
+  background: rgba(8, 18, 35, 0.25);
+
+  font-size: 12px;
+}
+
+.settings-password-field input::placeholder {
+  color: #64748b;
+  opacity: 0.75;
+}
+
+.settings-password-field input:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.settings-password-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  margin-top: auto;
+  padding-top: 16px;
+
+  border-top: 1px solid var(--color-divider);
+}
+
+.settings-password-notice {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.settings-password-notice > span {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+
+  border-radius: 50%;
+
+  background: #fbbf24;
+
+  box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.09);
+}
+
+.settings-password-notice p {
+  margin: 0;
+
+  color: var(--color-text-muted);
+
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.settings-password-button {
+  flex: 0 0 auto;
+}
+
+/* =========================================================
+   AÇIK TEMA
+   ========================================================= */
+
+html[data-theme="light"] .settings-page-header h1 {
+  color: #172033;
+}
+
+html[data-theme="light"] .settings-page-header p {
+  color: #66758b;
+}
+
+html[data-theme="light"] .settings-account-status-active {
+  color: #047857;
+  border-color: rgba(16, 185, 129, 0.24);
+  background: rgba(16, 185, 129, 0.09);
+}
+
+html[data-theme="light"] .settings-account-status-passive {
+  color: #b91c1c;
+  border-color: rgba(239, 68, 68, 0.22);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+html[data-theme="light"] .settings-profile-card {
+  border-color: rgba(99, 102, 241, 0.17);
+
+  background:
+    radial-gradient(
+      circle at 94% 8%,
+      rgba(99, 102, 241, 0.12),
+      transparent 20rem
+    ),
+    radial-gradient(
+      circle at 5% 100%,
+      rgba(14, 165, 233, 0.07),
+      transparent 18rem
+    ),
+    linear-gradient(145deg, #f9fbff, #edf2ff);
+
+  box-shadow:
+    0 18px 42px rgba(51, 65, 85, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+}
+
+html[data-theme="light"] .settings-profile-card::after {
+  border-color: rgba(99, 102, 241, 0.07);
+
+  box-shadow:
+    0 0 0 34px rgba(99, 102, 241, 0.02),
+    0 0 0 68px rgba(99, 102, 241, 0.012);
+}
+
+html[data-theme="light"] .settings-profile-copy h2 {
+  color: #172033;
+}
+
+html[data-theme="light"] .settings-profile-copy > p {
+  color: #64748b;
+}
+
+html[data-theme="light"] .settings-profile-metric {
+  border-color: rgba(100, 116, 139, 0.13);
+  background: rgba(255, 255, 255, 0.66);
+
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+html[data-theme="light"] .settings-profile-metric span {
+  color: #718096;
+}
+
+html[data-theme="light"] .settings-profile-metric strong {
+  color: #334155;
+}
+
+html[data-theme="light"] .settings-role-badge {
+  color: #4338ca;
+  border-color: rgba(99, 102, 241, 0.2);
+  background: rgba(99, 102, 241, 0.09);
+}
+
+html[data-theme="light"] .settings-status-badge-active {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.09);
+}
+
+html[data-theme="light"] .settings-status-badge-passive {
+  color: #b91c1c;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+html[data-theme="light"] .settings-panel {
+  border-color: rgba(99, 102, 241, 0.13);
+
+  background:
+    radial-gradient(
+      circle at 100% 0,
+      rgba(99, 102, 241, 0.055),
+      transparent 16rem
+    ),
+    linear-gradient(145deg, #f9faff, #f0f4fa);
+
+  box-shadow:
+    0 15px 36px rgba(51, 65, 85, 0.075),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+}
+
+html[data-theme="light"] .settings-password-panel {
+  background:
+    radial-gradient(
+      circle at 100% 0,
+      rgba(56, 189, 248, 0.07),
+      transparent 18rem
+    ),
+    linear-gradient(145deg, #f8fbff, #edf3fa);
+}
+
+html[data-theme="light"] .settings-panel-header {
+  border-bottom-color: rgba(100, 116, 139, 0.15);
+}
+
+html[data-theme="light"] .settings-panel-header h2 {
+  color: #172033;
+}
+
+html[data-theme="light"] .settings-panel-header p {
+  color: #66758b;
+}
+
+html[data-theme="light"] .settings-panel-icon {
+  color: #4f46e5;
+  border-color: rgba(99, 102, 241, 0.17);
+  background: rgba(99, 102, 241, 0.085);
+}
+
+html[data-theme="light"] .settings-password-icon {
+  color: #0369a1;
+  border-color: rgba(14, 165, 233, 0.18);
+  background: rgba(14, 165, 233, 0.08);
+}
+
+html[data-theme="light"] .settings-coming-soon-badge {
+  color: #92400e;
+  border-color: rgba(245, 158, 11, 0.2);
+  background: #fef3c7;
+}
+
+html[data-theme="light"] .settings-info-item {
+  border-color: rgba(100, 116, 139, 0.12);
+  background: rgba(255, 255, 255, 0.64);
+
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
+}
+
+html[data-theme="light"] .settings-info-item:hover {
+  border-color: rgba(99, 102, 241, 0.18);
+  background: rgba(238, 242, 255, 0.72);
+}
+
+html[data-theme="light"] .settings-info-item span {
+  color: #718096;
+}
+
+html[data-theme="light"] .settings-info-item strong {
+  color: #334155;
+}
+
+html[data-theme="light"] .settings-password-field label {
+  color: #526176;
+}
+
+html[data-theme="light"] .settings-password-field input {
+  color: #8492a6;
+  border-color: rgba(100, 116, 139, 0.18);
+  background: rgba(255, 255, 255, 0.64);
+}
+
+html[data-theme="light"] .settings-password-field input::placeholder {
+  color: #8492a6;
+}
+
+html[data-theme="light"] .settings-password-footer {
+  border-top-color: rgba(100, 116, 139, 0.15);
+}
+
+html[data-theme="light"] .settings-password-notice p {
+  color: #66758b;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1050px) {
+  .settings-profile-card,
+  .settings-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-panel {
+    height: auto;
+  }
+}
+
+@media (max-width: 700px) {
+  .settings-page-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .settings-profile-main {
+    align-items: flex-start;
+  }
+
+  .settings-profile-metrics,
+  .settings-info-list {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-panel-header {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .settings-coming-soon-badge {
+    grid-column: 1 / -1;
+
+    width: fit-content;
+  }
+
+  .settings-password-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 520px) {
+  .settings-profile-card {
+    padding: 20px;
+  }
+
+  .settings-profile-main {
+    flex-direction: column;
+  }
+
+  .settings-profile-avatar {
+    width: 62px;
+    height: 62px;
+    flex-basis: 62px;
+
+    border-radius: 18px;
+
+    font-size: 18px;
+  }
+
+  .settings-profile-copy {
+    width: 100%;
+  }
+
+  .settings-profile-copy h2 {
+    font-size: 21px;
+  }
+}
