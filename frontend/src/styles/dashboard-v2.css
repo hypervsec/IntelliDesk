@@ -23,7 +23,7 @@
   gap: 26px;
 
   overflow: hidden;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
   padding: 24px 30px;
 
   border: 1px solid rgba(129, 140, 248, 0.2);
@@ -104,14 +104,15 @@
   text-transform: uppercase;
 }
 
-.dashboard-v2-header h1 {
-  margin: 8px 0 0;
+.dashboard-v2-header-title {
+  margin: 0;
 
-  color: var(--color-text);
+  color: var(--color-primary);
 
-  font-size: clamp(30px, 3vw, 42px);
-  line-height: 1.05;
-  letter-spacing: -0.05em;
+  font-size: clamp(28px, 2.8vw, 40px);
+  font-weight: 850;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
 }
 
 .dashboard-v2-header p {
@@ -123,7 +124,13 @@
   font-size: 15px;
   line-height: 1.65;
 }
+.dashboard-v2-user-name {
+  color: #ffffff;
 
+  font-size: 1.15em;
+  font-weight: 850;
+  letter-spacing: -0.01em;
+}
 /* =========================================================
    YÜKLEME VE HATA
    ========================================================= */
@@ -195,7 +202,7 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 15px;
 
-  margin-bottom: 17px;
+  margin-bottom: 12px;
 }
 
 .dashboard-v2-metric {
@@ -1124,21 +1131,152 @@ html[data-theme="light"] .dashboard-v2-ticket-number {
 }
 
 html[data-theme="light"] .dashboard-v2-status-item,
-html[data-theme="light"] .dashboard-v2-ticket-row,
-html[data-theme="light"] .dashboard-v2-chart-summary > div {
+html[data-theme="light"] .dashboard-v2-ticket-row {
   background: rgba(99, 102, 241, 0.025);
 }
 
-html[data-theme="light"] .dashboard-v2-line-chart {
-  background: linear-gradient(180deg, rgba(99, 102, 241, 0.035), transparent);
+html[data-theme="light"] .dashboard-v2-ticket-department {
+  color: #64748b;
 }
+html[data-theme="light"] .dashboard-v2-user-name {
+  color: #4f46e5;
+}
+/* =========================================================
+   AÇIK TEMA ÇİZGİ GRAFİĞİ
+   ========================================================= */
+
+html[data-theme="light"] .dashboard-v2-activity-panel {
+  border-color: rgba(99, 102, 241, 0.15);
+
+  background:
+    radial-gradient(
+      circle at 92% 8%,
+      rgba(129, 140, 248, 0.08),
+      transparent 28%
+    ),
+    linear-gradient(145deg, #ffffff, #f7f8ff);
+
+  box-shadow:
+    0 18px 42px rgba(51, 65, 85, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+html[data-theme="light"] .dashboard-v2-activity-panel::after {
+  background: rgba(99, 102, 241, 0.045);
+}
+
+html[data-theme="light"] .dashboard-v2-line-chart {
+  border-color: rgba(99, 102, 241, 0.16);
+
+  background:
+    radial-gradient(
+      circle at 90% 0%,
+      rgba(129, 140, 248, 0.1),
+      transparent 35%
+    ),
+    linear-gradient(180deg, rgba(238, 240, 255, 0.9), rgba(250, 251, 255, 0.96));
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -18px 36px rgba(99, 102, 241, 0.025);
+}
+
+html[data-theme="light"] .dashboard-v2-y-axis {
+  color: #64748b;
+}
+
+html[data-theme="light"] .dashboard-v2-chart-canvas svg > line {
+  stroke: rgba(79, 70, 229, 0.13);
+}
+
+html[data-theme="light"] .dashboard-v2-chart-canvas svg polyline {
+  stroke: #5b5ce2;
+
+  filter: drop-shadow(0 4px 5px rgba(79, 70, 229, 0.25));
+}
+
+html[data-theme="light"] #dashboardAreaGradient stop:first-child {
+  stop-color: #6366f1;
+  stop-opacity: 0.24;
+}
+
+html[data-theme="light"] #dashboardAreaGradient stop:last-child {
+  stop-color: #a5b4fc;
+  stop-opacity: 0.025;
+}
+
+html[data-theme="light"] .dashboard-v2-chart-canvas svg g circle:first-of-type {
+  fill: #ffffff;
+  stroke: #6366f1;
+
+  filter: drop-shadow(0 2px 3px rgba(79, 70, 229, 0.22));
+}
+
+html[data-theme="light"] .dashboard-v2-chart-canvas svg g circle:last-of-type {
+  fill: #312e81;
+}
+
+html[data-theme="light"] .dashboard-v2-chart-canvas svg g text:first-of-type {
+  fill: #312e81;
+}
+
+html[data-theme="light"] .dashboard-v2-chart-canvas svg g text:last-of-type {
+  fill: #64748b;
+}
+
+html[data-theme="light"] .dashboard-v2-chart-legend span {
+  border-color: rgba(99, 102, 241, 0.14);
+
+  color: #64748b;
+  background: rgba(255, 255, 255, 0.82);
+
+  box-shadow: 0 4px 12px rgba(51, 65, 85, 0.05);
+}
+
+html[data-theme="light"] .dashboard-v2-chart-legend i {
+  background: #6366f1;
+
+  box-shadow:
+    0 0 0 4px rgba(99, 102, 241, 0.11),
+    0 0 10px rgba(99, 102, 241, 0.28);
+}
+
+html[data-theme="light"] .dashboard-v2-chart-summary > div {
+  border-color: rgba(99, 102, 241, 0.14);
+
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(245, 247, 255, 0.9)
+  );
+
+  box-shadow: 0 7px 18px rgba(51, 65, 85, 0.055);
+}
+
+html[data-theme="light"] .dashboard-v2-chart-summary span {
+  color: #64748b;
+}
+
+html[data-theme="light"] .dashboard-v2-chart-summary strong {
+  color: #1e1b4b;
+}
+
+/* =========================================================
+   AÇIK TEMA DONUT
+   ========================================================= */
 
 html[data-theme="light"] .dashboard-v2-donut::before {
-  box-shadow: inset 0 7px 18px rgba(15, 23, 42, 0.045);
-}
+  border-color: rgba(99, 102, 241, 0.12);
 
-html[data-theme="light"] .dashboard-v2-ticket-department {
-  color: #718096;
+  background:
+    radial-gradient(
+      circle at 35% 25%,
+      rgba(129, 140, 248, 0.08),
+      transparent 40%
+    ),
+    linear-gradient(145deg, #ffffff, #f7f8ff);
+
+  box-shadow: inset 0 7px 18px rgba(15, 23, 42, 0.045);
 }
 
 /* =========================================================
@@ -1206,7 +1344,7 @@ html[data-theme="light"] .dashboard-v2-ticket-department {
     border-radius: 18px;
   }
 
-  .dashboard-v2-header h1 {
+  .dashboard-v2-header-title {
     font-size: 30px;
   }
 
@@ -1261,7 +1399,7 @@ html[data-theme="light"] .dashboard-v2-ticket-department {
     padding: 19px 16px;
   }
 
-  .dashboard-v2-header h1 {
+  .dashboard-v2-header-title {
     font-size: 27px;
   }
 

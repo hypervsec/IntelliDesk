@@ -195,15 +195,15 @@ function Dashboard() {
     <main className="dashboard-v2-page">
       <header className="dashboard-v2-header">
         <div>
-          <span className="dashboard-v2-eyebrow">
-            INTELLIDESK COMMAND CENTER
-          </span>
-
-          <h1>Hoş geldin, {firstName}</h1>
+          <h1 className="dashboard-v2-header-title">
+            INTELLIDESK OPERASYON MERKEZİ
+          </h1>
 
           <p>
-            Destek operasyonlarını, ticket yoğunluğunu ve AI performansını canlı
-            olarak takip et.
+            Merhaba{" "}
+            <strong className="dashboard-v2-user-name">{firstName}</strong>,
+            destek operasyonlarının güncel durumunu, SLA risklerini ve AI
+            destekli çözüm performansını tek ekrandan takip et.
           </p>
         </div>
       </header>
