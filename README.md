@@ -514,13 +514,11 @@ Tamamlanan temel bölümler:
 - Production deployment
 - RAG performans ve doğruluk metrikleri
 
----
-
 ## Geliştirici
 
 **Enes Menüş**
 
--[Linkedin](www.linkedin.com/in/enesmenus)
+- [LinkedIn](https://www.linkedin.com/in/enesmenus)
 
 ---
 
