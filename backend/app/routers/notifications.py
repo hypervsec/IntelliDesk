@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from .. import models
 from ..database import get_db
 from ..models import Account
-from ..notification_schemas import (
+from ..notifications.schemas import (
     NotificationListResponse,
     NotificationResponse,
 )

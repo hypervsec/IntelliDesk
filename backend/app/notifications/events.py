@@ -9,12 +9,12 @@ from sqlalchemy import (
 from sqlalchemy.engine import Connection
 from sqlalchemy.orm import Mapper
 
-from .models import (
+from ..models import (
     Account,
     Notification,
     Ticket,
 )
-from .sla import calculate_sla_deadlines
+from ..sla import calculate_sla_deadlines
 
 
 FIRST_RESPONSE_STATUSES = {
