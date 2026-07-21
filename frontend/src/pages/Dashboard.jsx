@@ -4,6 +4,10 @@ import { Link } from "react-router-dom";
 
 import api from "../api/api";
 import { useAuth } from "../auth/AuthContext";
+import {
+  DashboardDistributionPanels,
+  DashboardTicketDensityPanel,
+} from "../components/DashboardOperationsPanel";
 import Icon from "../components/Icon";
 
 import "../styles/dashboard-v2.css";
@@ -22,13 +26,19 @@ function Dashboard() {
   const { account } = useAuth();
 
   const [summary, setSummary] = useState(null);
+
   const [categories, setCategories] = useState([]);
+
   const [statuses, setStatuses] = useState([]);
-  const [priorities, setPriorities] = useState([]);
+
   const [departments, setDepartments] = useState([]);
+
   const [dailyStats, setDailyStats] = useState([]);
+
   const [recentTickets, setRecentTickets] = useState([]);
+
   const [loading, setLoading] = useState(true);
+
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -41,7 +51,6 @@ function Dashboard() {
           api.get("/tickets/dashboard/summary"),
           api.get("/tickets/dashboard/categories"),
           api.get("/tickets/dashboard/statuses"),
-          api.get("/tickets/dashboard/priorities"),
           api.get("/tickets/dashboard/departments"),
           api.get("/tickets/dashboard/daily"),
           api.get("/tickets/paged", {
@@ -61,27 +70,25 @@ function Dashboard() {
 
         setStatuses(Array.isArray(responses[2].data) ? responses[2].data : []);
 
-        setPriorities(
+        setDepartments(
           Array.isArray(responses[3].data) ? responses[3].data : [],
         );
 
-        setDepartments(
+        setDailyStats(
           Array.isArray(responses[4].data) ? responses[4].data : [],
         );
 
-        setDailyStats(
-          Array.isArray(responses[5].data) ? responses[5].data : [],
-        );
-
         setRecentTickets(
-          Array.isArray(responses[6].data?.items)
-            ? responses[6].data.items
+          Array.isArray(responses[5].data?.items)
+            ? responses[5].data.items
             : [],
         );
-      } catch (err) {
-        console.error(err);
+      } catch (requestError) {
+        console.error(requestError);
 
-        setError(getApiErrorMessage(err, "Dashboard verileri alınamadı."));
+        setError(
+          getApiErrorMessage(requestError, "Dashboard verileri alınamadı."),
+        );
       } finally {
         setLoading(false);
       }
@@ -125,8 +132,6 @@ function Dashboard() {
     return {
       totalTickets,
       openTickets,
-      resolvedTickets,
-      closedTickets,
       aiRecommendationCount,
       averageAiConfidence,
       completedTickets,
@@ -464,7 +469,7 @@ function Dashboard() {
         </article>
       </section>
 
-      <section className="dashboard-v2-secondary-grid">
+      <section className="dashboard-ops-overview-grid">
         <article className="dashboard-v2-panel dashboard-v2-recent-panel">
           <div className="dashboard-v2-panel-header">
             <div>
@@ -512,13 +517,17 @@ function Dashboard() {
                   </div>
 
                   <span
-                    className={`dashboard-v2-priority priority-${ticket.priority}`}
+                    className={
+                      `dashboard-v2-priority ` + `priority-${ticket.priority}`
+                    }
                   >
                     {translatePriority(ticket.priority)}
                   </span>
 
                   <span
-                    className={`dashboard-v2-status status-${ticket.status}`}
+                    className={
+                      `dashboard-v2-status ` + `status-${ticket.status}`
+                    }
                   >
                     {translateStatus(ticket.status)}
                   </span>
@@ -536,70 +545,13 @@ function Dashboard() {
           </div>
         </article>
 
-        <article className="dashboard-v2-panel dashboard-v2-workload-panel">
-          <div className="dashboard-v2-panel-header">
-            <div>
-              <span className="dashboard-v2-section-label">İŞ YÜKÜ</span>
-
-              <h2>Departman Yoğunluğu</h2>
-
-              <p>Ticketların departmanlara göre dağılımı</p>
-            </div>
-          </div>
-
-          <DistributionBars
-            items={departments}
-            labelKey="department"
-            limit={6}
-            color="blue"
-          />
-        </article>
+        <DashboardTicketDensityPanel dailyStats={dailyStats} />
       </section>
 
-      <section className="dashboard-v2-lower-grid">
-        <article className="dashboard-v2-panel">
-          <div className="dashboard-v2-panel-header dashboard-v2-panel-header-compact">
-            <div>
-              <span className="dashboard-v2-section-label">KATEGORİLER</span>
-
-              <h2>En Yoğun Konular</h2>
-            </div>
-
-            <span className="dashboard-v2-count-label">
-              {categories.length} grup
-            </span>
-          </div>
-
-          <DistributionBars
-            items={categories}
-            labelKey="category"
-            limit={5}
-            color="violet"
-          />
-        </article>
-
-        <article className="dashboard-v2-panel">
-          <div className="dashboard-v2-panel-header dashboard-v2-panel-header-compact">
-            <div>
-              <span className="dashboard-v2-section-label">ÖNCELİKLER</span>
-
-              <h2>Öncelik Görünümü</h2>
-            </div>
-
-            <span className="dashboard-v2-count-label">
-              {priorities.length} grup
-            </span>
-          </div>
-
-          <DistributionBars
-            items={priorities}
-            labelKey="priority"
-            limit={5}
-            color="amber"
-            translateLabel={translatePriority}
-          />
-        </article>
-      </section>
+      <DashboardDistributionPanels
+        departments={departments}
+        categories={categories}
+      />
     </main>
   );
 }
@@ -616,7 +568,7 @@ function MetricCard({
   const safeProgress = normalizePercentage(progress);
 
   return (
-    <article className={`dashboard-v2-metric dashboard-v2-metric-${tone}`}>
+    <article className={`dashboard-v2-metric ` + `dashboard-v2-metric-${tone}`}>
       <div className="dashboard-v2-metric-top">
         <span className="dashboard-v2-metric-icon">
           <Icon name={icon} size={19} />
@@ -647,54 +599,6 @@ function MetricCard({
         </div>
       </div>
     </article>
-  );
-}
-
-function DistributionBars({
-  items,
-  labelKey,
-  limit,
-  color,
-  translateLabel = (value) => value,
-}) {
-  const visibleItems = items.slice(0, limit);
-
-  const maxCount = Math.max(
-    1,
-    ...visibleItems.map((item) => Number(item.ticket_count) || 0),
-  );
-
-  if (visibleItems.length === 0) {
-    return <p className="dashboard-v2-empty">Gösterilecek veri bulunamadı.</p>;
-  }
-
-  return (
-    <div className="dashboard-v2-bars">
-      {visibleItems.map((item, index) => {
-        const count = Number(item.ticket_count) || 0;
-
-        const percentage = normalizePercentage((count / maxCount) * 100);
-
-        return (
-          <div className="dashboard-v2-bar-item" key={item[labelKey] || index}>
-            <div className="dashboard-v2-bar-head">
-              <span>{translateLabel(item[labelKey]) || "Belirtilmemiş"}</span>
-
-              <strong>{count}</strong>
-            </div>
-
-            <div className="dashboard-v2-bar-track">
-              <span
-                className={`dashboard-v2-bar-fill dashboard-v2-bar-${color}`}
-                style={{
-                  width: `${percentage}%`,
-                }}
-              />
-            </div>
-          </div>
-        );
-      })}
-    </div>
   );
 }
 
@@ -776,7 +680,7 @@ function buildLineChart(dailyStats) {
 
 function buildDonutGradient(statuses, total) {
   if (!Array.isArray(statuses) || statuses.length === 0 || total <= 0) {
-    return "conic-gradient(#26334d 0% 100%)";
+    return "conic-gradient(" + "#26334d 0% 100%" + ")";
   }
 
   let cursor = 0;
@@ -787,14 +691,13 @@ function buildDonutGradient(statuses, total) {
     const percentage = (count / total) * 100;
 
     const start = cursor;
-
     const end = cursor + percentage;
 
     cursor = end;
 
     const color = statusColors[item.status] || "#64748b";
 
-    return `${color} ${start}% ${end}%`;
+    return `${color} ` + `${start}% ` + `${end}%`;
   });
 
   return `conic-gradient(${segments.join(", ")})`;
@@ -894,8 +797,8 @@ function formatRelativeDate(value) {
   });
 }
 
-function getApiErrorMessage(error, fallbackMessage) {
-  const detail = error?.response?.data?.detail;
+function getApiErrorMessage(requestError, fallbackMessage) {
+  const detail = requestError?.response?.data?.detail;
 
   if (typeof detail === "string") {
     return detail;
