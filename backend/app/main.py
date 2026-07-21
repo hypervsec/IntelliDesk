@@ -38,7 +38,7 @@ from .routers import tickets
 from .routers.auth import (
     get_current_account,
 )
-from .sla_alerts import (
+from .sla.alerts import (
     run_sla_alert_loop,
 )
 

@@ -1,17 +1,17 @@
-import asyncio
+﻿import asyncio
 import logging
 from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .database import SessionLocal
-from .models import (
+from ..database import SessionLocal
+from ..models import (
     Account,
     Notification,
     Ticket,
 )
-from .sla import (
+from .service import (
     calculate_remaining_minutes,
     calculate_sla_status,
 )
@@ -251,13 +251,13 @@ def get_ticket_alert_definitions(
                         "approaching"
                     ),
                     "title": (
-                        "İlk cevap SLA süresi "
-                        "yaklaşıyor"
+                        "Ä°lk cevap SLA sÃ¼resi "
+                        "yaklaÅŸÄ±yor"
                     ),
                     "message": (
                         create_approaching_message(
                             ticket=ticket,
-                            sla_name="İlk cevap",
+                            sla_name="Ä°lk cevap",
                             remaining_minutes=(
                                 remaining_minutes
                             ),
@@ -277,12 +277,12 @@ def get_ticket_alert_definitions(
                         "breached"
                     ),
                     "title": (
-                        "İlk cevap SLA ihlali"
+                        "Ä°lk cevap SLA ihlali"
                     ),
                     "message": (
                         create_breached_message(
                             ticket=ticket,
-                            sla_name="İlk cevap",
+                            sla_name="Ä°lk cevap",
                         )
                     ),
                 }
@@ -332,13 +332,13 @@ def get_ticket_alert_definitions(
                         "approaching"
                     ),
                     "title": (
-                        "Çözüm SLA süresi "
-                        "yaklaşıyor"
+                        "Ã‡Ã¶zÃ¼m SLA sÃ¼resi "
+                        "yaklaÅŸÄ±yor"
                     ),
                     "message": (
                         create_approaching_message(
                             ticket=ticket,
-                            sla_name="Çözüm",
+                            sla_name="Ã‡Ã¶zÃ¼m",
                             remaining_minutes=(
                                 remaining_minutes
                             ),
@@ -358,12 +358,12 @@ def get_ticket_alert_definitions(
                         "breached"
                     ),
                     "title": (
-                        "Çözüm SLA ihlali"
+                        "Ã‡Ã¶zÃ¼m SLA ihlali"
                     ),
                     "message": (
                         create_breached_message(
                             ticket=ticket,
-                            sla_name="Çözüm",
+                            sla_name="Ã‡Ã¶zÃ¼m",
                         )
                     ),
                 }
@@ -382,11 +382,11 @@ def create_approaching_message(
     )
 
     return (
-        f"#{ticket.ticket_id} numaralı "
-        f'"{ticket.title}" ticketının '
-        f"{sla_name.lower()} SLA süresinin "
-        f"yaklaşık {remaining_time} süresi "
-        "kaldı."
+        f"#{ticket.ticket_id} numaralÄ± "
+        f'"{ticket.title}" ticketÄ±nÄ±n '
+        f"{sla_name.lower()} SLA sÃ¼resinin "
+        f"yaklaÅŸÄ±k {remaining_time} sÃ¼resi "
+        "kaldÄ±."
     )
 
 
@@ -395,10 +395,10 @@ def create_breached_message(
     sla_name: str,
 ) -> str:
     return (
-        f"#{ticket.ticket_id} numaralı "
-        f'"{ticket.title}" ticketında '
+        f"#{ticket.ticket_id} numaralÄ± "
+        f'"{ticket.title}" ticketÄ±nda '
         f"{sla_name.lower()} SLA hedefi "
-        "aşıldı."
+        "aÅŸÄ±ldÄ±."
     )
 
 
@@ -421,11 +421,11 @@ def format_duration(
     if days > 0:
         if hours > 0:
             return (
-                f"{days} gün "
+                f"{days} gÃ¼n "
                 f"{hours} saat"
             )
 
-        return f"{days} gün"
+        return f"{days} gÃ¼n"
 
     if hours > 0:
         if minutes > 0:
@@ -468,7 +468,7 @@ async def run_sla_alert_loop(
 
                         logger.info(
                             "%s SLA bildirimi "
-                            "oluşturuldu.",
+                            "oluÅŸturuldu.",
                             created_count,
                         )
                 except Exception:
@@ -480,8 +480,8 @@ async def run_sla_alert_loop(
 
         except Exception:
             logger.exception(
-                "SLA bildirim kontrolü "
-                "sırasında hata oluştu."
+                "SLA bildirim kontrolÃ¼ "
+                "sÄ±rasÄ±nda hata oluÅŸtu."
             )
 
         await asyncio.sleep(
