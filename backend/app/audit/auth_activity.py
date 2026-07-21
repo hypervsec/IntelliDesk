@@ -1,4 +1,6 @@
-from sqlalchemy.orm import Session
+from sqlalchemy import event
+from sqlalchemy.engine import Connection
+from sqlalchemy.orm import Mapper, Session
 
 from .service import insert_audit_log
 from ..models import Account
@@ -27,6 +29,62 @@ def get_request_values() -> tuple[
         metadata.request_path,
     )
 
+
+# =========================================================
+# YENİ KULLANICI HESABI
+# =========================================================
+
+@event.listens_for(
+    Account,
+    "after_insert",
+)
+def record_account_created(
+    _mapper: Mapper,
+    connection: Connection,
+    account: Account,
+) -> None:
+    ip_address, http_method, request_path = (
+        get_request_values()
+    )
+
+    insert_audit_log(
+        connection,
+        actor_account_id=account.account_id,
+        actor_name=account.full_name,
+        actor_role=account.role,
+        action_type="account_created",
+        entity_type="account",
+        entity_id=account.account_id,
+        ticket_id=None,
+        description=(
+            f"{account.full_name} kullanıcı hesabı "
+            "oluşturuldu."
+        ),
+        ip_address=ip_address,
+        http_method=http_method,
+        request_path=request_path,
+        status_code=201,
+        details={
+            "target_account_id": (
+                account.account_id
+            ),
+            "target_full_name": (
+                account.full_name
+            ),
+            "target_email": (
+                account.email
+            ),
+            "new_role": account.role,
+            "new_is_active": (
+                account.is_active
+            ),
+        },
+    )
+
+
+# =========================================================
+# OTURUM AÇMA DENEMESİ
+# =========================================================
 
 def record_login_attempt(
     db: Session,
@@ -110,6 +168,10 @@ def record_login_attempt(
         details=details,
     )
 
+
+# =========================================================
+# YÖNETİCİ HESAP GÜNCELLEMESİ
+# =========================================================
 
 def record_account_admin_update(
     db: Session,
