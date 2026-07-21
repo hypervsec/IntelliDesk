@@ -1,5 +1,7 @@
 import asyncio
-from collections.abc import AsyncGenerator
+from collections.abc import (
+    AsyncGenerator,
+)
 from contextlib import (
     asynccontextmanager,
     suppress,
@@ -16,14 +18,18 @@ from fastapi.middleware.cors import (
     CORSMiddleware,
 )
 
+from . import audit_events  # noqa: F401
 from . import notification_events  # noqa: F401
 from . import timeline_events  # noqa: F401
 from .models import Account
 from .request_context import (
     reset_request_actor,
+    reset_request_metadata,
     set_request_actor,
+    set_request_metadata,
 )
 from .routers import assigned_tickets
+from .routers import audit_logs
 from .routers import auth
 from .routers import notifications
 from .routers import ticket_pagination
@@ -89,6 +95,64 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# =========================================================
+# REQUEST BİLGİLERİ
+# =========================================================
+
+def get_request_ip(
+    request: Request,
+) -> str | None:
+    forwarded_for = request.headers.get(
+        "x-forwarded-for"
+    )
+
+    if forwarded_for:
+        forwarded_ip = (
+            forwarded_for
+            .split(",")[0]
+            .strip()
+        )
+
+        if forwarded_ip:
+            return forwarded_ip[:45]
+
+    if request.client is None:
+        return None
+
+    return request.client.host[:45]
+
+
+@app.middleware("http")
+async def attach_request_metadata(
+    request: Request,
+    call_next,
+):
+    metadata_token = (
+        set_request_metadata(
+            ip_address=get_request_ip(
+                request
+            ),
+            http_method=(
+                request.method.upper()
+            ),
+            request_path=(
+                request.url.path
+            ),
+        )
+    )
+
+    try:
+        response = await call_next(
+            request
+        )
+
+        return response
+    finally:
+        reset_request_metadata(
+            metadata_token
+        )
 
 
 # =========================================================
@@ -179,6 +243,11 @@ app.include_router(
 
 app.include_router(
     notifications.router
+)
+
+
+app.include_router(
+    audit_logs.router
 )
 
 

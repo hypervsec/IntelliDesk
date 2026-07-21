@@ -45,6 +45,13 @@ const navigationItems = [
     adminOnly: true,
   },
   {
+    to: "/system-logs",
+    end: true,
+    label: "Sistem Logları",
+    icon: "logs",
+    adminOnly: true,
+  },
+  {
     to: "/settings",
     end: true,
     label: "Ayarlar",

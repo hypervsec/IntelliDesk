@@ -1,0 +1,1099 @@
+.app-content:has(.audit-page),
+.app-page-region:has(.audit-page) {
+  min-width: 0;
+  overflow-x: clip;
+}
+
+.audit-page {
+  width: min(1520px, calc(100% - 52px));
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+}
+
+.audit-page > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* =========================================================
+   ÜST BAŞLIK
+   ========================================================= */
+
+.audit-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  overflow: hidden;
+  margin-bottom: 22px;
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  padding: 27px 29px;
+  background: linear-gradient(
+    125deg,
+    var(--color-surface-raised),
+    var(--color-surface)
+  );
+  box-shadow: var(--shadow-md);
+}
+
+.audit-hero::after {
+  position: absolute;
+  top: -110px;
+  right: -60px;
+  width: 310px;
+  height: 310px;
+  border-radius: 50%;
+  content: "";
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.2), transparent 68%);
+  pointer-events: none;
+}
+
+.audit-hero-copy {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.audit-hero h1 {
+  margin: 7px 0 0;
+  color: var(--color-text);
+  font-size: clamp(31px, 3vw, 44px);
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+}
+
+.audit-hero p {
+  max-width: 670px;
+  margin: 10px 0 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.audit-hero-actions {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.audit-live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(45, 212, 191, 0.25);
+  border-radius: var(--radius-pill);
+  padding: 9px 12px;
+  color: var(--color-success);
+  background: rgba(45, 212, 191, 0.09);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.audit-live-indicator > span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 0 5px rgba(45, 212, 191, 0.09);
+}
+
+/* =========================================================
+   KONSOL YAPISI
+   ========================================================= */
+
+.audit-console {
+  min-width: 0;
+  display: grid;
+  grid-template-columns:
+    minmax(245px, 300px)
+    minmax(0, 1fr);
+  align-items: start;
+  gap: 20px;
+}
+
+/* =========================================================
+   SOL FİLTRE PANELİ
+   ========================================================= */
+
+.audit-filter-sidebar {
+  position: sticky;
+  top: calc(var(--topbar-height) + 20px);
+  min-width: 0;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.audit-filter-sidebar::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  content: "";
+  background: linear-gradient(180deg, #38bdf8, #6366f1, #8b5cf6);
+}
+
+.audit-filter-heading h2 {
+  margin: 6px 0 0;
+  color: var(--color-text);
+  font-size: 18px;
+}
+
+.audit-filter-heading p {
+  margin: 8px 0 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.audit-filter-form {
+  display: grid;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.audit-filter-field {
+  min-width: 0;
+  display: grid;
+  gap: 7px;
+}
+
+.audit-filter-field label {
+  color: var(--color-text-soft);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.audit-filter-field input,
+.audit-filter-field select {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 10px;
+  outline: none;
+  padding: 0 11px;
+  color: var(--color-text);
+  background: var(--color-input-bg);
+  font-size: 11px;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.audit-filter-field input::placeholder {
+  color: var(--color-text-faint);
+}
+
+.audit-filter-field input:hover,
+.audit-filter-field select:hover {
+  border-color: rgba(129, 140, 248, 0.45);
+  background: var(--color-input-hover);
+}
+
+.audit-filter-field input:focus,
+.audit-filter-field select:focus {
+  border-color: var(--color-primary);
+  background: var(--color-input-hover);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.13);
+}
+
+.audit-filter-field select option {
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.audit-date-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.audit-filter-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding-top: 3px;
+}
+
+.audit-filter-actions button {
+  min-width: 0;
+  padding-inline: 10px;
+}
+
+.audit-filter-info {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 4px 10px;
+  margin-top: 20px;
+  border-top: 1px solid var(--color-divider);
+  padding-top: 17px;
+}
+
+.audit-filter-info > span {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.audit-filter-info > strong {
+  grid-row: span 2;
+  color: var(--color-primary);
+  font-size: 26px;
+  line-height: 1;
+}
+
+.audit-filter-info > small {
+  color: var(--color-text-faint);
+  font-size: 10px;
+}
+
+/* =========================================================
+   SAĞ LOG AKIŞI
+   ========================================================= */
+
+.audit-feed-area {
+  min-width: 0;
+}
+
+.audit-feed-toolbar {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 15px;
+  padding: 13px 15px;
+  background: linear-gradient(
+    145deg,
+    var(--color-surface-raised),
+    var(--color-surface)
+  );
+  box-shadow: var(--shadow-sm);
+}
+
+.audit-feed-title {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.audit-feed-pulse {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--color-info);
+}
+
+.audit-feed-pulse::after {
+  position: absolute;
+  inset: -5px;
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: 50%;
+  content: "";
+}
+
+.audit-feed-title > div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.audit-feed-title strong {
+  color: var(--color-text);
+  font-size: 13px;
+}
+
+.audit-feed-title > div > span {
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
+.audit-feed-metrics {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.audit-feed-metrics > div {
+  min-width: 72px;
+  display: grid;
+  gap: 2px;
+  border-left: 1px solid var(--color-divider);
+  padding-left: 11px;
+}
+
+.audit-feed-metrics > div > span,
+.audit-feed-metrics label > span {
+  color: var(--color-text-muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.audit-feed-metrics > div > strong {
+  color: var(--color-text);
+  font-size: 14px;
+}
+
+.audit-feed-metrics label {
+  display: grid;
+  gap: 4px;
+}
+
+.audit-feed-metrics select {
+  min-height: 31px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  outline: none;
+  padding: 0 8px;
+  color: var(--color-text);
+  background: var(--color-input-bg);
+  font-size: 10px;
+}
+
+/* =========================================================
+   LOG KARTLARI
+   ========================================================= */
+
+.audit-feed {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.audit-log-card {
+  position: relative;
+  min-width: 0;
+  display: grid;
+  grid-template-columns:
+    5px
+    minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: linear-gradient(
+    145deg,
+    var(--color-surface-raised),
+    var(--color-surface)
+  );
+  box-shadow: var(--shadow-sm);
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.audit-log-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(129, 140, 248, 0.32);
+  box-shadow: var(--shadow-md);
+}
+
+.audit-log-rail {
+  background: var(--color-text-faint);
+}
+
+.audit-log-rail > span {
+  display: none;
+}
+
+.audit-log-created .audit-log-rail {
+  background: linear-gradient(180deg, #2dd4bf, #14b8a6);
+}
+
+.audit-log-updated .audit-log-rail {
+  background: linear-gradient(180deg, #38bdf8, #6366f1);
+}
+
+.audit-log-comment .audit-log-rail {
+  background: linear-gradient(180deg, #c084fc, #8b5cf6);
+}
+
+.audit-log-danger .audit-log-rail {
+  background: linear-gradient(180deg, #fb7185, #e11d48);
+}
+
+.audit-log-ai .audit-log-rail {
+  background: linear-gradient(180deg, #818cf8, #6366f1);
+}
+
+.audit-log-content {
+  min-width: 0;
+  padding: 16px 17px 14px;
+}
+
+.audit-log-header {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.audit-log-action {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.audit-log-action time {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.audit-action-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  padding: 5px 9px;
+  color: var(--color-text-soft);
+  background: var(--color-surface-soft);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+
+.audit-action-created {
+  border-color: rgba(45, 212, 191, 0.28);
+  color: var(--color-success);
+  background: rgba(45, 212, 191, 0.1);
+}
+
+.audit-action-updated {
+  border-color: rgba(56, 189, 248, 0.28);
+  color: var(--color-info);
+  background: rgba(56, 189, 248, 0.1);
+}
+
+.audit-action-comment {
+  border-color: rgba(192, 132, 252, 0.3);
+  color: #a855f7;
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.audit-action-danger {
+  border-color: rgba(251, 113, 133, 0.3);
+  color: var(--color-danger);
+  background: rgba(251, 113, 133, 0.1);
+}
+
+.audit-action-ai {
+  border-color: rgba(129, 140, 248, 0.3);
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.audit-log-description p {
+  margin: 14px 0;
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.audit-log-meta {
+  min-width: 0;
+  display: grid;
+  grid-template-columns:
+    minmax(155px, 1fr)
+    minmax(190px, 1.3fr)
+    minmax(120px, 0.75fr)
+    minmax(110px, 0.7fr);
+  gap: 10px;
+}
+
+.audit-log-meta > div {
+  min-width: 0;
+  border: 1px solid var(--color-divider);
+  border-radius: 10px;
+  padding: 9px 10px;
+  background: var(--color-surface-soft);
+}
+
+.audit-log-actor {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.audit-avatar {
+  width: 31px;
+  height: 31px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(129, 140, 248, 0.28);
+  border-radius: 9px;
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.audit-log-actor > div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.audit-log-actor strong {
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.audit-log-actor span:not(.audit-avatar) {
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+
+.audit-log-request,
+.audit-log-network,
+.audit-log-target {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 5px;
+}
+
+.audit-log-request code {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--color-text-soft);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.audit-log-network > span,
+.audit-log-target > span {
+  color: var(--color-text-muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.audit-log-network strong,
+.audit-log-target strong,
+.audit-log-target a {
+  overflow-wrap: anywhere;
+  color: var(--color-text);
+  font-size: 10px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.audit-log-target a {
+  color: var(--color-primary);
+}
+
+.audit-log-target a:hover {
+  text-decoration: underline;
+}
+
+/* =========================================================
+   HTTP VE DURUM ETİKETLERİ
+   ========================================================= */
+
+.audit-method {
+  display: inline-flex;
+  border-radius: 7px;
+  padding: 4px 7px;
+  color: var(--color-text-soft);
+  background: var(--color-surface-soft);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+}
+
+.audit-method-get {
+  color: var(--color-info);
+  background: rgba(56, 189, 248, 0.1);
+}
+
+.audit-method-post {
+  color: var(--color-success);
+  background: rgba(45, 212, 191, 0.1);
+}
+
+.audit-method-put,
+.audit-method-patch {
+  color: var(--color-warning);
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.audit-method-delete {
+  color: var(--color-danger);
+  background: rgba(251, 113, 133, 0.1);
+}
+
+.audit-status {
+  display: inline-flex;
+  min-width: 47px;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  padding: 5px 9px;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.audit-status-success {
+  color: var(--color-success);
+  background: rgba(45, 212, 191, 0.11);
+}
+
+.audit-status-warning {
+  color: var(--color-warning);
+  background: rgba(251, 191, 36, 0.11);
+}
+
+.audit-status-danger {
+  color: var(--color-danger);
+  background: rgba(251, 113, 133, 0.11);
+}
+
+.audit-status-neutral {
+  color: var(--color-text-muted);
+  background: var(--color-surface-soft);
+}
+
+/* =========================================================
+   AÇILIR TEKNİK DETAYLAR
+   ========================================================= */
+
+.audit-expand-button {
+  width: 100%;
+  min-height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 11px;
+  border: 0;
+  border-top: 1px solid var(--color-divider);
+  padding: 10px 2px 0;
+  color: var(--color-text-muted);
+  background: transparent;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.audit-expand-button:hover {
+  color: var(--color-primary);
+}
+
+.audit-expand-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 7px;
+  color: var(--color-text-soft);
+  background: var(--color-surface-soft);
+  font-size: 15px;
+  line-height: 1;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.audit-expand-button:hover .audit-expand-symbol {
+  color: var(--color-primary);
+  border-color: rgba(129, 140, 248, 0.4);
+  background: var(--color-primary-soft);
+}
+
+.audit-expand-symbol.expanded {
+  transform: rotate(45deg);
+}
+
+.audit-technical-details {
+  margin-top: 10px;
+  border: 1px solid rgba(129, 140, 248, 0.18);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--color-input-bg);
+}
+
+.audit-technical-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.audit-detail-item {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+  border: 1px solid var(--color-divider);
+  border-radius: 8px;
+  padding: 9px;
+  background: var(--color-surface-soft);
+}
+
+.audit-detail-item span,
+.audit-details-object > span {
+  color: var(--color-text-muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.065em;
+  text-transform: uppercase;
+}
+
+.audit-detail-item strong {
+  overflow-wrap: anywhere;
+  color: var(--color-text);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.audit-details-object {
+  margin-top: 9px;
+  border: 1px solid var(--color-divider);
+  border-radius: 9px;
+  padding: 10px;
+  background: var(--color-surface);
+}
+
+.audit-details-object dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin: 9px 0 0;
+}
+
+.audit-details-object dl > div {
+  min-width: 0;
+  border: 1px solid var(--color-divider);
+  border-radius: 7px;
+  padding: 8px 9px;
+  background: var(--color-surface-soft);
+}
+
+.audit-details-object dt {
+  color: var(--color-text-muted);
+  font-size: 9px;
+}
+
+.audit-details-object dd {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+  color: var(--color-text);
+  font-size: 10px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.audit-details-object p {
+  margin: 9px 0 0;
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+
+/* =========================================================
+   ALT ALANLAR
+   ========================================================= */
+
+.audit-loading-state,
+.audit-empty-state {
+  min-height: 340px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: 16px;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+}
+
+.audit-empty-state {
+  flex-direction: column;
+  text-align: center;
+}
+
+.audit-empty-icon {
+  width: 43px;
+  height: 43px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(129, 140, 248, 0.25);
+  border-radius: 13px;
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.audit-empty-state strong {
+  color: var(--color-text);
+  font-size: 14px;
+}
+
+.audit-empty-state p {
+  max-width: 340px;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.audit-feed-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 15px;
+  border-top: 1px solid var(--color-divider);
+  padding-top: 15px;
+}
+
+.audit-feed-footer > span {
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
+.audit-feed-footer > span strong {
+  color: var(--color-text);
+}
+
+.audit-feed-footer > div {
+  display: flex;
+  gap: 8px;
+}
+
+/* =========================================================
+   AÇIK TEMA
+   ========================================================= */
+
+html[data-theme="light"] .audit-hero {
+  border-color: rgba(100, 116, 139, 0.2);
+  background: linear-gradient(125deg, #ffffff, #f4f7fb);
+  box-shadow: 0 18px 45px rgba(30, 41, 59, 0.1);
+}
+
+html[data-theme="light"] .audit-hero::after {
+  background: radial-gradient(
+    circle,
+    rgba(99, 102, 241, 0.12),
+    transparent 68%
+  );
+}
+
+html[data-theme="light"] .audit-filter-sidebar {
+  border-color: rgba(100, 116, 139, 0.2);
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  box-shadow: 0 16px 38px rgba(30, 41, 59, 0.08);
+}
+
+html[data-theme="light"] .audit-feed-toolbar {
+  border-color: rgba(100, 116, 139, 0.2);
+  background: linear-gradient(145deg, #ffffff, #f7f9fc);
+  box-shadow: 0 12px 30px rgba(30, 41, 59, 0.07);
+}
+
+html[data-theme="light"] .audit-log-card {
+  border-color: rgba(100, 116, 139, 0.2);
+  background: linear-gradient(145deg, #ffffff, #f7f9fc);
+  box-shadow: 0 12px 30px rgba(30, 41, 59, 0.07);
+}
+
+html[data-theme="light"] .audit-log-card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 18px 42px rgba(30, 41, 59, 0.11);
+}
+
+html[data-theme="light"] .audit-log-meta > div {
+  border-color: rgba(100, 116, 139, 0.17);
+  background: #f3f6fa;
+}
+
+html[data-theme="light"] .audit-avatar {
+  color: #4f46e5;
+  border-color: rgba(99, 102, 241, 0.22);
+  background: #eef2ff;
+}
+
+html[data-theme="light"] .audit-method-get {
+  color: #0369a1;
+  background: rgba(14, 165, 233, 0.1);
+}
+
+html[data-theme="light"] .audit-method-post {
+  color: #0f766e;
+  background: rgba(20, 184, 166, 0.1);
+}
+
+html[data-theme="light"] .audit-method-put,
+html[data-theme="light"] .audit-method-patch {
+  color: #a16207;
+  background: rgba(245, 158, 11, 0.11);
+}
+
+html[data-theme="light"] .audit-method-delete {
+  color: #be123c;
+  background: rgba(225, 29, 72, 0.09);
+}
+
+html[data-theme="light"] .audit-action-comment {
+  color: #7e22ce;
+  border-color: rgba(147, 51, 234, 0.22);
+  background: rgba(147, 51, 234, 0.08);
+}
+
+html[data-theme="light"] .audit-technical-details {
+  border-color: rgba(100, 116, 139, 0.19);
+  background: #f3f6fa;
+}
+
+html[data-theme="light"] .audit-detail-item,
+html[data-theme="light"] .audit-details-object dl > div {
+  border-color: rgba(100, 116, 139, 0.16);
+  background: #ffffff;
+}
+
+html[data-theme="light"] .audit-details-object {
+  border-color: rgba(100, 116, 139, 0.18);
+  background: #f8fafc;
+}
+
+html[data-theme="light"] .audit-loading-state,
+html[data-theme="light"] .audit-empty-state {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1180px) {
+  .audit-console {
+    grid-template-columns:
+      minmax(220px, 265px)
+      minmax(0, 1fr);
+  }
+
+  .audit-log-meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .audit-technical-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 880px) {
+  .audit-console {
+    grid-template-columns: 1fr;
+  }
+
+  .audit-filter-sidebar {
+    position: static;
+  }
+
+  .audit-filter-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .audit-filter-actions,
+  .audit-filter-info {
+    grid-column: 1 / -1;
+  }
+
+  .audit-date-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .audit-page {
+    width: min(calc(100% - 28px), 1520px);
+    padding-top: 24px;
+  }
+
+  .audit-hero,
+  .audit-feed-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .audit-hero-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .audit-live-indicator {
+    justify-content: center;
+  }
+
+  .audit-feed-metrics {
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .audit-feed-metrics > div {
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  .audit-filter-form {
+    grid-template-columns: 1fr;
+  }
+
+  .audit-filter-actions,
+  .audit-filter-info {
+    grid-column: auto;
+  }
+
+  .audit-date-fields,
+  .audit-filter-actions,
+  .audit-log-meta,
+  .audit-technical-grid,
+  .audit-details-object dl {
+    grid-template-columns: 1fr;
+  }
+
+  .audit-log-header,
+  .audit-log-action,
+  .audit-feed-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .audit-feed-footer > div {
+    width: 100%;
+  }
+
+  .audit-feed-footer button {
+    flex: 1;
+  }
+}

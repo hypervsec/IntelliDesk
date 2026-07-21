@@ -25,6 +25,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Settings from "./pages/Settings";
 import SlaManagement from "./pages/SlaManagement";
+import SystemLogs from "./pages/SystemLogs";
 import TicketDetail from "./pages/TicketDetail";
 import Tickets from "./pages/Tickets";
 import UserManagement from "./pages/UserManagement";
@@ -55,6 +56,13 @@ function getPageMeta(pathname) {
     return {
       section: "Operasyon",
       title: "SLA Yönetimi",
+    };
+  }
+
+  if (pathname === "/system-logs") {
+    return {
+      section: "Yönetim",
+      title: "Sistem Logları",
     };
   }
 
@@ -217,6 +225,15 @@ function App() {
               <StaffRoute>
                 <SlaManagement />
               </StaffRoute>
+            }
+          />
+
+          <Route
+            path="/system-logs"
+            element={
+              <AdminRoute>
+                <SystemLogs />
+              </AdminRoute>
             }
           />
 

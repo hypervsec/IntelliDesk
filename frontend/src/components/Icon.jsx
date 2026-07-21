@@ -31,6 +31,18 @@ const icons = {
     </>
   ),
 
+  logs: (
+    <>
+      <rect x="4" y="3" width="16" height="18" rx="2" />
+
+      <path d="M8 8h8" />
+
+      <path d="M8 12h8" />
+
+      <path d="M8 16h5" />
+    </>
+  ),
+
   open: (
     <>
       <circle cx="12" cy="12" r="9" />
@@ -104,7 +116,9 @@ const icons = {
   menu: (
     <>
       <path d="M4 7h16" />
+
       <path d="M4 12h16" />
+
       <path d="M4 17h16" />
     </>
   ),
@@ -112,6 +126,7 @@ const icons = {
   close: (
     <>
       <path d="m6 6 12 12" />
+
       <path d="m18 6-12 12" />
     </>
   ),
