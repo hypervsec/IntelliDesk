@@ -17,6 +17,7 @@ from ..request_context import (
 
 
 COMMENT_PREVIEW_LIMIT = 500
+AI_PREVIEW_LIMIT = 500
 
 
 AUDITED_TICKET_FIELDS = {
@@ -159,6 +160,103 @@ def create_comment_audit_details(
     return details
 
 
+def create_ai_recommendation_details(
+    ticket: Ticket,
+) -> dict[str, object]:
+    recommendation = (
+        ticket.ai_recommendation
+        or ""
+    ).strip()
+
+    recommendation_was_truncated = (
+        len(recommendation)
+        > AI_PREVIEW_LIMIT
+    )
+
+    recommendation_preview = (
+        recommendation[
+            :AI_PREVIEW_LIMIT
+        ]
+    )
+
+    if recommendation_was_truncated:
+        recommendation_preview = (
+            f"{recommendation_preview}…"
+        )
+
+    confidence_score = (
+        float(ticket.ai_confidence_score)
+        if ticket.ai_confidence_score
+        is not None
+        else None
+    )
+
+    details: dict[str, object] = {
+        "Ticket başlığı": (
+            ticket.title[:250]
+        ),
+        "AI güven puanı": (
+            f"%{confidence_score * 100:.2f}"
+            if confidence_score is not None
+            else "Belirtilmemiş"
+        ),
+        "Öneri özeti": (
+            recommendation_preview
+            or "Öneri içeriği bulunmuyor."
+        ),
+    }
+
+    if recommendation_was_truncated:
+        details["Not"] = (
+            "AI önerisinin yalnızca ilk "
+            "500 karakteri gösteriliyor."
+        )
+
+    return details
+
+
+def create_ai_feedback_details(
+    ticket: Ticket,
+) -> dict[str, object]:
+    feedback_value = (
+        ticket.ai_feedback
+        or ""
+    ).strip().lower()
+
+    feedback_label = {
+        "accepted": "Kabul edildi",
+        "rejected": "Reddedildi",
+    }.get(
+        feedback_value,
+        feedback_value or "Belirtilmemiş",
+    )
+
+    confidence_score = (
+        float(ticket.ai_confidence_score)
+        if ticket.ai_confidence_score
+        is not None
+        else None
+    )
+
+    return {
+        "Ticket başlığı": (
+            ticket.title[:250]
+        ),
+        "AI geri bildirimi": (
+            feedback_label
+        ),
+        "AI geri bildirim notu": (
+            ticket.ai_feedback_note
+            or "Not belirtilmedi."
+        ),
+        "AI güven puanı": (
+            f"%{confidence_score * 100:.2f}"
+            if confidence_score is not None
+            else "Belirtilmemiş"
+        ),
+    }
+
+
 @event.listens_for(
     Ticket,
     "after_insert",
@@ -228,6 +326,117 @@ def create_ticket_update_audit_log(
     connection: Connection,
     ticket: Ticket,
 ) -> None:
+    actor = get_request_actor()
+
+    ip_address, http_method, request_path = (
+        get_request_values()
+    )
+
+    actor_account_id = (
+        actor.account_id
+        if actor is not None
+        else None
+    )
+
+    actor_name = (
+        actor.name
+        if actor is not None
+        else "Sistem"
+    )
+
+    actor_role = (
+        actor.role
+        if actor is not None
+        else None
+    )
+
+    normalized_request_path = (
+        request_path.rstrip("/")
+        if request_path
+        else ""
+    )
+
+    if normalized_request_path.endswith(
+        "/recommendation"
+    ):
+        insert_audit_log(
+            connection,
+            actor_account_id=(
+                actor_account_id
+            ),
+            actor_name=actor_name,
+            actor_role=actor_role,
+            action_type=(
+                "ai_recommendation_created"
+            ),
+            entity_type="ticket",
+            entity_id=ticket.ticket_id,
+            ticket_id=ticket.ticket_id,
+            description=(
+                f"#{ticket.ticket_id} numaralı "
+                "ticket için AI çözüm önerisi "
+                "oluşturuldu."
+            ),
+            ip_address=ip_address,
+            http_method=http_method,
+            request_path=request_path,
+            status_code=200,
+            details=(
+                create_ai_recommendation_details(
+                    ticket
+                )
+            ),
+        )
+
+        return
+
+    if normalized_request_path.endswith(
+        "/feedback"
+    ):
+        feedback_value = (
+            ticket.ai_feedback
+            or ""
+        ).strip().lower()
+
+        feedback_description = {
+            "accepted": "kabul edildi",
+            "rejected": "reddedildi",
+        }.get(
+            feedback_value,
+            "değerlendirildi",
+        )
+
+        insert_audit_log(
+            connection,
+            actor_account_id=(
+                actor_account_id
+            ),
+            actor_name=actor_name,
+            actor_role=actor_role,
+            action_type=(
+                "ai_feedback_created"
+            ),
+            entity_type="ticket",
+            entity_id=ticket.ticket_id,
+            ticket_id=ticket.ticket_id,
+            description=(
+                f"#{ticket.ticket_id} numaralı "
+                "ticketın AI çözüm önerisi "
+                f"{feedback_description}."
+            ),
+            ip_address=ip_address,
+            http_method=http_method,
+            request_path=request_path,
+            status_code=200,
+            details=(
+                create_ai_feedback_details(
+                    ticket
+                )
+            ),
+        )
+
+        return
+
     (
         changed_field_names,
         changed_field_labels,
@@ -238,12 +447,6 @@ def create_ticket_update_audit_log(
     if not changed_field_names:
         return
 
-    actor = get_request_actor()
-
-    ip_address, http_method, request_path = (
-        get_request_values()
-    )
-
     changed_fields_text = ", ".join(
         changed_field_labels
     )
@@ -251,20 +454,10 @@ def create_ticket_update_audit_log(
     insert_audit_log(
         connection,
         actor_account_id=(
-            actor.account_id
-            if actor is not None
-            else None
+            actor_account_id
         ),
-        actor_name=(
-            actor.name
-            if actor is not None
-            else "Sistem"
-        ),
-        actor_role=(
-            actor.role
-            if actor is not None
-            else None
-        ),
+        actor_name=actor_name,
+        actor_role=actor_role,
         action_type="ticket_updated",
         entity_type="ticket",
         entity_id=ticket.ticket_id,
