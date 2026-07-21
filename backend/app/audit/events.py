@@ -5,14 +5,12 @@ from sqlalchemy import (
 from sqlalchemy.engine import Connection
 from sqlalchemy.orm import Mapper
 
-from .audit_service import (
-    insert_audit_log,
-)
-from .models import (
+from .service import insert_audit_log
+from ..models import (
     Ticket,
     TicketTimelineEntry,
 )
-from .request_context import (
+from ..request_context import (
     get_request_actor,
     get_request_metadata,
 )
@@ -214,9 +212,7 @@ def create_ticket_audit_log(
             "ticket_title": (
                 ticket.title[:250]
             ),
-            "priority": (
-                ticket.priority
-            ),
+            "priority": ticket.priority,
             "status": ticket.status,
         },
         created_at=ticket.created_at,
@@ -301,9 +297,7 @@ def create_ticket_update_audit_log(
 def create_timeline_audit_log(
     _mapper: Mapper,
     connection: Connection,
-    timeline_entry: (
-        TicketTimelineEntry
-    ),
+    timeline_entry: TicketTimelineEntry,
 ) -> None:
     if (
         timeline_entry.entry_type
@@ -318,8 +312,7 @@ def create_timeline_audit_log(
     insert_audit_log(
         connection,
         actor_account_id=(
-            timeline_entry
-            .actor_account_id
+            timeline_entry.actor_account_id
         ),
         actor_name=(
             timeline_entry.actor_name

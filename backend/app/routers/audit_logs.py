@@ -14,7 +14,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Session
 
-from ..audit_schemas import (
+from ..audit.schemas import (
     AuditLogPageResponse,
 )
 from ..database import get_db

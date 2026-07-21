@@ -20,13 +20,20 @@ const ACTION_LABELS = {
   ticket_updated: "Ticket güncellendi",
   ticket_comment_added: "Yorum eklendi",
   ticket_deleted: "Ticket silindi",
+
   ai_recommendation_created: "AI önerisi oluşturuldu",
   ai_feedback_created: "AI geri bildirimi",
+
   account_created: "Kullanıcı oluşturuldu",
   account_updated: "Kullanıcı güncellendi",
   account_disabled: "Kullanıcı pasifleştirildi",
-  login_succeeded: "Giriş başarılı",
-  login_failed: "Giriş başarısız",
+
+  account_role_changed: "Kullanıcı rolü değiştirildi",
+  account_status_changed: "Hesap durumu değiştirildi",
+  account_role_and_status_changed: "Rol ve hesap durumu değiştirildi",
+
+  login_succeeded: "Başarılı giriş",
+  login_failed: "Başarısız giriş",
 };
 
 const ROLE_LABELS = {
@@ -38,17 +45,45 @@ const ROLE_LABELS = {
 const ENTITY_LABELS = {
   ticket: "Ticket",
   ticket_comment: "Ticket yorumu",
-  account: "Kullanıcı",
+  account: "Kullanıcı hesabı",
   authentication: "Oturum",
 };
 
 const DETAIL_LABELS = {
   changed_fields: "Değişen alanlar",
   changed_field_labels: "Değişen alan adları",
+
   ticket_title: "Ticket başlığı",
   priority: "Öncelik",
   status: "Durum",
   timeline_entry_id: "Zaman çizelgesi kaydı",
+
+  email: "E-posta adresi",
+  result: "Giriş sonucu",
+  failure_reason: "Başarısızlık nedeni",
+
+  target_account_id: "Kullanıcı numarası",
+  target_full_name: "Kullanıcı adı",
+  target_email: "Kullanıcı e-postası",
+
+  old_role: "Eski rol",
+  new_role: "Yeni rol",
+
+  old_is_active: "Önceki hesap durumu",
+  new_is_active: "Yeni hesap durumu",
+
+  "Yorum içeriği": "Yorum içeriği",
+  Not: "Not",
+};
+
+const RESULT_LABELS = {
+  success: "Başarılı",
+  failed: "Başarısız",
+};
+
+const FAILURE_REASON_LABELS = {
+  invalid_credentials: "E-posta adresi veya parola hatalı",
+  inactive_account: "Kullanıcı hesabı devre dışı",
 };
 
 function SystemLogs() {
@@ -671,7 +706,7 @@ function AuditLogDetails({ log }) {
               <div key={detailKey}>
                 <dt>{DETAIL_LABELS[detailKey] || formatKey(detailKey)}</dt>
 
-                <dd>{formatDetailValue(detailValue)}</dd>
+                <dd>{formatDetailValue(detailKey, detailValue)}</dd>
               </div>
             ))}
           </dl>
@@ -702,11 +737,16 @@ function getActionTone(actionType) {
     return "comment";
   }
 
-  if (actionType === "ticket_created") {
+  if (actionType === "ticket_created" || actionType === "login_succeeded") {
     return "created";
   }
 
-  if (actionType === "ticket_updated") {
+  if (
+    actionType === "ticket_updated" ||
+    actionType === "account_role_changed" ||
+    actionType === "account_status_changed" ||
+    actionType === "account_role_and_status_changed"
+  ) {
     return "updated";
   }
 
@@ -792,9 +832,27 @@ function parseDetails(details) {
   }
 }
 
-function formatDetailValue(value) {
+function formatDetailValue(detailKey, value) {
   if (value === null || value === undefined) {
     return "Belirtilmemiş";
+  }
+
+  if (detailKey === "old_role" || detailKey === "new_role") {
+    return ROLE_LABELS[String(value)] || formatKey(value);
+  }
+
+  if (detailKey === "old_is_active" || detailKey === "new_is_active") {
+    const isActive = value === true || value === "true";
+
+    return isActive ? "Aktif" : "Pasif";
+  }
+
+  if (detailKey === "result") {
+    return RESULT_LABELS[String(value)] || formatKey(value);
+  }
+
+  if (detailKey === "failure_reason") {
+    return FAILURE_REASON_LABELS[String(value)] || formatKey(value);
   }
 
   if (Array.isArray(value)) {

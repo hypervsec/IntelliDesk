@@ -4,7 +4,7 @@ from typing import Any
 
 from sqlalchemy.engine import Connection
 
-from .models import AuditLog
+from ..models import AuditLog
 
 
 def normalize_optional_value(

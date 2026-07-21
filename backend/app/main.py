@@ -18,7 +18,7 @@ from fastapi.middleware.cors import (
     CORSMiddleware,
 )
 
-from . import audit_events  # noqa: F401
+from .audit import events as audit_events  # noqa: F401
 from . import notification_events  # noqa: F401
 from . import timeline_events  # noqa: F401
 from .models import Account

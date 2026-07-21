@@ -15,6 +15,10 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from ..audit.auth_activity import (
+    record_account_admin_update,
+    record_login_attempt,
+)
 from ..database import get_db
 from ..models import Account
 from ..schemas import (
@@ -242,6 +246,21 @@ def login_account(
     )
 
     if account is None or not password_is_valid:
+        record_login_attempt(
+            db,
+            attempted_email=normalized_email,
+            account=account,
+            succeeded=False,
+            status_code=(
+                status.HTTP_401_UNAUTHORIZED
+            ),
+            failure_reason=(
+                "invalid_credentials"
+            ),
+        )
+
+        db.commit()
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=(
@@ -253,6 +272,21 @@ def login_account(
         )
 
     if not account.is_active:
+        record_login_attempt(
+            db,
+            attempted_email=normalized_email,
+            account=account,
+            succeeded=False,
+            status_code=(
+                status.HTTP_403_FORBIDDEN
+            ),
+            failure_reason=(
+                "inactive_account"
+            ),
+        )
+
+        db.commit()
+
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=(
@@ -262,6 +296,14 @@ def login_account(
         )
 
     account.last_login_at = datetime.now()
+
+    record_login_attempt(
+        db,
+        attempted_email=normalized_email,
+        account=account,
+        succeeded=True,
+        status_code=status.HTTP_200_OK,
+    )
 
     db.commit()
     db.refresh(account)
@@ -387,6 +429,7 @@ def update_account_by_admin(
     )
 
     requested_role = changes.get("role")
+
     requested_is_active = changes.get(
         "is_active"
     )
@@ -456,6 +499,9 @@ def update_account_by_admin(
                 ),
             )
 
+    old_role = account.role
+    old_is_active = account.is_active
+
     for field, value in changes.items():
         setattr(
             account,
@@ -464,6 +510,14 @@ def update_account_by_admin(
         )
 
     account.updated_at = datetime.now()
+
+    record_account_admin_update(
+        db,
+        actor=current_admin,
+        target_account=account,
+        old_role=old_role,
+        old_is_active=old_is_active,
+    )
 
     db.commit()
     db.refresh(account)
