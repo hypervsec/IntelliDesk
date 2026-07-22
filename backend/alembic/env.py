@@ -4,6 +4,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from app import models  # noqa: F401
+from app.ai import models as ai_models  # noqa: F401
 from app.attachments import models as attachment_models  # noqa: F401
 from app.database import Base, DATABASE_URL
 
@@ -56,6 +57,8 @@ target_metadata = Base.metadata
 MANAGED_TABLES = {
     "accounts",
     "ticket_attachments",
+    "ai_sessions",
+    "ai_messages",
 }
 
 

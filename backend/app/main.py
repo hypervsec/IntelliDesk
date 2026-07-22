@@ -18,6 +18,7 @@ from fastapi.middleware.cors import (
     CORSMiddleware,
 )
 
+from .ai import router as ai_router
 from .audit import events as audit_events  # noqa: F401
 from .audit.failures import (
     record_failed_request_audit,
@@ -238,6 +239,11 @@ app.include_router(
 
 app.include_router(
     account_password.router
+)
+
+
+app.include_router(
+    ai_router.router
 )
 
 

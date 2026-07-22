@@ -1,0 +1,205 @@
+from datetime import datetime
+from decimal import Decimal
+
+from sqlalchemy import (
+    BigInteger,
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Index,
+    Numeric,
+    String,
+    Text,
+)
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+)
+
+from ..database import Base
+
+
+class AISession(Base):
+    __tablename__ = "ai_sessions"
+
+    __table_args__ = (
+        CheckConstraint(
+            (
+                "priority IN "
+                "('low', 'medium', 'high', 'critical')"
+            ),
+            name="ck_ai_sessions_priority",
+        ),
+        CheckConstraint(
+            (
+                "status IN "
+                "('pending', 'processing', "
+                "'completed', 'failed')"
+            ),
+            name="ck_ai_sessions_status",
+        ),
+        CheckConstraint(
+            (
+                "resolution_status IS NULL "
+                "OR resolution_status IN "
+                "('resolved', 'unresolved')"
+            ),
+            name=(
+                "ck_ai_sessions_"
+                "resolution_status"
+            ),
+        ),
+        CheckConstraint(
+            (
+                "confidence_score IS NULL "
+                "OR "
+                "(confidence_score >= 0 "
+                "AND confidence_score <= 1)"
+            ),
+            name=(
+                "ck_ai_sessions_"
+                "confidence_score_range"
+            ),
+        ),
+        Index(
+            "ix_ai_sessions_account_created",
+            "account_id",
+            "created_at",
+        ),
+        Index(
+            "ix_ai_sessions_status_created",
+            "status",
+            "created_at",
+        ),
+    )
+
+    session_id: Mapped[int] = mapped_column(
+        BigInteger,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    account_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey(
+            "accounts.account_id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+    )
+
+    title: Mapped[str] = mapped_column(
+        String(500),
+        nullable=False,
+    )
+
+    department: Mapped[str | None] = mapped_column(
+        String(150),
+        nullable=True,
+    )
+
+    category: Mapped[str | None] = mapped_column(
+        String(150),
+        nullable=True,
+    )
+
+    subcategory: Mapped[str | None] = mapped_column(
+        String(150),
+        nullable=True,
+    )
+
+    priority: Mapped[str] = mapped_column(
+        String(30),
+        nullable=False,
+        default="medium",
+    )
+
+    status: Mapped[str] = mapped_column(
+        String(30),
+        nullable=False,
+        default="pending",
+    )
+
+    confidence_score: Mapped[
+        Decimal | None
+    ] = mapped_column(
+        Numeric(5, 4),
+        nullable=True,
+    )
+
+    resolution_status: Mapped[
+        str | None
+    ] = mapped_column(
+        String(30),
+        nullable=True,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        default=datetime.now,
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        default=datetime.now,
+        onupdate=datetime.now,
+    )
+
+    completed_at: Mapped[
+        datetime | None
+    ] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
+
+
+class AIMessage(Base):
+    __tablename__ = "ai_messages"
+
+    __table_args__ = (
+        CheckConstraint(
+            (
+                "sender_type IN "
+                "('user', 'assistant', 'system')"
+            ),
+            name="ck_ai_messages_sender_type",
+        ),
+        Index(
+            "ix_ai_messages_session_created",
+            "session_id",
+            "created_at",
+        ),
+    )
+
+    message_id: Mapped[int] = mapped_column(
+        BigInteger,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    session_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey(
+            "ai_sessions.session_id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+    )
+
+    sender_type: Mapped[str] = mapped_column(
+        String(30),
+        nullable=False,
+    )
+
+    content: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        default=datetime.now,
+    )
