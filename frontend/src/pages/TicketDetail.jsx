@@ -4,7 +4,10 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 import api from "../api/api";
 import { useAuth } from "../auth/AuthContext";
+import TicketAttachmentsPanel from "../components/TicketAttachmentsPanel";
 import TicketTimelinePanel from "../components/TicketTimelinePanel";
+
+import "../styles/ticket-bottom-layout.css";
 
 function TicketDetail() {
   const { ticketId } = useParams();
@@ -16,6 +19,7 @@ function TicketDetail() {
     account?.role === "technician" || account?.role === "admin";
 
   const [ticket, setTicket] = useState(null);
+  const [timelineVersion, setTimelineVersion] = useState(0);
 
   const [recommendation, setRecommendation] = useState(null);
 
@@ -408,6 +412,14 @@ function TicketDetail() {
     }
   }
 
+  async function handleAttachmentsChanged() {
+    setTimelineVersion(
+      (currentVersion) => currentVersion + 1,
+    );
+
+    await loadTicket(false);
+  }
+
   if (loading) {
     return (
       <main className="page">
@@ -453,6 +465,7 @@ function TicketDetail() {
     ticket.ticket_id,
     ticket.updated_at,
     ticket.first_responded_at,
+    timelineVersion,
   ].join("-");
 
   return (
@@ -830,13 +843,20 @@ function TicketDetail() {
         </section>
       ) : null}
 
-      <TicketTimelinePanel
-        key={timelineRefreshKey}
-        ticketId={ticket.ticket_id}
-        onTimelineChanged={() => loadTicket(false)}
-      />
+      <div className="ticket-bottom-layout">
+        <TicketTimelinePanel
+          key={timelineRefreshKey}
+          ticketId={ticket.ticket_id}
+          onTimelineChanged={() => loadTicket(false)}
+        />
 
-      {canManageTicket || ticket.ai_feedback ? (
+        <div className="ticket-side-column">
+          <TicketAttachmentsPanel
+            ticketId={ticket.ticket_id}
+            onAttachmentsChanged={handleAttachmentsChanged}
+          />
+
+          {canManageTicket || ticket.ai_feedback ? (
         <section className="panel feedback-panel">
           <div className="panel-header">
             <div>
@@ -924,7 +944,9 @@ function TicketDetail() {
             </form>
           ) : null}
         </section>
-      ) : null}
+          ) : null}
+        </div>
+      </div>
     </main>
   );
 }

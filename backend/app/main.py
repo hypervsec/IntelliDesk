@@ -36,6 +36,7 @@ from .routers import assigned_tickets
 from .routers import audit_logs
 from .routers import auth
 from .routers import notifications
+from .routers import ticket_attachments
 from .routers import ticket_pagination
 from .routers import ticket_timeline
 from .routers import tickets
@@ -267,6 +268,11 @@ app.include_router(
 
 app.include_router(
     ticket_timeline.router
+)
+
+
+app.include_router(
+    ticket_attachments.router
 )
 
 

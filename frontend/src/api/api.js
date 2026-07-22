@@ -6,10 +6,6 @@ export const AUTH_UNAUTHORIZED_EVENT = "intellidesk:unauthorized";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000",
-
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 api.interceptors.request.use(
@@ -18,6 +14,17 @@ api.interceptors.request.use(
 
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    const requestUsesFormData =
+      typeof FormData !== "undefined" && config.data instanceof FormData;
+
+    if (requestUsesFormData) {
+      if (typeof config.headers?.delete === "function") {
+        config.headers.delete("Content-Type");
+      } else if (config.headers) {
+        delete config.headers["Content-Type"];
+      }
     }
 
     return config;

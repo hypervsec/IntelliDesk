@@ -1,0 +1,72 @@
+﻿/* =========================================================
+   TICKET ALT PANEL YERLEŞİMİ
+   ========================================================= */
+
+.ticket-bottom-layout {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1fr);
+  align-items: start;
+  gap: 24px;
+
+  margin-top: 24px;
+}
+
+.ticket-bottom-layout > .ticket-timeline-panel {
+  min-width: 0;
+  height: auto;
+  margin: 0;
+}
+
+.ticket-side-column {
+  display: flex;
+  min-width: 0;
+  align-self: start;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.ticket-side-column > .ticket-attachments-panel,
+.ticket-side-column > .feedback-panel {
+  min-width: 0;
+  height: auto;
+  margin: 0;
+}
+
+.ticket-side-column > .ticket-attachments-panel {
+  padding: 20px;
+}
+
+.ticket-side-column
+  > .ticket-attachments-panel
+  .ticket-attachments-panel-header {
+  margin-bottom: 16px;
+}
+
+.ticket-side-column
+  > .ticket-attachments-panel
+  .ticket-attachments-section {
+  margin-bottom: 0;
+}
+
+/* =========================================================
+   TABLET VE MOBİL
+   ========================================================= */
+
+@media (max-width: 1050px) {
+  .ticket-bottom-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .ticket-side-column {
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .ticket-bottom-layout,
+  .ticket-side-column {
+    gap: 18px;
+  }
+}

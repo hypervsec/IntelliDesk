@@ -3,7 +3,8 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from app import models
+from app import models  # noqa: F401
+from app.attachments import models as attachment_models  # noqa: F401
 from app.database import Base, DATABASE_URL
 
 
@@ -39,7 +40,7 @@ config.set_main_option(
 # SQLALCHEMY METADATA
 # =========================================================
 
-# models importu, modellerin Base.metadata içine
+# Model importları, tabloların Base.metadata içine
 # kaydedilmesini sağlar.
 target_metadata = Base.metadata
 
@@ -49,11 +50,12 @@ target_metadata = Base.metadata
 # =========================================================
 
 # Mevcut veritabanında uygulama modellerinde bulunmayan birçok
-# eski ve içe aktarılmış tablo var. Bunların yanlışlıkla
-# silinmesini veya değiştirilmesini önlemek için şimdilik
-# yalnızca accounts tablosu Alembic tarafından yönetilir.
+# eski ve içe aktarılmış tablo vardır. Bunların yanlışlıkla
+# silinmesini veya değiştirilmesini önlemek için yalnızca
+# uygulamanın yönettiği tablolar dikkate alınır.
 MANAGED_TABLES = {
     "accounts",
+    "ticket_attachments",
 }
 
 
@@ -66,14 +68,18 @@ def include_object(
 ):
     """
     Autogenerate sırasında yalnızca MANAGED_TABLES içindeki
-    tabloları ve bu tablolara ait kolon/index/constraint
+    tabloları ve bu tablolara ait kolon, index ve constraint
     nesnelerini dikkate alır.
     """
 
     if type_ == "table":
         return name in MANAGED_TABLES
 
-    table = getattr(object_, "table", None)
+    table = getattr(
+        object_,
+        "table",
+        None,
+    )
 
     if table is not None:
         return table.name in MANAGED_TABLES

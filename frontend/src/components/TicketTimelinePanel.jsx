@@ -12,6 +12,7 @@ const FIELD_LABELS = {
   category: "Kategori",
   subcategory: "Alt kategori",
   resolution: "Çözüm",
+  attachment: "Dosya eki",
 };
 
 const STATUS_LABELS = {
@@ -33,13 +34,17 @@ const PRIORITY_LABELS = {
 
 function TicketTimelinePanel({ ticketId, onTimelineChanged }) {
   const [timelineEntries, setTimelineEntries] = useState([]);
+
   const [commentContent, setCommentContent] = useState("");
 
   const [loading, setLoading] = useState(true);
+
   const [refreshing, setRefreshing] = useState(false);
+
   const [commentSubmitting, setCommentSubmitting] = useState(false);
 
   const [error, setError] = useState("");
+
   const [message, setMessage] = useState("");
 
   const loadTimeline = useCallback(
@@ -105,6 +110,7 @@ function TicketTimelinePanel({ ticketId, onTimelineChanged }) {
 
     if (!normalizedContent) {
       setError("Yorum içeriği boş olamaz.");
+
       return;
     }
 
@@ -147,8 +153,8 @@ function TicketTimelinePanel({ ticketId, onTimelineChanged }) {
           <h2>Ticket Zaman Çizelgesi</h2>
 
           <p>
-            Yorumlar, durum değişiklikleri, atamalar ve diğer ticket işlemleri
-            burada gösterilir.
+            Yorumlar, dosya işlemleri, durum değişiklikleri, atamalar ve diğer
+            ticket işlemleri burada gösterilir.
           </p>
         </div>
 
@@ -185,7 +191,10 @@ function TicketTimelinePanel({ ticketId, onTimelineChanged }) {
           <div className="ticket-comment-meta">
             <span>Ticketı görüntüleyebilen kullanıcılar yorumu görebilir.</span>
 
-            <span>{commentContent.length}/5000</span>
+            <span>
+              {commentContent.length}
+              /5000
+            </span>
           </div>
         </div>
 
@@ -220,7 +229,9 @@ function TicketTimelinePanel({ ticketId, onTimelineChanged }) {
         <div className="ticket-timeline-empty">
           <strong>Henüz işlem kaydı bulunmuyor.</strong>
 
-          <span>İlk yorum veya ticket değişikliği burada görünecek.</span>
+          <span>
+            İlk yorum, dosya işlemi veya ticket değişikliği burada görünecek.
+          </span>
         </div>
       ) : null}
 
@@ -254,7 +265,9 @@ function TimelineEntry({ entry }) {
 
   return (
     <article
-      className={`ticket-timeline-entry ticket-timeline-entry-${entryType}`}
+      className={
+        `ticket-timeline-entry ` + `ticket-timeline-entry-${entryType}`
+      }
     >
       <div className="ticket-timeline-marker" aria-hidden="true">
         {getEntryMarker(entry.entry_type)}
@@ -343,6 +356,13 @@ function getEntryType(entry) {
     return "comment";
   }
 
+  if (
+    entry.entry_type === "attachment_added" ||
+    entry.entry_type === "attachment_removed"
+  ) {
+    return "attachment";
+  }
+
   if (entry.entry_type === "field_changed") {
     return "change";
   }
@@ -357,6 +377,14 @@ function getEntryType(entry) {
 function getEntryTitle(entry) {
   if (entry.entry_type === "comment") {
     return "Yorum eklendi";
+  }
+
+  if (entry.entry_type === "attachment_added") {
+    return "Dosya eklendi";
+  }
+
+  if (entry.entry_type === "attachment_removed") {
+    return "Dosya kaldırıldı";
   }
 
   if (entry.entry_type === "ticket_created") {
@@ -375,6 +403,10 @@ function getEntryTitle(entry) {
 function getEntryMarker(entryType) {
   if (entryType === "comment") {
     return "Y";
+  }
+
+  if (entryType === "attachment_added" || entryType === "attachment_removed") {
+    return "E";
   }
 
   if (entryType === "field_changed") {
