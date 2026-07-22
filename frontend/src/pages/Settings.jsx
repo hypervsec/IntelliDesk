@@ -1,3 +1,8 @@
+import { useState } from "react";
+
+import { useNavigate } from "react-router-dom";
+
+import api from "../api/api";
 import { useAuth } from "../auth/AuthContext";
 import Icon from "../components/Icon";
 
@@ -7,14 +12,137 @@ const roleLabels = {
   user: "Kullanıcı",
 };
 
+const initialPasswordForm = {
+  current_password: "",
+  new_password: "",
+  password_confirm: "",
+};
+
+function getErrorMessage(error, fallbackMessage) {
+  const detail = error.response?.data?.detail;
+
+  if (typeof detail === "string") {
+    return detail;
+  }
+
+  if (Array.isArray(detail)) {
+    const validationMessages = detail
+      .map((item) => {
+        if (typeof item?.msg !== "string") {
+          return "";
+        }
+
+        return item.msg.replace(/^Value error,\s*/i, "");
+      })
+      .filter(Boolean);
+
+    if (validationMessages.length > 0) {
+      return validationMessages.join(" ");
+    }
+  }
+
+  return fallbackMessage;
+}
+
+function validatePasswordForm(formData) {
+  if (!formData.current_password) {
+    return "Mevcut parolanızı girin.";
+  }
+
+  if (formData.new_password.length < 8) {
+    return "Yeni parola en az 8 karakter olmalıdır.";
+  }
+
+  if (!/[a-zçğıöşü]/u.test(formData.new_password)) {
+    return "Yeni parola en az bir küçük harf içermelidir.";
+  }
+
+  if (!/[A-ZÇĞİÖŞÜ]/u.test(formData.new_password)) {
+    return "Yeni parola en az bir büyük harf içermelidir.";
+  }
+
+  if (!/\d/.test(formData.new_password)) {
+    return "Yeni parola en az bir rakam içermelidir.";
+  }
+
+  if (formData.new_password !== formData.password_confirm) {
+    return "Yeni parola ve parola tekrarı eşleşmiyor.";
+  }
+
+  if (formData.current_password === formData.new_password) {
+    return "Yeni parola mevcut paroladan farklı olmalıdır.";
+  }
+
+  return "";
+}
+
 function Settings() {
-  const { account } = useAuth();
+  const navigate = useNavigate();
+
+  const { account, logout } = useAuth();
+
+  const [passwordForm, setPasswordForm] = useState(initialPasswordForm);
+
+  const [submitting, setSubmitting] = useState(false);
+
+  const [errorMessage, setErrorMessage] = useState("");
 
   const roleLabel = roleLabels[account?.role] || "Kullanıcı";
 
   const accountStatus = account?.is_active ? "Aktif" : "Pasif";
 
   const initials = getAccountInitials(account?.full_name);
+
+  function handlePasswordChange(event) {
+    const { name, value } = event.target;
+
+    setPasswordForm((currentForm) => ({
+      ...currentForm,
+      [name]: value,
+    }));
+
+    setErrorMessage("");
+  }
+
+  async function handlePasswordSubmit(event) {
+    event.preventDefault();
+
+    const validationMessage = validatePasswordForm(passwordForm);
+
+    if (validationMessage) {
+      setErrorMessage(validationMessage);
+      return;
+    }
+
+    setSubmitting(true);
+    setErrorMessage("");
+
+    try {
+      const response = await api.patch("/auth/password", passwordForm);
+
+      const successMessage =
+        response.data?.message || "Parolanız başarıyla güncellendi.";
+
+      setPasswordForm(initialPasswordForm);
+
+      logout();
+
+      navigate("/login", {
+        replace: true,
+        state: {
+          email: account?.email || "",
+          registrationMessage:
+            `${successMessage} ` + "Yeni parolanızla tekrar giriş yapın.",
+        },
+      });
+    } catch (error) {
+      setErrorMessage(
+        getErrorMessage(error, "Parola güncellenirken bir hata oluştu."),
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <main className="page settings-page">
@@ -25,8 +153,8 @@ function Settings() {
           <h1>Ayarlar</h1>
 
           <p>
-            Hesap bilgilerinizi görüntüleyin ve parola yönetimi durumunu kontrol
-            edin.
+            Hesap bilgilerinizi görüntüleyin ve parolanızı güvenli şekilde
+            güncelleyin.
           </p>
         </div>
 
@@ -85,7 +213,11 @@ function Settings() {
       </section>
 
       <div className="settings-content-grid">
-        <section className="panel settings-panel settings-account-panel">
+        <section
+          className={["panel", "settings-panel", "settings-account-panel"].join(
+            " ",
+          )}
+        >
           <div className="settings-panel-header">
             <div className="settings-panel-icon">
               <Icon name="user" size={19} />
@@ -124,9 +256,19 @@ function Settings() {
           </div>
         </section>
 
-        <section className="panel settings-panel settings-password-panel">
+        <section
+          className={[
+            "panel",
+            "settings-panel",
+            "settings-password-panel",
+          ].join(" ")}
+        >
           <div className="settings-panel-header">
-            <div className="settings-panel-icon settings-password-icon">
+            <div
+              className={["settings-panel-icon", "settings-password-icon"].join(
+                " ",
+              )}
+            >
               <Icon name="activity" size={19} />
             </div>
 
@@ -136,19 +278,25 @@ function Settings() {
               <h2>Parola değiştir</h2>
 
               <p>
-                Backend bağlantısı tamamlandığında parolanızı bu bölümden
-                güncelleyebileceksiniz.
+                Mevcut parolanızı doğrulayarak hesabınız için yeni bir parola
+                belirleyin.
               </p>
             </div>
 
-            <span className="settings-coming-soon-badge">Yakında aktif</span>
+            <span
+              className={[
+                "settings-account-status",
+                "settings-account-status-active",
+              ].join(" ")}
+            >
+              <span />
+              Aktif
+            </span>
           </div>
 
           <form
             className="settings-password-form"
-            onSubmit={(event) => {
-              event.preventDefault();
-            }}
+            onSubmit={handlePasswordSubmit}
           >
             <div className="settings-password-grid">
               <SettingsPasswordField
@@ -159,9 +307,13 @@ function Settings() {
                   id="settings-current-password"
                   name="current_password"
                   type="password"
+                  value={passwordForm.current_password}
                   placeholder="Mevcut parolanız"
                   autoComplete="current-password"
-                  disabled
+                  maxLength={128}
+                  required
+                  disabled={submitting}
+                  onChange={handlePasswordChange}
                 />
               </SettingsPasswordField>
 
@@ -173,9 +325,14 @@ function Settings() {
                   id="settings-new-password"
                   name="new_password"
                   type="password"
+                  value={passwordForm.new_password}
                   placeholder="Yeni parolanız"
                   autoComplete="new-password"
-                  disabled
+                  minLength={8}
+                  maxLength={128}
+                  required
+                  disabled={submitting}
+                  onChange={handlePasswordChange}
                 />
               </SettingsPasswordField>
 
@@ -187,26 +344,55 @@ function Settings() {
                   id="settings-password-confirm"
                   name="password_confirm"
                   type="password"
-                  placeholder="Yeni parolanızı tekrar girin"
+                  value={passwordForm.password_confirm}
+                  placeholder={"Yeni parolanızı tekrar girin"}
                   autoComplete="new-password"
-                  disabled
+                  minLength={8}
+                  maxLength={128}
+                  required
+                  disabled={submitting}
+                  onChange={handlePasswordChange}
                 />
               </SettingsPasswordField>
             </div>
 
             <div className="settings-password-footer">
-              <div className="settings-password-notice">
-                <span />
+              {errorMessage ? (
+                <div className="settings-password-notice" role="alert">
+                  <span
+                    style={{
+                      background: "var(--color-danger)",
+                      boxShadow: "0 0 0 4px rgba(251, 113, 133, 0.1)",
+                    }}
+                  />
 
-                <p>Parola değiştirme işlemi henüz kullanıma açık değildir.</p>
-              </div>
+                  <p
+                    style={{
+                      color: "var(--color-danger)",
+                    }}
+                  >
+                    {errorMessage}
+                  </p>
+                </div>
+              ) : (
+                <div className="settings-password-notice">
+                  <span />
+
+                  <p>
+                    En az 8 karakter, bir büyük harf, bir küçük harf ve bir
+                    rakam kullanın.
+                  </p>
+                </div>
+              )}
 
               <button
                 type="submit"
-                className="primary-button settings-password-button"
-                disabled
+                className={["primary-button", "settings-password-button"].join(
+                  " ",
+                )}
+                disabled={submitting}
               >
-                Parolayı Güncelle
+                {submitting ? "Güncelleniyor..." : "Parolayı Güncelle"}
               </button>
             </div>
           </form>

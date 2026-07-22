@@ -31,6 +31,7 @@ from .request_context import (
     set_request_actor,
     set_request_metadata,
 )
+from .routers import account_password
 from .routers import assigned_tickets
 from .routers import audit_logs
 from .routers import auth
@@ -231,6 +232,11 @@ async def authorize_ticket_request(
 
 app.include_router(
     auth.router
+)
+
+
+app.include_router(
+    account_password.router
 )
 
 
