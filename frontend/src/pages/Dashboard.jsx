@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import api from "../api/api";
-import { useAuth } from "../auth/AuthContext";
 import {
   DashboardDistributionPanels,
   DashboardTicketDensityPanel,
@@ -23,8 +22,6 @@ const statusColors = {
 };
 
 function Dashboard() {
-  const { account } = useAuth();
-
   const [summary, setSummary] = useState(null);
 
   const [categories, setCategories] = useState([]);
@@ -157,8 +154,6 @@ function Dashboard() {
     [statuses, statusTotal],
   );
 
-  const firstName = account?.full_name?.trim().split(/\s+/)[0] || "Kullanıcı";
-
   if (loading) {
     return (
       <main className="dashboard-v2-page">
@@ -193,21 +188,6 @@ function Dashboard() {
 
   return (
     <main className="dashboard-v2-page">
-      <header className="dashboard-v2-header">
-        <div>
-          <h1 className="dashboard-v2-header-title">
-            INTELLIDESK OPERASYON MERKEZİ
-          </h1>
-
-          <p>
-            Merhaba{" "}
-            <strong className="dashboard-v2-user-name">{firstName}</strong>,
-            destek operasyonlarının güncel durumunu, SLA risklerini ve AI
-            destekli çözüm performansını tek ekrandan takip et.
-          </p>
-        </div>
-      </header>
-
       <section className="dashboard-v2-metrics">
         <MetricCard
           title="Toplam Ticket"
@@ -691,6 +671,7 @@ function buildDonutGradient(statuses, total) {
     const percentage = (count / total) * 100;
 
     const start = cursor;
+
     const end = cursor + percentage;
 
     cursor = end;

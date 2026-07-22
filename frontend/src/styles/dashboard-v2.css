@@ -92,7 +92,6 @@
   z-index: 1;
 }
 
-.dashboard-v2-eyebrow,
 .dashboard-v2-section-label {
   display: block;
 
@@ -1105,14 +1104,6 @@
    AÇIK TEMA
    ========================================================= */
 
-html[data-theme="light"] .dashboard-v2-header {
-  border-color: rgba(79, 70, 229, 0.14);
-
-  box-shadow:
-    0 20px 50px rgba(15, 23, 42, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
 html[data-theme="light"] .dashboard-v2-metric,
 html[data-theme="light"] .dashboard-v2-panel {
   box-shadow:
@@ -1137,9 +1128,6 @@ html[data-theme="light"] .dashboard-v2-ticket-row {
 
 html[data-theme="light"] .dashboard-v2-ticket-department {
   color: #64748b;
-}
-html[data-theme="light"] .dashboard-v2-user-name {
-  color: #4f46e5;
 }
 /* =========================================================
    AÇIK TEMA ÇİZGİ GRAFİĞİ
@@ -1306,19 +1294,9 @@ html[data-theme="light"] .dashboard-v2-donut::before {
   .dashboard-v2-page {
     width: calc(100% - 30px);
   }
-
-  .dashboard-v2-header {
-    min-height: 138px;
-    padding: 23px 26px;
-  }
 }
 
 @media (max-width: 760px) {
-  .dashboard-v2-header::before,
-  .dashboard-v2-header::after {
-    display: none;
-  }
-
   .dashboard-v2-donut-layout {
     grid-template-columns: 1fr;
   }
@@ -1334,24 +1312,6 @@ html[data-theme="light"] .dashboard-v2-donut::before {
     width: calc(100% - 22px);
     padding-top: 20px;
   }
-
-  .dashboard-v2-header {
-    min-height: auto;
-
-    margin-bottom: 15px;
-    padding: 21px 19px;
-
-    border-radius: 18px;
-  }
-
-  .dashboard-v2-header-title {
-    font-size: 30px;
-  }
-
-  .dashboard-v2-header p {
-    font-size: 13px;
-  }
-
   .dashboard-v2-metrics {
     grid-template-columns: 1fr;
     gap: 12px;
@@ -1393,14 +1353,6 @@ html[data-theme="light"] .dashboard-v2-donut::before {
 @media (max-width: 420px) {
   .dashboard-v2-page {
     width: calc(100% - 16px);
-  }
-
-  .dashboard-v2-header {
-    padding: 19px 16px;
-  }
-
-  .dashboard-v2-header-title {
-    font-size: 27px;
   }
 
   .dashboard-v2-metric {
