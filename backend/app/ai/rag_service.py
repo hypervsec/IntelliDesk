@@ -1,11 +1,16 @@
+from __future__ import annotations
+
+import os
 from dataclasses import dataclass
+from typing import Any
 
 from ..services import find_similar_tickets
+from .gemini_service import generate_gemini_solution
 from .models import AIMessage, AISession
 
 
-MINIMUM_SIMILARITY_SCORE = 0.35
 SIMILAR_TICKET_LIMIT = 5
+SUPPORTED_AI_PROVIDER = "gemini"
 
 
 @dataclass(
@@ -16,6 +21,20 @@ class TemporaryRAGSolution:
     content: str
     confidence_score: float
     source_request_ids: list[str]
+
+
+def get_ai_provider() -> str:
+    provider = os.getenv(
+        "AI_PROVIDER",
+        SUPPORTED_AI_PROVIDER,
+    ).strip().lower()
+
+    if provider != SUPPORTED_AI_PROVIDER:
+        raise RuntimeError(
+            f"Desteklenmeyen AI sağlayıcısı: {provider}"
+        )
+
+    return provider
 
 
 def build_session_query(
@@ -68,10 +87,61 @@ def format_source_ticket(
     return f"#{normalized_id}"
 
 
+def get_source_request_ids(
+    similar_tickets: list[dict[str, Any]],
+) -> list[str]:
+    return [
+        str(ticket["request_id"])
+        for ticket in similar_tickets
+        if ticket.get("request_id") is not None
+    ]
+
+
+def get_best_confidence_score(
+    similar_tickets: list[dict[str, Any]],
+) -> float:
+    if not similar_tickets:
+        return 0.0
+
+    best_similarity = similar_tickets[0].get(
+        "similarity",
+        0.0,
+    )
+
+    return normalize_confidence_score(
+        best_similarity
+    )
+
+
+def build_solution_metadata(
+    confidence_score: float,
+    source_request_ids: list[str],
+) -> str:
+    if source_request_ids:
+        formatted_sources = ", ".join(
+            format_source_ticket(request_id)
+            for request_id in source_request_ids
+        )
+    else:
+        formatted_sources = (
+            "Benzer geçmiş ticket bulunamadı"
+        )
+
+    return (
+        "\n\n---\n"
+        "RAG bilgileri:\n"
+        f"Benzerlik güven puanı: "
+        f"%{confidence_score * 100:.2f}\n"
+        f"Kaynak ticketlar: {formatted_sources}"
+    )
+
+
 def generate_temporary_rag_solution(
     ai_session: AISession,
     user_message: AIMessage,
 ) -> TemporaryRAGSolution:
+    get_ai_provider()
+
     query_text = build_session_query(
         ai_session=ai_session,
         user_message=user_message,
@@ -82,78 +152,29 @@ def generate_temporary_rag_solution(
         limit=SIMILAR_TICKET_LIMIT,
     )
 
-    if not similar_tickets:
-        return TemporaryRAGSolution(
-            content=(
-                "Geçmiş Service Desk kayıtlarında "
-                "bu sorunla yeterince benzer bir kayıt "
-                "bulunamadı.\n\n"
-                "Sorununuz devam ediyorsa Service Desk "
-                "bölümünden ticket oluşturabilirsiniz."
-            ),
-            confidence_score=0.0,
-            source_request_ids=[],
-        )
-
-    best_ticket = similar_tickets[0]
-
-    confidence_score = normalize_confidence_score(
-        best_ticket.get(
-            "similarity",
-            0.0,
-        )
+    confidence_score = get_best_confidence_score(
+        similar_tickets=similar_tickets,
     )
 
-    source_request_ids = [
-        str(ticket["request_id"])
-        for ticket in similar_tickets
-        if ticket.get("request_id") is not None
-    ]
-
-    formatted_sources = ", ".join(
-        format_source_ticket(request_id)
-        for request_id in source_request_ids
+    source_request_ids = get_source_request_ids(
+        similar_tickets=similar_tickets,
     )
 
-    if confidence_score < MINIMUM_SIMILARITY_SCORE:
-        return TemporaryRAGSolution(
-            content=(
-                "Geçmiş Service Desk kayıtları "
-                "incelendi ancak güvenilir bir çözüm "
-                "önerecek kadar benzer kayıt bulunamadı.\n\n"
-                f"En yüksek benzerlik oranı: "
-                f"%{confidence_score * 100:.2f}\n"
-                f"İncelenen kaynak ticketlar: "
-                f"{formatted_sources}\n\n"
-                "Sorununuz devam ediyorsa Service Desk "
-                "bölümünden ticket oluşturabilirsiniz."
-            ),
-            confidence_score=confidence_score,
-            source_request_ids=source_request_ids,
-        )
+    generated_solution = generate_gemini_solution(
+        ai_session=ai_session,
+        user_message=user_message,
+        similar_tickets=similar_tickets,
+    )
 
-    resolution = str(
-        best_ticket.get("resolution") or ""
-    ).strip()
-
-    best_subject = str(
-        best_ticket.get("subject") or ""
-    ).strip()
+    metadata = build_solution_metadata(
+        confidence_score=confidence_score,
+        source_request_ids=source_request_ids,
+    )
 
     return TemporaryRAGSolution(
         content=(
-            "Geçmiş Service Desk kayıtları incelendi.\n\n"
-            f"En benzer geçmiş sorun: "
-            f"{best_subject or 'Başlık bulunamadı'}\n\n"
-            "Geçici çözüm önerisi:\n"
-            f"{resolution}\n\n"
-            f"Benzerlik oranı: "
-            f"%{confidence_score * 100:.2f}\n"
-            f"Kaynak ticketlar: {formatted_sources}\n\n"
-            "Not: Bu cevap şimdilik mevcut RAG sistemi "
-            "tarafından hazırlanmıştır. Ollama "
-            "entegrasyonundan sonra kaynaklar kullanılarak "
-            "yeni ve adım adım bir çözüm üretilecektir."
+            generated_solution.content.strip()
+            + metadata
         ),
         confidence_score=confidence_score,
         source_request_ids=source_request_ids,
