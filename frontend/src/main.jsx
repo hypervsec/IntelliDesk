@@ -11,6 +11,7 @@ import "./styles/design-system.css";
 import "./styles/tickets-dark.css";
 import "./styles/ticket-detail-dark.css";
 import "./styles/create-ticket-dark.css";
+import "./styles/AISupport.css";
 import "./styles/theme-toggle.css";
 import "./styles/theme-light.css";
 import "./styles/settings.css";

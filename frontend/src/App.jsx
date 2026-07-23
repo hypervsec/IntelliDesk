@@ -38,6 +38,13 @@ function getPageMeta(pathname) {
     };
   }
 
+  if (pathname === "/ai-support") {
+    return {
+      section: "AI Destek",
+      title: "Çözüm Asistanı",
+    };
+  }
+
   if (pathname === "/tickets") {
     return {
       section: "Ticketlar",
@@ -63,13 +70,6 @@ function getPageMeta(pathname) {
     return {
       section: "Yönetim",
       title: "Sistem Logları",
-    };
-  }
-
-  if (pathname === "/tickets/new") {
-    return {
-      section: "Ticketlar",
-      title: "Yeni Ticket",
     };
   }
 
@@ -127,7 +127,7 @@ function ProtectedLayout() {
 
   const pageMeta = getPageMeta(location.pathname);
 
-  const showCreateButton = location.pathname !== "/tickets/new";
+  const showAiSupportButton = location.pathname !== "/ai-support";
 
   return (
     <ProtectedRoute>
@@ -178,11 +178,11 @@ function ProtectedLayout() {
 
               <NotificationsMenu />
 
-              {showCreateButton ? (
-                <Link to="/tickets/new" className="topbar-create-button">
+              {showAiSupportButton ? (
+                <Link to="/ai-support" className="topbar-create-button">
                   <Icon name="plus" size={17} />
 
-                  <span>Yeni Ticket</span>
+                  <span>AI Destek Al</span>
                 </Link>
               ) : null}
             </div>
@@ -207,6 +207,13 @@ function App() {
 
         <Route element={<ProtectedLayout />}>
           <Route index element={<Dashboard />} />
+
+          <Route path="/ai-support" element={<CreateTicket />} />
+
+          <Route
+            path="/tickets/new"
+            element={<Navigate to="/ai-support" replace />}
+          />
 
           <Route path="/tickets" element={<Tickets />} />
 
@@ -236,8 +243,6 @@ function App() {
               </AdminRoute>
             }
           />
-
-          <Route path="/tickets/new" element={<CreateTicket />} />
 
           <Route path="/tickets/:ticketId" element={<TicketDetail />} />
 

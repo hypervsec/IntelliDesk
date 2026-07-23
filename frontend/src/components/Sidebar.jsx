@@ -21,9 +21,9 @@ const navigationSections = [
         icon: "tickets",
       },
       {
-        to: "/tickets/new",
-        end: false,
-        label: "Yeni Ticket",
+        to: "/ai-support",
+        end: true,
+        label: "AI Destek",
         icon: "plus",
         emphasis: true,
       },
