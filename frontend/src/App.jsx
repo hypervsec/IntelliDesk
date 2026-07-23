@@ -41,7 +41,7 @@ function getPageMeta(pathname) {
   if (pathname === "/ai-support") {
     return {
       section: "AI Destek",
-      title: "Çözüm Asistanı",
+      title: "Yeni Ticket",
     };
   }
 

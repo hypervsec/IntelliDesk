@@ -99,7 +99,7 @@ function CreateTicket() {
 
   const resolutionStatus = aiSession?.resolution_status || null;
 
-  const confidenceLabel = formatConfidenceScore(aiSession?.confidence_score);
+  const confidence = getConfidenceMeta(aiSession?.confidence_score);
 
   const parsedSolution = parseAiSolution(assistantMessage?.content);
 
@@ -112,7 +112,7 @@ function CreateTicket() {
 
   const shouldShowForm = !aiLoading && !aiSession;
 
-  const shouldShowPageHeader = !assistantMessage;
+  const shouldShowPageHeader = shouldShowForm;
 
   useEffect(() => {
     let cancelled = false;
@@ -429,13 +429,13 @@ function CreateTicket() {
   return (
     <main className="page">
       {shouldShowPageHeader ? (
-        <header className="page-header">
+        <header className="page-header ai-support-page-header">
           <div>
-            <h1>AI Destek</h1>
+            <h1>Çözüm Asistanı</h1>
 
-            <p>
-              Sorununuzu açıklayın; geçmiş kayıtlar incelenerek uygun çözüm
-              adımları hazırlansın.
+            <p style={{ fontSize: "1.0625rem", lineHeight: 1.5 }}>
+              Sorununuzu tanımlayın; geçmiş benzer kayıtlar incelenerek
+              uygulanabilir bir çözüm planı hazırlansın.
             </p>
           </div>
         </header>
@@ -449,14 +449,9 @@ function CreateTicket() {
         <section className="panel form-panel">
           <div className="form-panel-heading">
             <div>
-              <span className="section-kicker">SORUN BİLGİLERİ</span>
+              <span className="section-kicker">SORUNUNUZU ANLATIN</span>
 
-              <h2>Yaşadığınız sorunu açıklayın</h2>
-
-              <p>
-                Bilgiler yalnızca uygun çözüm adımlarını hazırlamak için
-                kullanılır.
-              </p>
+              <h2>Yaşadığınız sorunu ayrıntılı şekilde açıklayın</h2>
             </div>
           </div>
 
@@ -596,7 +591,7 @@ function CreateTicket() {
       {assistantMessage ? (
         <AISolutionResult
           solution={parsedSolution}
-          confidenceLabel={confidenceLabel}
+          confidence={confidence}
           sourceTicketIds={sourceTicketIds}
           resolutionStatus={resolutionStatus}
           resolutionLoading={resolutionLoading}
@@ -619,7 +614,7 @@ function CreateTicket() {
 
 function AISolutionResult({
   solution,
-  confidenceLabel,
+  confidence,
   sourceTicketIds,
   resolutionStatus,
   resolutionLoading,
@@ -643,31 +638,31 @@ function AISolutionResult({
             ✦
           </span>
 
-          <h2 className="ai-solution-title">Çözüm Önerisi</h2>
+          <div className="ai-solution-title-copy">
+            <span className="ai-solution-eyebrow">ÇÖZÜM PLANI</span>
+
+            <h2 className="ai-solution-title">Çözüm Önerisi</h2>
+          </div>
         </div>
 
-        {confidenceLabel ? (
-          <div className="ai-confidence-card">
-            <span className="ai-confidence-label">Güven puanı</span>
-
-            <strong className="ai-confidence-value">{confidenceLabel}</strong>
-          </div>
-        ) : null}
+        {confidence ? <ConfidenceIndicator confidence={confidence} /> : null}
       </header>
 
       {hasStructuredContent ? (
         <div className="ai-solution-content">
           {solution.evaluation ? (
             <section className="ai-evaluation-card">
-              <div className="ai-section-heading">
-                <span className="ai-section-heading-icon" aria-hidden="true">
-                  i
-                </span>
+              <div className="ai-evaluation-accent" aria-hidden="true" />
 
-                <h3>Kısa değerlendirme</h3>
+              <div className="ai-evaluation-body">
+                <div className="ai-evaluation-heading">
+                  <span className="ai-evaluation-badge">AI ÖZETİ</span>
+
+                  <h3>Kök neden analizi</h3>
+                </div>
+
+                <p>{solution.evaluation}</p>
               </div>
-
-              <p>{solution.evaluation}</p>
             </section>
           ) : null}
 
@@ -681,7 +676,13 @@ function AISolutionResult({
                   ✦
                 </span>
 
-                <h3>Uygulanacak adımlar</h3>
+                <div>
+                  <h3>Uygulanacak adımlar</h3>
+
+                  <span className="ai-section-description">
+                    İşlemleri sırayla uygulayın.
+                  </span>
+                </div>
               </div>
 
               {solution.solutionIntro ? (
@@ -689,19 +690,39 @@ function AISolutionResult({
               ) : null}
 
               {solution.steps.length > 0 ? (
-                <ol className="ai-solution-steps-list">
-                  {solution.steps.map((step, index) => (
-                    <li
-                      className="ai-solution-step-item"
-                      key={`${index}-${step}`}
-                    >
-                      <span className="ai-solution-step-number">
-                        {index + 1}
-                      </span>
+                <ol className="ai-solution-timeline">
+                  {solution.steps.map((step, index) => {
+                    const isLastStep = index === solution.steps.length - 1;
 
-                      <p>{step}</p>
-                    </li>
-                  ))}
+                    return (
+                      <li
+                        className={[
+                          "ai-solution-timeline-item",
+                          isLastStep ? "ai-solution-timeline-item-last" : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
+                        key={`${index}-${step}`}
+                      >
+                        <div className="ai-solution-timeline-rail">
+                          <span className="ai-solution-timeline-number">
+                            {index + 1}
+                          </span>
+
+                          {!isLastStep ? (
+                            <span
+                              className="ai-solution-timeline-line"
+                              aria-hidden="true"
+                            />
+                          ) : null}
+                        </div>
+
+                        <div className="ai-solution-timeline-content">
+                          <p>{step}</p>
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ol>
               ) : null}
             </section>
@@ -724,7 +745,7 @@ function AISolutionResult({
           {solution.control || solution.nextAction ? (
             <div className="ai-solution-info-grid">
               {solution.control ? (
-                <section className="ai-info-card">
+                <section className="ai-info-card ai-info-card-control">
                   <span
                     className="ai-info-card-icon ai-info-card-icon-control"
                     aria-hidden="true"
@@ -733,6 +754,8 @@ function AISolutionResult({
                   </span>
 
                   <div>
+                    <span className="ai-info-card-label">DOĞRULAMA</span>
+
                     <h3>Kontrol</h3>
 
                     <p>{solution.control}</p>
@@ -741,7 +764,7 @@ function AISolutionResult({
               ) : null}
 
               {solution.nextAction ? (
-                <section className="ai-info-card">
+                <section className="ai-info-card ai-info-card-next">
                   <span
                     className="ai-info-card-icon ai-info-card-icon-next"
                     aria-hidden="true"
@@ -750,6 +773,8 @@ function AISolutionResult({
                   </span>
 
                   <div>
+                    <span className="ai-info-card-label">DEVAM EDİYORSA</span>
+
                     <h3>Sonraki işlem</h3>
 
                     <p>{solution.nextAction}</p>
@@ -768,13 +793,19 @@ function AISolutionResult({
           <div>
             <span className="ai-solution-sources-label">Benzer kayıtlar</span>
 
-            <p>Eşleşen geçmiş Service Desk kayıtları</p>
+            <p>Çözümle ilişkili geçmiş Service Desk kayıtları</p>
           </div>
 
           <div className="ai-source-ticket-list">
             {sourceTicketIds.map((requestId) => (
-              <span className="ai-source-ticket" key={requestId}>
-                {formatSourceTicketId(requestId)}
+              <span
+                className="ai-source-ticket"
+                title={`Kaynak ticket ${formatSourceTicketId(requestId)}`}
+                key={requestId}
+              >
+                <span aria-hidden="true">#</span>
+
+                {String(requestId).replace(/^#/, "")}
               </span>
             ))}
           </div>
@@ -784,9 +815,11 @@ function AISolutionResult({
       {!resolutionStatus ? (
         <section className="ai-feedback-box">
           <div className="ai-feedback-copy">
+            <span className="ai-feedback-label">SONUÇ</span>
+
             <h3>Bu adımlar sorununuzu çözdü mü?</h3>
 
-            <p>Sonucu bildirerek çözümün doğruluğunu değerlendirebilirsiniz.</p>
+            <p>Çözülmediyse gerçek IT desteğine yönlendirileceksiniz.</p>
           </div>
 
           <div className="ai-feedback-actions">
@@ -818,6 +851,37 @@ function AISolutionResult({
   );
 }
 
+function ConfidenceIndicator({ confidence }) {
+  const style = {
+    "--confidence-progress": `${confidence.progress}deg`,
+  };
+
+  return (
+    <div
+      className={[
+        "ai-confidence-card",
+        `ai-confidence-card-${confidence.tone}`,
+      ].join(" ")}
+      style={style}
+      aria-label={`Güven puanı yüzde ${confidence.value.toFixed(2)}`}
+    >
+      <span className="ai-confidence-ring" aria-hidden="true">
+        <span className="ai-confidence-ring-center">
+          {Math.round(confidence.value)}
+        </span>
+      </span>
+
+      <span className="ai-confidence-copy">
+        <span className="ai-confidence-label">Güven puanı</span>
+
+        <strong className="ai-confidence-value">{confidence.label}</strong>
+
+        <span className="ai-confidence-status">{confidence.status}</span>
+      </span>
+    </div>
+  );
+}
+
 function ResolutionResultCard({ type, onNewIssue }) {
   const isResolved = type === "resolved";
 
@@ -837,7 +901,7 @@ function ResolutionResultCard({ type, onNewIssue }) {
 
       <div className="ai-resolution-copy">
         <span className="ai-resolution-kicker">
-          {isResolved ? "GERİ BİLDİRİM ALINDI" : "EK DESTEĞE İHTİYAÇ VAR"}
+          {isResolved ? "GERİ BİLDİRİM ALINDI" : "IT DESTEĞİ GEREKİYOR"}
         </span>
 
         <h2>
@@ -849,7 +913,7 @@ function ResolutionResultCard({ type, onNewIssue }) {
         <p>
           {isResolved
             ? "Teşekkürler. Yeni bir sorun için formu yeniden açabilirsiniz."
-            : "IntelliDesk bu ekranda ticket oluşturmaz. Sorunun ayrıntılarını kurumunuzun Service Desk sistemine iletin."}
+            : "Sorunun ayrıntılarını kurumunuzun Service Desk sistemine ileterek IT ekibinden destek alın."}
         </p>
       </div>
 
@@ -869,7 +933,7 @@ function ResolutionResultCard({ type, onNewIssue }) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Service Desk Sistemine Git
+            IT Destek Kaydı Aç
           </a>
         ) : null}
       </div>
@@ -1188,16 +1252,40 @@ function formatSourceTicketId(requestId) {
   return `#${normalizedId}`;
 }
 
-function formatConfidenceScore(value) {
+function getConfidenceMeta(value) {
   const numericValue = Number(value);
 
   if (!Number.isFinite(numericValue)) {
-    return "";
+    return null;
   }
 
-  const normalizedValue = Math.max(0, Math.min(numericValue, 1));
+  const percentage =
+    numericValue > 1
+      ? clamp(numericValue, 0, 100)
+      : clamp(numericValue, 0, 1) * 100;
 
-  return `%${(normalizedValue * 100).toFixed(2)}`;
+  let tone = "low";
+  let status = "Düşük eşleşme";
+
+  if (percentage >= 80) {
+    tone = "high";
+    status = "Yüksek eşleşme";
+  } else if (percentage >= 60) {
+    tone = "medium";
+    status = "Orta eşleşme";
+  }
+
+  return {
+    value: percentage,
+    label: `%${percentage.toFixed(2)}`,
+    progress: percentage * 3.6,
+    tone,
+    status,
+  };
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
 }
 
 function normalizeAiContent(content) {
