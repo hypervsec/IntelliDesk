@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import pytest
 
-import app.ai.gemini_service as gemini_service
+import app.ai.ai_service as ai_service
 from app.ai.models import AIMessage, AISession
 
 
@@ -55,7 +55,7 @@ def build_similar_tickets() -> list[dict]:
 
 
 def test_build_gemini_prompt_contains_session_and_sources():
-    prompt = gemini_service.build_gemini_prompt(
+    prompt = ai_service.build_gemini_prompt(
         ai_session=build_ai_session(),
         user_message=build_user_message(),
         similar_tickets=build_similar_tickets(),
@@ -69,6 +69,8 @@ def test_build_gemini_prompt_contains_session_and_sources():
     assert "DECT telefon değiştirildi." in prompt
     assert "10165" in prompt
     assert "%85.03" in prompt
+    assert "tek ve kısa bir cümleyle" in prompt
+    assert "Gemini, model, sağlayıcı" in prompt
 
 
 def test_generate_gemini_solution_returns_generated_content(
@@ -116,43 +118,53 @@ def test_generate_gemini_solution_returns_generated_content(
         "GEMINI_API_KEY",
         "test-api-key",
     )
+
     monkeypatch.setenv(
         "GEMINI_MODEL",
         "gemini-3.5-flash",
     )
+
     monkeypatch.setenv(
         "GEMINI_TIMEOUT_SECONDS",
         "45",
     )
+
     monkeypatch.setattr(
-        gemini_service.genai,
+        ai_service.genai,
         "Client",
         FakeClient,
     )
 
-    result = gemini_service.generate_gemini_solution(
+    result = ai_service.generate_gemini_solution(
         ai_session=build_ai_session(),
         user_message=build_user_message(),
         similar_tickets=build_similar_tickets(),
     )
 
     assert result.model == "gemini-3.5-flash"
+
     assert result.content.startswith(
         "Sorun değerlendirmesi:"
     )
 
     assert captured["api_key"] == "test-api-key"
     assert captured["model"] == "gemini-3.5-flash"
-    assert "DECT telefon çalışmıyor" in captured["contents"]
+
+    assert (
+        "DECT telefon çalışmıyor"
+        in captured["contents"]
+    )
 
     assert (
         captured["http_options"].timeout
         == 45_000
     )
+
     assert (
         captured["config"].max_output_tokens
         == 1400
     )
+
     assert captured["closed"] is True
 
 
@@ -163,20 +175,22 @@ def test_generate_gemini_solution_requires_api_key(
         "GEMINI_API_KEY",
         raising=False,
     )
+
     monkeypatch.setenv(
         "GEMINI_MODEL",
         "gemini-3.5-flash",
     )
+
     monkeypatch.setenv(
         "GEMINI_TIMEOUT_SECONDS",
         "60",
     )
 
     with pytest.raises(
-        gemini_service.GeminiServiceError,
+        ai_service.GeminiServiceError,
         match="GEMINI_API_KEY",
     ):
-        gemini_service.generate_gemini_solution(
+        ai_service.generate_gemini_solution(
             ai_session=build_ai_session(),
             user_message=build_user_message(),
             similar_tickets=[],
@@ -190,20 +204,22 @@ def test_generate_gemini_solution_rejects_invalid_timeout(
         "GEMINI_API_KEY",
         "test-api-key",
     )
+
     monkeypatch.setenv(
         "GEMINI_MODEL",
         "gemini-3.5-flash",
     )
+
     monkeypatch.setenv(
         "GEMINI_TIMEOUT_SECONDS",
         "gecersiz",
     )
 
     with pytest.raises(
-        gemini_service.GeminiServiceError,
+        ai_service.GeminiServiceError,
         match="tam sayı",
     ):
-        gemini_service.generate_gemini_solution(
+        ai_service.generate_gemini_solution(
             ai_session=build_ai_session(),
             user_message=build_user_message(),
             similar_tickets=[],
@@ -248,30 +264,34 @@ def test_generate_gemini_solution_converts_api_error(
         "GEMINI_API_KEY",
         "test-api-key",
     )
+
     monkeypatch.setenv(
         "GEMINI_MODEL",
         "gemini-3.5-flash",
     )
+
     monkeypatch.setenv(
         "GEMINI_TIMEOUT_SECONDS",
         "60",
     )
+
     monkeypatch.setattr(
-        gemini_service,
+        ai_service,
         "APIError",
         FakeAPIError,
     )
+
     monkeypatch.setattr(
-        gemini_service.genai,
+        ai_service.genai,
         "Client",
         FakeClient,
     )
 
     with pytest.raises(
-        gemini_service.GeminiServiceError,
+        ai_service.GeminiServiceError,
         match="Gemini API isteği başarısız",
     ):
-        gemini_service.generate_gemini_solution(
+        ai_service.generate_gemini_solution(
             ai_session=build_ai_session(),
             user_message=build_user_message(),
             similar_tickets=[],
@@ -311,25 +331,28 @@ def test_generate_gemini_solution_rejects_empty_response(
         "GEMINI_API_KEY",
         "test-api-key",
     )
+
     monkeypatch.setenv(
         "GEMINI_MODEL",
         "gemini-3.5-flash",
     )
+
     monkeypatch.setenv(
         "GEMINI_TIMEOUT_SECONDS",
         "60",
     )
+
     monkeypatch.setattr(
-        gemini_service.genai,
+        ai_service.genai,
         "Client",
         FakeClient,
     )
 
     with pytest.raises(
-        gemini_service.GeminiServiceError,
+        ai_service.GeminiServiceError,
         match="boş bir cevap",
     ):
-        gemini_service.generate_gemini_solution(
+        ai_service.generate_gemini_solution(
             ai_session=build_ai_session(),
             user_message=build_user_message(),
             similar_tickets=[],

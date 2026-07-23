@@ -127,7 +127,16 @@ function ProtectedLayout() {
 
   const pageMeta = getPageMeta(location.pathname);
 
-  const showAiSupportButton = location.pathname !== "/ai-support";
+  const isAiSupportPage = location.pathname === "/ai-support";
+
+  const showAiSupportButton = !isAiSupportPage;
+
+  const pageRegionClassName = [
+    "app-page-region",
+    isAiSupportPage ? "ai-support-region" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <ProtectedRoute>
@@ -188,7 +197,7 @@ function ProtectedLayout() {
             </div>
           </header>
 
-          <main className="app-page-region">
+          <main className={pageRegionClassName}>
             <Outlet />
           </main>
         </div>

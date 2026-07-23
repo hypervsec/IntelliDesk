@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from ..services import find_similar_tickets
-from .gemini_service import generate_gemini_solution
+from .ai_service import generate_gemini_solution
 from .models import AIMessage, AISession
 
 
