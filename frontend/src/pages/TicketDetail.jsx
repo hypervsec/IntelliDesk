@@ -39,6 +39,12 @@ function TicketDetail() {
   const canManageTicket =
     account?.role === "technician" || account?.role === "admin";
 
+  const ticketDetailPageClassName = [
+    "page",
+    "ticket-detail-page",
+    canManageTicket ? "staff-ticket-detail-page" : "user-ticket-detail-page",
+  ].join(" ");
+
   const [ticket, setTicket] = useState(null);
 
   const [aiSession, setAiSession] = useState(null);
@@ -123,12 +129,14 @@ function TicketDetail() {
 
         if (!selectedDepartment || !selectedCategory) {
           setSubcategoryOptions([]);
+
           return;
         }
 
         const subcategoryResponse = await api.get("/tickets/form-options", {
           params: {
             department: selectedDepartment.trim(),
+
             category: selectedCategory.trim(),
           },
         });
@@ -174,6 +182,7 @@ function TicketDetail() {
     if (!canManageTicket) {
       setStaffAccounts([]);
       setStaffError("");
+
       return;
     }
 
@@ -260,7 +269,9 @@ function TicketDetail() {
         if (canManageTicket) {
           await loadDependentOptions(
             nextUpdateForm.department,
+
             nextUpdateForm.category,
+
             nextUpdateForm.subcategory,
           );
         } else {
@@ -289,6 +300,7 @@ function TicketDetail() {
   const loadAiSession = useCallback(async () => {
     try {
       setAiSessionLoading(true);
+
       setAiSessionError("");
 
       const response = await api.get(`/ai/tickets/${ticketId}`);
@@ -346,8 +358,11 @@ function TicketDetail() {
 
     setUpdateForm((currentData) => ({
       ...currentData,
+
       department: nextDepartment,
+
       category: "",
+
       subcategory: "",
     }));
 
@@ -362,7 +377,9 @@ function TicketDetail() {
 
     setUpdateForm((currentData) => ({
       ...currentData,
+
       category: nextCategory,
+
       subcategory: "",
     }));
 
@@ -473,6 +490,7 @@ function TicketDetail() {
 
     try {
       setFeedbackLoading(true);
+
       setError("");
       setMessage("");
 
@@ -545,7 +563,7 @@ function TicketDetail() {
 
   if (loading) {
     return (
-      <main className="page">
+      <main className={ticketDetailPageClassName}>
         <div className="page-loading">
           <div className="loading-spinner" aria-hidden="true" />
 
@@ -561,7 +579,7 @@ function TicketDetail() {
 
   if (!ticket) {
     return (
-      <main className="page">
+      <main className={ticketDetailPageClassName}>
         <button
           type="button"
           className="back-link"
@@ -579,7 +597,7 @@ function TicketDetail() {
   }
 
   return (
-    <main className="page">
+    <main className={ticketDetailPageClassName}>
       <header className="page-header">
         <div>
           <button
