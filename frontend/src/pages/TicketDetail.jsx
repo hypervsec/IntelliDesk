@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -34,8 +34,6 @@ function TicketDetail() {
 
   const { account } = useAuth();
 
-  const resolutionRequestInFlight = useRef(false);
-
   const canManageTicket =
     account?.role === "technician" || account?.role === "admin";
 
@@ -50,10 +48,6 @@ function TicketDetail() {
   const [aiSession, setAiSession] = useState(null);
 
   const [recommendation, setRecommendation] = useState(null);
-
-  const [feedback, setFeedback] = useState("accepted");
-
-  const [feedbackNote, setFeedbackNote] = useState("");
 
   const [updateForm, setUpdateForm] = useState(INITIAL_UPDATE_FORM);
 
@@ -71,17 +65,11 @@ function TicketDetail() {
 
   const [recommendationLoading, setRecommendationLoading] = useState(false);
 
-  const [feedbackLoading, setFeedbackLoading] = useState(false);
-
   const [updateLoading, setUpdateLoading] = useState(false);
 
   const [formOptionsLoading, setFormOptionsLoading] = useState(false);
 
   const [staffLoading, setStaffLoading] = useState(false);
-
-  const [resolutionLoading, setResolutionLoading] = useState(false);
-
-  const [pendingResolution, setPendingResolution] = useState(null);
 
   const [error, setError] = useState("");
 
@@ -263,8 +251,6 @@ function TicketDetail() {
         } else {
           setRecommendation(null);
         }
-
-        setFeedback(ticketData.ai_feedback || "accepted");
 
         if (canManageTicket) {
           await loadDependentOptions(
@@ -473,94 +459,6 @@ function TicketDetail() {
     }
   }
 
-  async function submitFeedback(event) {
-    event.preventDefault();
-
-    if (!canManageTicket) {
-      setError("Bu işlem için teknisyen veya yönetici yetkisi gereklidir.");
-
-      return;
-    }
-
-    if (!recommendation) {
-      setError("Geri bildirim göndermeden önce AI önerisi oluştur.");
-
-      return;
-    }
-
-    try {
-      setFeedbackLoading(true);
-
-      setError("");
-      setMessage("");
-
-      await api.post(`/tickets/${ticketId}/feedback`, {
-        feedback,
-
-        note: feedbackNote.trim() || null,
-      });
-
-      setMessage("Geri bildirim kaydedildi.");
-
-      setFeedbackNote("");
-
-      await loadTicket(false);
-    } catch (requestError) {
-      console.error(requestError);
-
-      setError(
-        getApiErrorMessage(requestError, "Geri bildirim kaydedilemedi."),
-      );
-    } finally {
-      setFeedbackLoading(false);
-    }
-  }
-
-  async function handleAiResolution(resolutionValue) {
-    if (!aiSession?.session_id || resolutionRequestInFlight.current) {
-      return;
-    }
-
-    resolutionRequestInFlight.current = true;
-
-    try {
-      setResolutionLoading(true);
-
-      setPendingResolution(resolutionValue);
-
-      setAiSessionError("");
-
-      const response = await api.patch(
-        `/ai/sessions/${aiSession.session_id}/resolution`,
-        {
-          resolution_status: resolutionValue,
-        },
-      );
-
-      setAiSession(response.data);
-    } catch (requestError) {
-      console.error(requestError);
-
-      setAiSessionError(
-        getApiErrorMessage(requestError, "Çözüm sonucu kaydedilemedi."),
-      );
-    } finally {
-      resolutionRequestInFlight.current = false;
-
-      setResolutionLoading(false);
-
-      setPendingResolution(null);
-    }
-  }
-
-  function handleFeedbackChange(event) {
-    setFeedback(event.target.value);
-  }
-
-  function handleFeedbackNoteChange(event) {
-    setFeedbackNote(event.target.value);
-  }
-
   if (loading) {
     return (
       <main className={ticketDetailPageClassName}>
@@ -657,16 +555,10 @@ function TicketDetail() {
           updateLoading={updateLoading}
           staffError={staffError}
           formOptionsError={formOptionsError}
-          feedback={feedback}
-          feedbackNote={feedbackNote}
-          feedbackLoading={feedbackLoading}
           onUpdateChange={handleUpdateChange}
           onDepartmentChange={handleDepartmentChange}
           onCategoryChange={handleCategoryChange}
           onUpdateTicket={updateTicket}
-          onFeedbackChange={handleFeedbackChange}
-          onFeedbackNoteChange={handleFeedbackNoteChange}
-          onSubmitFeedback={submitFeedback}
           onTimelineChanged={() => loadTicket(false)}
         />
       ) : (
@@ -675,11 +567,6 @@ function TicketDetail() {
           aiSession={aiSession}
           aiSessionLoading={aiSessionLoading}
           aiSessionError={aiSessionError}
-          resolutionLoading={resolutionLoading}
-          pendingResolution={pendingResolution}
-          onResolved={() => handleAiResolution("resolved")}
-          onUnresolved={() => handleAiResolution("unresolved")}
-          onNewIssue={() => navigate("/ai-support")}
         />
       )}
     </main>

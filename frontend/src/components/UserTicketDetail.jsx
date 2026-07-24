@@ -1,6 +1,11 @@
+import { useState } from "react";
+
+import api from "../api/api";
+
 import {
   formatDate,
   formatSourceTicketId,
+  getApiErrorMessage,
   getAssistantMessage,
   getConfidenceMeta,
   getSourceTicketIds,
@@ -10,18 +15,11 @@ import {
   translateStatus,
 } from "../utils/ticketDetailUtils";
 
-const SERVICE_DESK_URL = (import.meta.env.VITE_SERVICE_DESK_URL || "").trim();
-
 function UserTicketDetail({
   ticket,
   aiSession,
   aiSessionLoading,
   aiSessionError,
-  resolutionLoading,
-  pendingResolution,
-  onResolved,
-  onUnresolved,
-  onNewIssue,
 }) {
   const assistantMessage = getAssistantMessage(aiSession);
 
@@ -34,81 +32,60 @@ function UserTicketDetail({
     parsedSolution.sourceTicketIds,
   );
 
-  const resolutionStatus = aiSession?.resolution_status || null;
-
   return (
-    <>
+    <section className="user-ticket-detail-layout">
       <UserIssueSummary ticket={ticket} />
 
-      {aiSessionLoading ? <AiSessionLoading /> : null}
+      <div className="user-ticket-ai-column">
+        {aiSessionLoading ? <AiSessionLoading /> : null}
 
-      {aiSessionError ? <AiSessionError message={aiSessionError} /> : null}
+        {!aiSessionLoading && aiSessionError ? (
+          <AiSessionError message={aiSessionError} />
+        ) : null}
 
-      {!aiSessionLoading && aiSession && !assistantMessage ? (
-        <section className="panel">
-          <div className="panel-header">
-            <div>
-              <span className="section-kicker">INTELLIDESK AI</span>
+        {!aiSessionLoading &&
+        !aiSessionError &&
+        aiSession &&
+        !assistantMessage ? (
+          <AiSessionPending aiSession={aiSession} />
+        ) : null}
 
-              <h2>Çözüm henüz hazır değil</h2>
-
-              <p>
-                AI oturumunun mevcut durumu:{" "}
-                <strong>{translateAiStatus(aiSession.status)}</strong>
-              </p>
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      {assistantMessage ? (
-        <AISolutionResult
-          solution={parsedSolution}
-          confidence={confidence}
-          sourceTicketIds={sourceTicketIds}
-          resolutionStatus={resolutionStatus}
-          resolutionLoading={resolutionLoading}
-          pendingResolution={pendingResolution}
-          onResolved={onResolved}
-          onUnresolved={onUnresolved}
-        />
-      ) : null}
-
-      {resolutionStatus === "resolved" ? (
-        <ResolutionResultCard type="resolved" onNewIssue={onNewIssue} />
-      ) : null}
-
-      {resolutionStatus === "unresolved" ? (
-        <ResolutionResultCard type="unresolved" onNewIssue={onNewIssue} />
-      ) : null}
-    </>
+        {!aiSessionLoading && !aiSessionError && assistantMessage ? (
+          <AISolutionResult
+            solution={parsedSolution}
+            confidence={confidence}
+            sourceTicketIds={sourceTicketIds}
+          />
+        ) : null}
+      </div>
+    </section>
   );
 }
 
 function UserIssueSummary({ ticket }) {
   return (
-    <section className="panel ai-solution-panel">
-      <header className="ai-solution-header">
-        <div className="ai-solution-title-area">
-          <span className="ai-solution-header-icon" aria-hidden="true">
+    <section className="panel user-issue-panel">
+      <header className="user-issue-header">
+        <div className="user-issue-title-area">
+          <span className="user-issue-header-icon" aria-hidden="true">
             !
           </span>
 
-          <div className="ai-solution-title-copy">
-            <span className="ai-solution-eyebrow">TALEBİNİZ</span>
+          <div className="user-issue-title-copy">
+            <span className="user-issue-eyebrow">TALEBİNİZ</span>
 
-            <h2 className="ai-solution-title">Bildirdiğiniz Sorun</h2>
+            <h2 className="user-issue-title">Bildirdiğiniz Sorun</h2>
           </div>
         </div>
       </header>
 
-      <div className="ai-solution-content">
-        <section className="ai-evaluation-card">
-          <div className="ai-evaluation-accent" aria-hidden="true" />
+      <div className="user-issue-content">
+        <section className="user-issue-description-card">
+          <span className="user-issue-description-accent" aria-hidden="true" />
 
-          <div className="ai-evaluation-body">
-            <div className="ai-evaluation-heading">
-              <span className="ai-evaluation-badge">AÇIKLAMA</span>
+          <div className="user-issue-description-body">
+            <div className="user-issue-description-heading">
+              <span className="user-issue-description-badge">AÇIKLAMA</span>
 
               <h3>{ticket.title}</h3>
             </div>
@@ -117,17 +94,17 @@ function UserIssueSummary({ ticket }) {
           </div>
         </section>
 
-        <div className="ai-solution-info-grid">
-          <section className="ai-info-card ai-info-card-control">
+        <div className="user-issue-info-grid">
+          <section className="user-issue-info-card user-issue-info-card-category">
             <span
-              className="ai-info-card-icon ai-info-card-icon-control"
+              className="user-issue-info-icon user-issue-info-icon-category"
               aria-hidden="true"
             >
               i
             </span>
 
             <div>
-              <span className="ai-info-card-label">SINIFLANDIRMA</span>
+              <span className="user-issue-info-label">SINIFLANDIRMA</span>
 
               <h3>{ticket.category || "Kategori belirtilmemiş"}</h3>
 
@@ -139,16 +116,16 @@ function UserIssueSummary({ ticket }) {
             </div>
           </section>
 
-          <section className="ai-info-card ai-info-card-next">
+          <section className="user-issue-info-card user-issue-info-card-record">
             <span
-              className="ai-info-card-icon ai-info-card-icon-next"
+              className="user-issue-info-icon user-issue-info-icon-record"
               aria-hidden="true"
             >
               →
             </span>
 
             <div>
-              <span className="ai-info-card-label">KAYIT BİLGİSİ</span>
+              <span className="user-issue-info-label">KAYIT BİLGİSİ</span>
 
               <h3>{translateStatus(ticket.status)}</h3>
 
@@ -160,14 +137,170 @@ function UserIssueSummary({ ticket }) {
             </div>
           </section>
         </div>
+
+        <UserSupportTools ticketId={ticket.ticket_id} />
       </div>
+    </section>
+  );
+}
+
+function UserSupportTools({ ticketId }) {
+  const [commentContent, setCommentContent] = useState("");
+
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
+
+  const [commentError, setCommentError] = useState("");
+
+  const [commentMessage, setCommentMessage] = useState("");
+
+  async function submitComment(event) {
+    event.preventDefault();
+
+    const normalizedContent = commentContent.trim();
+
+    if (!normalizedContent) {
+      setCommentError("Teknisyene göndermek istediğiniz mesajı yazın.");
+
+      return;
+    }
+
+    try {
+      setCommentSubmitting(true);
+      setCommentError("");
+      setCommentMessage("");
+
+      await api.post(`/tickets/${ticketId}/comments`, {
+        content: normalizedContent,
+      });
+
+      setCommentContent("");
+
+      setCommentMessage("Mesajınız teknisyene iletildi.");
+    } catch (requestError) {
+      console.error(requestError);
+
+      setCommentError(
+        getApiErrorMessage(requestError, "Mesaj teknisyene iletilemedi."),
+      );
+    } finally {
+      setCommentSubmitting(false);
+    }
+  }
+
+  function handleCommentChange(event) {
+    setCommentContent(event.target.value);
+
+    if (commentError) {
+      setCommentError("");
+    }
+
+    if (commentMessage) {
+      setCommentMessage("");
+    }
+  }
+
+  return (
+    <section className="user-support-tools">
+      <div className="user-support-tools-heading">
+        <span className="user-support-tools-kicker">TICKET İLETİŞİMİ</span>
+
+        <h3>Teknisyenle İletişim</h3>
+
+        <p>Ticket ile ilgili ek bilgi veya açıklamanızı teknisyene iletin.</p>
+      </div>
+
+      <form className="user-technician-message-form" onSubmit={submitComment}>
+        <div className="user-technician-message-heading">
+          <span className="user-technician-message-icon" aria-hidden="true">
+            ✎
+          </span>
+
+          <div>
+            <strong>Teknisyene mesaj bırak</strong>
+
+            <span>Mesajınız ticket zaman çizelgesine eklenecek.</span>
+          </div>
+        </div>
+
+        <textarea
+          rows={3}
+          maxLength={5000}
+          value={commentContent}
+          disabled={commentSubmitting}
+          placeholder="Ek açıklamanızı veya teknisyene iletmek istediğiniz bilgiyi yazın..."
+          onChange={handleCommentChange}
+        />
+
+        <div className="user-technician-message-meta">
+          <span>Bu mesajı ticketı görüntüleyen teknik ekip görebilir.</span>
+
+          <span>
+            {commentContent.length}
+            /5000
+          </span>
+        </div>
+
+        {commentError ? (
+          <p className="user-support-error">{commentError}</p>
+        ) : null}
+
+        {commentMessage ? (
+          <p className="user-support-success">{commentMessage}</p>
+        ) : null}
+
+        <div className="user-technician-message-actions">
+          <button
+            type="submit"
+            className="primary-button"
+            disabled={commentSubmitting || !commentContent.trim()}
+          >
+            {commentSubmitting ? "Gönderiliyor..." : "Mesajı Gönder"}
+          </button>
+        </div>
+      </form>
+
+      <section className="user-screenshot-upload-disabled" aria-disabled="true">
+        <div className="user-screenshot-upload-heading">
+          <span className="user-screenshot-upload-icon" aria-hidden="true">
+            ▧
+          </span>
+
+          <div>
+            <strong>Ekran görüntüsü ekle</strong>
+
+            <span>Görsel yükleme özelliği yakında aktif olacak.</span>
+          </div>
+        </div>
+
+        <div className="user-screenshot-upload-area">
+          <span
+            className="user-screenshot-upload-placeholder-icon"
+            aria-hidden="true"
+          >
+            +
+          </span>
+
+          <div>
+            <strong>Dosya seçimi kapalı</strong>
+
+            <span>PNG, JPG ve WEBP desteği sonraki sürümde eklenecek.</span>
+          </div>
+
+          <button type="button" className="secondary-button" disabled>
+            Dosya Seç
+          </button>
+        </div>
+      </section>
     </section>
   );
 }
 
 function AiSessionLoading() {
   return (
-    <section className="panel ai-loading-panel" role="status">
+    <section
+      className={["panel", "ai-loading-panel", "user-ai-state-panel"].join(" ")}
+      role="status"
+    >
       <div className="ai-loading-glow" aria-hidden="true" />
 
       <div className="ai-loading-content">
@@ -199,7 +332,7 @@ function AiSessionLoading() {
 
 function AiSessionError({ message }) {
   return (
-    <section className="panel">
+    <section className="panel user-ai-state-panel">
       <div className="panel-header">
         <div>
           <span className="section-kicker">AI ÇÖZÜMÜ</span>
@@ -213,16 +346,26 @@ function AiSessionError({ message }) {
   );
 }
 
-function AISolutionResult({
-  solution,
-  confidence,
-  sourceTicketIds,
-  resolutionStatus,
-  resolutionLoading,
-  pendingResolution,
-  onResolved,
-  onUnresolved,
-}) {
+function AiSessionPending({ aiSession }) {
+  return (
+    <section className="panel user-ai-state-panel">
+      <div className="panel-header">
+        <div>
+          <span className="section-kicker">INTELLIDESK AI</span>
+
+          <h2>Çözüm henüz hazır değil</h2>
+
+          <p>
+            AI oturumunun mevcut durumu:{" "}
+            <strong>{translateAiStatus(aiSession.status)}</strong>
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AISolutionResult({ solution, confidence, sourceTicketIds }) {
   const hasStructuredContent =
     solution.evaluation ||
     solution.steps.length > 0 ||
@@ -232,7 +375,7 @@ function AISolutionResult({
     solution.nextAction;
 
   return (
-    <section className="panel ai-solution-panel">
+    <section className="panel ai-solution-panel user-ai-solution-panel">
       <header className="ai-solution-header">
         <div className="ai-solution-title-area">
           <span className="ai-solution-header-icon" aria-hidden="true">
@@ -389,7 +532,9 @@ function AISolutionResult({
           ) : null}
         </div>
       ) : (
-        <div className="ai-solution-fallback">{solution.fallback}</div>
+        <div className="ai-solution-fallback">
+          {solution.fallback || "AI çözüm içeriği bulunamadı."}
+        </div>
       )}
 
       {sourceTicketIds.length > 0 ? (
@@ -414,48 +559,6 @@ function AISolutionResult({
             ))}
           </div>
         </footer>
-      ) : null}
-
-      {!resolutionStatus ? (
-        <section className="ai-feedback-box">
-          <div className="ai-feedback-copy">
-            <span className="ai-feedback-label">SONUÇ</span>
-
-            <h3>Bu adımlar sorununuzu çözdü mü?</h3>
-
-            <p>Çözülmediyse Service Desk bölümüne yönlendirileceksiniz.</p>
-          </div>
-
-          <div className="ai-feedback-actions">
-            <button
-              type="button"
-              className={[
-                "ai-feedback-button",
-                "ai-feedback-button-secondary",
-              ].join(" ")}
-              onClick={onUnresolved}
-              disabled={resolutionLoading}
-            >
-              {pendingResolution === "unresolved"
-                ? "Kaydediliyor..."
-                : "Sorunum Çözülmedi"}
-            </button>
-
-            <button
-              type="button"
-              className={[
-                "ai-feedback-button",
-                "ai-feedback-button-primary",
-              ].join(" ")}
-              onClick={onResolved}
-              disabled={resolutionLoading}
-            >
-              {pendingResolution === "resolved"
-                ? "Kaydediliyor..."
-                : "Sorunum Çözüldü"}
-            </button>
-          </div>
-        </section>
       ) : null}
     </section>
   );
@@ -489,65 +592,6 @@ function ConfidenceIndicator({ confidence }) {
         <span className="ai-confidence-status">{confidence.status}</span>
       </span>
     </div>
-  );
-}
-
-function ResolutionResultCard({ type, onNewIssue }) {
-  const isResolved = type === "resolved";
-
-  return (
-    <section
-      className={[
-        "panel",
-        "ai-resolution-card",
-        isResolved
-          ? "ai-resolution-card-success"
-          : "ai-resolution-card-warning",
-      ].join(" ")}
-    >
-      <span className="ai-resolution-icon" aria-hidden="true">
-        {isResolved ? "✓" : "!"}
-      </span>
-
-      <div className="ai-resolution-copy">
-        <span className="ai-resolution-kicker">
-          {isResolved ? "GERİ BİLDİRİM ALINDI" : "IT DESTEĞİ GEREKİYOR"}
-        </span>
-
-        <h2>
-          {isResolved
-            ? "Sorun çözüldü olarak kaydedildi"
-            : "Service Desk kaydı oluşturun"}
-        </h2>
-
-        <p>
-          {isResolved
-            ? "Teşekkürler. Yeni bir sorun için formu yeniden açabilirsiniz."
-            : "Sorunun ayrıntılarını Service Desk bölümüne ileterek IT ekibinden destek alın."}
-        </p>
-      </div>
-
-      <div className="ai-resolution-actions">
-        <button
-          type="button"
-          className="ai-resolution-secondary-button"
-          onClick={onNewIssue}
-        >
-          Yeni Sorun Bildir
-        </button>
-
-        {!isResolved && SERVICE_DESK_URL ? (
-          <a
-            href={SERVICE_DESK_URL}
-            className="ai-resolution-primary-button"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            IT Destek Kaydı Aç
-          </a>
-        ) : null}
-      </div>
-    </section>
   );
 }
 
