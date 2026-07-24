@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import api from "../api/api";
 import SearchableSelect from "../components/SearchableSelect";
@@ -67,7 +67,10 @@ const initialFormData = {
 };
 
 function CreateTicket() {
+  const location = useLocation();
   const navigate = useNavigate();
+
+  const activeSessionId = getAiSessionId(location.search);
 
   const resolutionRequestInFlight = useRef(false);
 
@@ -82,6 +85,10 @@ function CreateTicket() {
   const [optionsLoading, setOptionsLoading] = useState(true);
 
   const [aiLoading, setAiLoading] = useState(false);
+
+  const [sessionLoading, setSessionLoading] = useState(
+    Boolean(activeSessionId),
+  );
 
   const [resolutionLoading, setResolutionLoading] = useState(false);
 
@@ -108,11 +115,65 @@ function CreateTicket() {
     parsedSolution.sourceTicketIds,
   );
 
-  const isBusy = aiLoading || resolutionLoading;
+  const isBusy = aiLoading || sessionLoading || resolutionLoading;
 
-  const shouldShowForm = !aiLoading && !aiSession;
+  const shouldShowForm = !aiLoading && !sessionLoading && !aiSession;
 
   const shouldShowPageHeader = shouldShowForm;
+
+  useEffect(() => {
+    if (!activeSessionId) {
+      setSessionLoading(false);
+      return undefined;
+    }
+
+    if (aiSession?.session_id === activeSessionId) {
+      setSessionLoading(false);
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    async function loadAiSession() {
+      try {
+        setSessionLoading(true);
+        setError("");
+
+        const response = await api.get(`/ai/sessions/${activeSessionId}`);
+
+        if (!cancelled) {
+          setAiSession(response.data);
+        }
+      } catch (requestError) {
+        console.error(requestError);
+
+        if (!cancelled) {
+          setAiSession(null);
+
+          setError(
+            getApiErrorMessage(
+              requestError,
+              "Önceki AI çözümü yeniden yüklenemedi.",
+            ),
+          );
+
+          navigate("/ai-support", {
+            replace: true,
+          });
+        }
+      } finally {
+        if (!cancelled) {
+          setSessionLoading(false);
+        }
+      }
+    }
+
+    loadAiSession();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeSessionId, aiSession?.session_id, navigate]);
 
   useEffect(() => {
     let cancelled = false;
@@ -325,7 +386,13 @@ function CreateTicket() {
         `/ai/sessions/${sessionId}/solution`,
       );
 
-      setAiSession(solutionResponse.data);
+      const completedSession = solutionResponse.data;
+
+      setAiSession(completedSession);
+
+      navigate(`/ai-support?session=${completedSession.session_id}`, {
+        replace: true,
+      });
     } catch (requestError) {
       console.error(requestError);
 
@@ -393,6 +460,10 @@ function CreateTicket() {
     setAiSession(null);
     setPendingResolution(null);
     setError("");
+
+    navigate("/ai-support", {
+      replace: true,
+    });
   }
 
   function handleCancel() {
@@ -444,6 +515,14 @@ function CreateTicket() {
       {optionsError ? <p className="error-message">{optionsError}</p> : null}
 
       {error ? <p className="error-message">{error}</p> : null}
+
+      {sessionLoading ? (
+        <section className="page-loading" role="status" aria-live="polite">
+          <span className="loading-spinner" aria-hidden="true" />
+
+          <span>Çözüm yeniden yükleniyor...</span>
+        </section>
+      ) : null}
 
       {shouldShowForm ? (
         <section className="panel form-panel">
@@ -1033,6 +1112,23 @@ function FormField({ label, htmlFor, required = false, children }) {
       {children}
     </div>
   );
+}
+
+function getAiSessionId(search) {
+  const searchParams = new URLSearchParams(search);
+  const sessionValue = searchParams.get("session");
+
+  if (!sessionValue || !/^\d+$/.test(sessionValue)) {
+    return null;
+  }
+
+  const sessionId = Number(sessionValue);
+
+  if (!Number.isSafeInteger(sessionId) || sessionId <= 0) {
+    return null;
+  }
+
+  return sessionId;
 }
 
 function getAssistantMessage(aiSession) {

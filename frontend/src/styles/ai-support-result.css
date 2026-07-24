@@ -1,8 +1,4 @@
-﻿/* =========================================================
-   AI Ã‡Ã–ZÃœM SONUCU
-   ========================================================= */
-
-.ai-solution-panel {
+﻿.ai-solution-panel {
   position: relative;
   isolation: isolate;
 
@@ -59,10 +55,6 @@
 
   box-shadow: 0 0 18px rgba(99, 102, 241, 0.4);
 }
-
-/* =========================================================
-   ÃœST BAÅžLIK
-   ========================================================= */
 
 .ai-solution-header {
   position: relative;
@@ -141,10 +133,6 @@
   line-height: 1.2;
   letter-spacing: -0.035em;
 }
-
-/* =========================================================
-   GÃœVEN GÃ–STERGESÄ°
-   ========================================================= */
 
 .ai-confidence-card {
   --confidence-color: #818cf8;
@@ -269,10 +257,6 @@
   white-space: nowrap;
 }
 
-/* =========================================================
-   ANA Ä°Ã‡ERÄ°K
-   ========================================================= */
-
 .ai-solution-content {
   min-height: 0;
 
@@ -374,10 +358,6 @@
   background: rgba(56, 189, 248, 0.09);
 }
 
-/* =========================================================
-   AI Ã–ZETÄ° / KÃ–K NEDEN
-   ========================================================= */
-
 .ai-evaluation-card {
   position: relative;
 
@@ -456,10 +436,6 @@
   font-size: 13px;
   line-height: 1.72;
 }
-
-/* =========================================================
-   TIMELINE Ã‡Ã–ZÃœM ADIMLARI
-   ========================================================= */
 
 .ai-solution-main-section {
   border: 1px solid rgba(148, 163, 184, 0.13);
@@ -597,10 +573,6 @@
   line-height: 1.72;
 }
 
-/* =========================================================
-   UYARI
-   ========================================================= */
-
 .ai-solution-warning {
   display: flex;
   align-items: flex-start;
@@ -654,10 +626,6 @@
   font-size: 12px;
   line-height: 1.65;
 }
-
-/* =========================================================
-   KONTROL VE SONRAKÄ° Ä°ÅžLEM
-   ========================================================= */
 
 .ai-solution-info-grid {
   display: grid;
@@ -742,10 +710,6 @@
   font-size: 12px;
   line-height: 1.65;
 }
-
-/* =========================================================
-   KAYNAK TICKETLAR
-   ========================================================= */
 
 .ai-solution-sources {
   position: relative;
@@ -832,10 +796,6 @@
 
   transform: translateY(-1px);
 }
-
-/* =========================================================
-   GERÄ° BÄ°LDÄ°RÄ°M
-   ========================================================= */
 
 .ai-feedback-box {
   position: relative;
@@ -983,10 +943,6 @@
   font-size: 13px;
   line-height: 1.75;
 }
-
-/* =========================================================
-   Ã‡Ã–ZÃœLDÃœ / Ã‡Ã–ZÃœLMEDÄ° KARTI
-   ========================================================= */
 
 .ai-resolution-card {
   display: grid;
@@ -1154,10 +1110,6 @@
 
   transform: translateY(-2px);
 }
-
-/* =========================================================
-   AÃ‡IK TEMA
-   ========================================================= */
 
 html[data-theme="light"] .ai-solution-panel {
   border-color: #d6dfeb;
@@ -1577,10 +1529,6 @@ html[data-theme="light"] .ai-resolution-primary-button {
     inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
-/* =========================================================
-   ORTA EKRAN YÃœKSEKLÄ°ÄžÄ°
-   ========================================================= */
-
 @media (max-height: 820px) and (min-width: 761px) {
   .ai-solution-panel {
     max-height: calc(100dvh - 92px);
@@ -1608,10 +1556,6 @@ html[data-theme="light"] .ai-resolution-primary-button {
     padding-bottom: 14px;
   }
 }
-
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
 
 @media (max-width: 760px) {
   .ai-solution-panel {
@@ -1755,5 +1699,314 @@ html[data-theme="light"] .ai-resolution-primary-button {
     transition: none;
   }
 }
+/* =========================================================
+   KISA EKRANLARDA ÇÖZÜM SONUCU YERLEŞİMİ
+   Kök neden, çözüm adımları ve sonuç alanını
+   aynı ekran içinde görünür tutar.
+   ========================================================= */
 
+@media (max-height: 950px) and (min-width: 761px) {
+  .ai-support-region .page:has(.ai-solution-panel) {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
 
+  .ai-solution-panel {
+    max-height: none;
+
+    grid-template-rows:
+      auto
+      auto
+      auto
+      auto;
+  }
+
+  .ai-solution-header {
+    gap: 18px;
+    padding: 16px 22px;
+  }
+
+  .ai-solution-header-icon {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 13px;
+
+    font-size: 17px;
+  }
+
+  .ai-solution-eyebrow {
+    margin-bottom: 3px;
+
+    font-size: 8px;
+  }
+
+  .ai-solution-title {
+    font-size: 21px;
+  }
+
+  .ai-confidence-card {
+    min-width: 150px;
+
+    gap: 9px;
+    padding: 7px 10px;
+  }
+
+  .ai-confidence-ring {
+    width: 38px;
+    height: 38px;
+  }
+
+  .ai-confidence-ring-center {
+    width: 29px;
+    height: 29px;
+  }
+
+  .ai-solution-content {
+    gap: 12px;
+
+    padding: 15px 22px;
+
+    overflow: visible;
+    overscroll-behavior: auto;
+    scrollbar-gutter: auto;
+  }
+
+  .ai-evaluation-body {
+    padding: 12px 15px;
+  }
+
+  .ai-evaluation-heading {
+    gap: 7px;
+
+    margin-bottom: 6px;
+  }
+
+  .ai-evaluation-badge {
+    min-height: 19px;
+
+    padding: 0 7px;
+
+    font-size: 7px;
+  }
+
+  .ai-evaluation-heading h3 {
+    font-size: 12px;
+  }
+
+  .ai-evaluation-card p {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .ai-solution-main-section {
+    padding: 14px 16px;
+  }
+
+  .ai-section-heading {
+    gap: 8px;
+
+    margin-bottom: 9px;
+  }
+
+  .ai-section-heading-icon {
+    width: 24px;
+    height: 24px;
+
+    border-radius: 8px;
+  }
+
+  .ai-section-heading h3 {
+    font-size: 13px;
+  }
+
+  .ai-section-description {
+    margin-top: 1px;
+
+    font-size: 9px;
+  }
+
+  .ai-solution-intro {
+    margin-bottom: 10px;
+
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .ai-solution-timeline-item {
+    min-height: 54px;
+
+    grid-template-columns: 31px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .ai-solution-timeline-number {
+    width: 28px;
+    height: 28px;
+
+    font-size: 9px;
+  }
+
+  .ai-solution-timeline-line {
+    margin: 4px 0;
+  }
+
+  .ai-solution-timeline-content {
+    margin-bottom: 8px;
+    padding: 10px 13px;
+  }
+
+  .ai-solution-timeline-content p {
+    font-size: 12px;
+    line-height: 1.52;
+  }
+
+  .ai-solution-warning {
+    gap: 10px;
+    padding: 11px 13px;
+  }
+
+  .ai-solution-warning-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .ai-solution-warning strong,
+  .ai-solution-warning p {
+    font-size: 11px;
+  }
+
+  .ai-solution-warning p {
+    line-height: 1.5;
+  }
+
+  .ai-solution-info-grid {
+    gap: 10px;
+  }
+
+  .ai-info-card {
+    gap: 10px;
+    padding: 11px 13px;
+  }
+
+  .ai-info-card-icon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .ai-info-card-label {
+    margin-bottom: 2px;
+
+    font-size: 7px;
+  }
+
+  .ai-info-card h3 {
+    margin-bottom: 3px;
+
+    font-size: 11px;
+  }
+
+  .ai-info-card p {
+    font-size: 11px;
+    line-height: 1.48;
+  }
+
+  .ai-solution-sources {
+    gap: 14px;
+    padding: 10px 22px;
+  }
+
+  .ai-solution-sources-label {
+    font-size: 9px;
+  }
+
+  .ai-solution-sources p {
+    margin-top: 2px;
+
+    font-size: 9px;
+  }
+
+  .ai-source-ticket {
+    min-height: 25px;
+
+    padding: 0 9px;
+
+    font-size: 9px;
+  }
+
+  .ai-feedback-box {
+    gap: 18px;
+    padding: 11px 22px;
+  }
+
+  .ai-feedback-label {
+    margin-bottom: 3px;
+
+    font-size: 7px;
+  }
+
+  .ai-feedback-copy h3 {
+    font-size: 14px;
+  }
+
+  .ai-feedback-copy p {
+    margin-top: 3px;
+
+    font-size: 10px;
+  }
+
+  .ai-feedback-button {
+    min-height: 36px;
+
+    padding: 0 13px;
+
+    font-size: 10px;
+  }
+}
+/* =========================================================
+   ÇÖZÜM EKRANINI BİR TIK BÜYÜT
+   Sadece sonuç ekranı açıkken daha fazla alan kullansın.
+   ========================================================= */
+
+@media (min-width: 761px) {
+  .ai-support-region .page:has(.ai-solution-panel) {
+    width: min(1240px, calc(100% - 28px));
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .ai-support-region .page:has(.ai-solution-panel) .ai-solution-panel {
+    margin-top: 0;
+  }
+}
+/* =========================================================
+   ÇÖZÜM EKRANI YÜKSEKLİĞİNİ BİR TIK ARTIR
+   Genişlik aynı kalsın, panel biraz daha uzun görünsün.
+   ========================================================= */
+
+@media (min-width: 761px) {
+  .ai-support-region .page:has(.ai-solution-panel) .ai-solution-panel {
+    min-height: calc(100dvh - 86px);
+  }
+}
+
+@media (max-height: 950px) and (min-width: 761px) {
+  .ai-solution-content {
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+
+  .ai-solution-main-section {
+    padding: 16px 18px;
+  }
+
+  .ai-solution-sources {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .ai-feedback-box {
+    padding-top: 13px;
+    padding-bottom: 13px;
+  }
+}
