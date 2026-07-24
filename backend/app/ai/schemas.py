@@ -34,6 +34,16 @@ AIMessageSenderType = Literal[
     "system",
 ]
 
+AIConfidenceBandType = Literal[
+    "high",
+    "medium",
+    "low",
+]
+
+
+# =========================================================
+# AI OTURUM ŞEMALARI
+# =========================================================
 
 class AISessionCreate(BaseModel):
     title: str = Field(
@@ -112,3 +122,51 @@ class AISessionDetailResponse(
 
 class AIResolutionUpdate(BaseModel):
     resolution_status: AIResolutionStatusType
+
+
+# =========================================================
+# AI ANALYTICS ŞEMALARI
+# =========================================================
+
+class AIConfidenceBandPerformance(BaseModel):
+    band: AIConfidenceBandType
+    label: str
+
+    feedback_count: int
+
+    resolved_count: int
+    unresolved_count: int
+
+    success_rate: float | None
+
+
+class AIAnalyticsSummaryResponse(BaseModel):
+    total_sessions: int
+
+    completed_sessions: int
+    failed_sessions: int
+
+    resolved_count: int
+    unresolved_count: int
+    awaiting_feedback_count: int
+
+    success_rate: float | None
+
+    average_confidence_score: float | None
+    average_solution_time_seconds: float | None
+
+    source_supported_sessions: int
+    source_supported_feedback_count: int
+
+    source_supported_resolved_count: int
+    source_supported_unresolved_count: int
+
+    source_supported_success_rate: float | None
+
+    high_confidence_unresolved_count: int
+
+    confidence_bands: list[
+        AIConfidenceBandPerformance
+    ] = Field(
+        default_factory=list,
+    )

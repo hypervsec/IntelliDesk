@@ -20,10 +20,20 @@ SUPPORTED_AI_PROVIDER = "gemini"
     frozen=True,
     slots=True,
 )
+class TemporaryRAGSource:
+    request_id: str
+    similarity_score: float
+
+
+@dataclass(
+    frozen=True,
+    slots=True,
+)
 class TemporaryRAGSolution:
     content: str
     confidence_score: float
     source_request_ids: list[str]
+    sources: list[TemporaryRAGSource]
 
 
 def get_ai_provider() -> str:
@@ -90,30 +100,70 @@ def format_source_ticket(
     return f"#{normalized_id}"
 
 
-def get_source_request_ids(
+def get_rag_sources(
     similar_tickets: list[dict[str, Any]],
+) -> list[TemporaryRAGSource]:
+    sources: list[TemporaryRAGSource] = []
+
+    used_request_ids: set[str] = set()
+
+    for ticket in similar_tickets:
+        request_id = ticket.get(
+            "request_id"
+        )
+
+        if request_id is None:
+            continue
+
+        normalized_request_id = str(
+            request_id
+        ).strip()
+
+        if not normalized_request_id:
+            continue
+
+        if normalized_request_id in used_request_ids:
+            continue
+
+        similarity_score = (
+            normalize_confidence_score(
+                ticket.get(
+                    "similarity",
+                    0.0,
+                )
+            )
+        )
+
+        sources.append(
+            TemporaryRAGSource(
+                request_id=normalized_request_id,
+                similarity_score=similarity_score,
+            )
+        )
+
+        used_request_ids.add(
+            normalized_request_id
+        )
+
+    return sources
+
+
+def get_source_request_ids(
+    sources: list[TemporaryRAGSource],
 ) -> list[str]:
     return [
-        str(ticket["request_id"])
-        for ticket in similar_tickets
-        if ticket.get("request_id") is not None
+        source.request_id
+        for source in sources
     ]
 
 
 def get_best_confidence_score(
-    similar_tickets: list[dict[str, Any]],
+    sources: list[TemporaryRAGSource],
 ) -> float:
-    if not similar_tickets:
+    if not sources:
         return 0.0
 
-    best_similarity = similar_tickets[0].get(
-        "similarity",
-        0.0,
-    )
-
-    return normalize_confidence_score(
-        best_similarity
-    )
+    return sources[0].similarity_score
 
 
 def build_solution_metadata(
@@ -165,6 +215,7 @@ def generate_temporary_rag_solution(
             query_text=query_text,
             limit=SIMILAR_TICKET_LIMIT,
         )
+
     except Exception as exc:
         logger.exception(
             (
@@ -180,12 +231,20 @@ def generate_temporary_rag_solution(
 
         raise
 
-    confidence_score = get_best_confidence_score(
+    sources = get_rag_sources(
         similar_tickets=similar_tickets,
     )
 
-    source_request_ids = get_source_request_ids(
-        similar_tickets=similar_tickets,
+    source_request_ids = (
+        get_source_request_ids(
+            sources=sources,
+        )
+    )
+
+    confidence_score = (
+        get_best_confidence_score(
+            sources=sources,
+        )
     )
 
     try:
@@ -194,6 +253,7 @@ def generate_temporary_rag_solution(
             user_message=user_message,
             similar_tickets=similar_tickets,
         )
+
     except Exception as exc:
         logger.exception(
             (
@@ -208,7 +268,7 @@ def generate_temporary_rag_solution(
             session_id,
             provider,
             model_name,
-            len(similar_tickets),
+            len(sources),
             type(exc).__name__,
             exc,
         )
@@ -227,4 +287,5 @@ def generate_temporary_rag_solution(
         ),
         confidence_score=confidence_score,
         source_request_ids=source_request_ids,
+        sources=sources,
     )

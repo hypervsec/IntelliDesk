@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from decimal import Decimal
 
@@ -7,16 +8,25 @@ from fastapi import (
     HTTPException,
     status,
 )
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..models import Account, Ticket
 from ..routers.auth import get_current_account
 from ..sla import calculate_sla_deadlines
-from .models import AIMessage, AISession
-from .rag_service import generate_temporary_rag_solution
+from .models import (
+    AIMessage,
+    AISession,
+    AISessionSource,
+)
+from .rag_service import (
+    TemporaryRAGSource,
+    generate_temporary_rag_solution,
+)
 from .schemas import (
+    AIAnalyticsSummaryResponse,
+    AIConfidenceBandPerformance,
     AIMessageResponse,
     AIResolutionUpdate,
     AISessionCreate,
@@ -25,10 +35,14 @@ from .schemas import (
 )
 
 
+logger = logging.getLogger(__name__)
+
+
 router = APIRouter(
     prefix="/ai",
     tags=["AI Assistant"],
 )
+
 
 STAFF_ROLES = {
     "technician",
@@ -170,6 +184,214 @@ def session_has_assistant_message(
     return assistant_message_id is not None
 
 
+def require_staff_account(
+    current_account: Account,
+) -> None:
+    if current_account.role in STAFF_ROLES:
+        return
+
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail=(
+            "AI performans verilerini görüntülemek "
+            "için teknisyen veya yönetici yetkisi "
+            "gereklidir."
+        ),
+    )
+
+
+def calculate_success_rate(
+    resolved_count: int,
+    feedback_count: int,
+) -> float | None:
+    if feedback_count <= 0:
+        return None
+
+    return round(
+        resolved_count
+        / feedback_count
+        * 100,
+        2,
+    )
+
+
+def count_sessions(
+    db: Session,
+    *conditions,
+) -> int:
+    count_value = db.scalar(
+        select(
+            func.count(
+                AISession.session_id
+            )
+        ).where(
+            *conditions
+        )
+    )
+
+    return int(count_value or 0)
+
+
+def count_source_supported_sessions(
+    db: Session,
+    *conditions,
+) -> int:
+    count_value = db.scalar(
+        select(
+            func.count(
+                func.distinct(
+                    AISessionSource.session_id
+                )
+            )
+        )
+        .join(
+            AISession,
+            AISession.session_id
+            == AISessionSource.session_id,
+        )
+        .where(
+            *conditions
+        )
+    )
+
+    return int(count_value or 0)
+
+
+def get_average_confidence_score(
+    db: Session,
+) -> float | None:
+    average_value = db.scalar(
+        select(
+            func.avg(
+                AISession.confidence_score
+            )
+        ).where(
+            AISession.status == "completed",
+            AISession.confidence_score.is_not(
+                None
+            ),
+        )
+    )
+
+    if average_value is None:
+        return None
+
+    return round(
+        float(average_value),
+        4,
+    )
+
+
+def get_average_solution_time_seconds(
+    db: Session,
+) -> float | None:
+    average_value = db.scalar(
+        select(
+            func.avg(
+                func.extract(
+                    "epoch",
+                    (
+                        AISession.completed_at
+                        - AISession.created_at
+                    ),
+                )
+            )
+        ).where(
+            AISession.status == "completed",
+            AISession.completed_at.is_not(
+                None
+            ),
+        )
+    )
+
+    if average_value is None:
+        return None
+
+    return round(
+        max(
+            0.0,
+            float(average_value),
+        ),
+        2,
+    )
+
+
+def get_confidence_band_performance(
+    db: Session,
+    band: str,
+    label: str,
+    minimum_score: Decimal,
+    maximum_score: Decimal | None,
+) -> AIConfidenceBandPerformance:
+    score_conditions = [
+        AISession.confidence_score.is_not(
+            None
+        ),
+        AISession.confidence_score
+        >= minimum_score,
+        AISession.resolution_status.is_not(
+            None
+        ),
+    ]
+
+    if maximum_score is not None:
+        score_conditions.append(
+            AISession.confidence_score
+            < maximum_score
+        )
+
+    feedback_count = count_sessions(
+        db,
+        *score_conditions,
+    )
+
+    resolved_count = count_sessions(
+        db,
+        *score_conditions,
+        AISession.resolution_status
+        == "resolved",
+    )
+
+    unresolved_count = count_sessions(
+        db,
+        *score_conditions,
+        AISession.resolution_status
+        == "unresolved",
+    )
+
+    return AIConfidenceBandPerformance(
+        band=band,
+        label=label,
+        feedback_count=feedback_count,
+        resolved_count=resolved_count,
+        unresolved_count=unresolved_count,
+        success_rate=calculate_success_rate(
+            resolved_count=resolved_count,
+            feedback_count=feedback_count,
+        ),
+    )
+
+
+def build_session_source_records(
+    session_id: int,
+    sources: list[TemporaryRAGSource],
+    created_at: datetime,
+) -> list[AISessionSource]:
+    return [
+        AISessionSource(
+            session_id=session_id,
+            request_id=source.request_id,
+            similarity_score=Decimal(
+                str(
+                    source.similarity_score
+                )
+            ),
+            created_at=created_at,
+        )
+        for source in sources
+    ]
+
+
 def mark_session_failed(
     session_id: int,
     account_id: int,
@@ -219,18 +441,19 @@ def create_ai_session(
     ),
     db: Session = Depends(get_db),
 ) -> AISessionDetailResponse:
-    normalized_title = session_data.title.strip()
+    normalized_title = (
+        session_data.title.strip()
+    )
 
     normalized_description = (
         session_data.description.strip()
     )
 
     try:
-        # Bu aşamada ticket oluşturulmaz.
-        # Ticket yalnızca AI çözümü başarılı olursa
-        # solution endpointinde oluşturulur.
         ai_session = AISession(
-            account_id=current_account.account_id,
+            account_id=(
+                current_account.account_id
+            ),
             ticket_id=None,
             title=normalized_title,
             department=session_data.department,
@@ -262,6 +485,201 @@ def create_ai_session(
     return build_session_detail_response(
         ai_session=ai_session,
         messages=[user_message],
+    )
+
+
+# =========================================================
+# AI PERFORMANS ANALİZİ
+# =========================================================
+
+@router.get(
+    "/analytics/summary",
+    response_model=AIAnalyticsSummaryResponse,
+)
+def get_ai_analytics_summary(
+    current_account: Account = Depends(
+        get_current_account
+    ),
+    db: Session = Depends(get_db),
+) -> AIAnalyticsSummaryResponse:
+    require_staff_account(
+        current_account=current_account
+    )
+
+    total_sessions = count_sessions(
+        db
+    )
+
+    completed_sessions = count_sessions(
+        db,
+        AISession.status == "completed",
+    )
+
+    failed_sessions = count_sessions(
+        db,
+        AISession.status == "failed",
+    )
+
+    resolved_count = count_sessions(
+        db,
+        AISession.resolution_status
+        == "resolved",
+    )
+
+    unresolved_count = count_sessions(
+        db,
+        AISession.resolution_status
+        == "unresolved",
+    )
+
+    feedback_count = (
+        resolved_count
+        + unresolved_count
+    )
+
+    awaiting_feedback_count = count_sessions(
+        db,
+        AISession.status == "completed",
+        AISession.ticket_id.is_not(None),
+        AISession.resolution_status.is_(
+            None
+        ),
+    )
+
+    source_supported_sessions = (
+        count_source_supported_sessions(
+            db
+        )
+    )
+
+    source_supported_resolved_count = (
+        count_source_supported_sessions(
+            db,
+            AISession.resolution_status
+            == "resolved",
+        )
+    )
+
+    source_supported_unresolved_count = (
+        count_source_supported_sessions(
+            db,
+            AISession.resolution_status
+            == "unresolved",
+        )
+    )
+
+    source_supported_feedback_count = (
+        source_supported_resolved_count
+        + source_supported_unresolved_count
+    )
+
+    high_confidence_unresolved_count = (
+        count_sessions(
+            db,
+            AISession.resolution_status
+            == "unresolved",
+            AISession.confidence_score.is_not(
+                None
+            ),
+            AISession.confidence_score
+            >= Decimal("0.8000"),
+        )
+    )
+
+    confidence_bands = [
+        get_confidence_band_performance(
+            db=db,
+            band="high",
+            label="%80 ve üzeri",
+            minimum_score=Decimal(
+                "0.8000"
+            ),
+            maximum_score=None,
+        ),
+        get_confidence_band_performance(
+            db=db,
+            band="medium",
+            label="%60 - %79",
+            minimum_score=Decimal(
+                "0.6000"
+            ),
+            maximum_score=Decimal(
+                "0.8000"
+            ),
+        ),
+        get_confidence_band_performance(
+            db=db,
+            band="low",
+            label="%60 altı",
+            minimum_score=Decimal(
+                "0.0000"
+            ),
+            maximum_score=Decimal(
+                "0.6000"
+            ),
+        ),
+    ]
+
+    return AIAnalyticsSummaryResponse(
+        total_sessions=total_sessions,
+        completed_sessions=completed_sessions,
+        failed_sessions=failed_sessions,
+
+        resolved_count=resolved_count,
+        unresolved_count=unresolved_count,
+        awaiting_feedback_count=(
+            awaiting_feedback_count
+        ),
+
+        success_rate=calculate_success_rate(
+            resolved_count=resolved_count,
+            feedback_count=feedback_count,
+        ),
+
+        average_confidence_score=(
+            get_average_confidence_score(
+                db=db
+            )
+        ),
+
+        average_solution_time_seconds=(
+            get_average_solution_time_seconds(
+                db=db
+            )
+        ),
+
+        source_supported_sessions=(
+            source_supported_sessions
+        ),
+
+        source_supported_feedback_count=(
+            source_supported_feedback_count
+        ),
+
+        source_supported_resolved_count=(
+            source_supported_resolved_count
+        ),
+
+        source_supported_unresolved_count=(
+            source_supported_unresolved_count
+        ),
+
+        source_supported_success_rate=(
+            calculate_success_rate(
+                resolved_count=(
+                    source_supported_resolved_count
+                ),
+                feedback_count=(
+                    source_supported_feedback_count
+                ),
+            )
+        ),
+
+        high_confidence_unresolved_count=(
+            high_confidence_unresolved_count
+        ),
+
+        confidence_bands=confidence_bands,
     )
 
 
@@ -343,7 +761,9 @@ def get_ai_session_detail(
 ) -> AISessionDetailResponse:
     ai_session = get_owned_session(
         session_id=session_id,
-        account_id=current_account.account_id,
+        account_id=(
+            current_account.account_id
+        ),
         db=db,
     )
 
@@ -375,13 +795,17 @@ def generate_ai_session_solution(
 ) -> AISessionDetailResponse:
     ai_session = get_owned_session(
         session_id=session_id,
-        account_id=current_account.account_id,
+        account_id=(
+            current_account.account_id
+        ),
         db=db,
     )
 
     if ai_session.resolution_status is not None:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=(
+                status.HTTP_409_CONFLICT
+            ),
             detail=(
                 "Sonuçlandırılmış bir AI oturumu "
                 "için çözüm oluşturulamaz."
@@ -390,7 +814,9 @@ def generate_ai_session_solution(
 
     if ai_session.status == "processing":
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=(
+                status.HTTP_409_CONFLICT
+            ),
             detail=(
                 "Bu AI oturumu şu anda "
                 "işlenmektedir."
@@ -402,7 +828,9 @@ def generate_ai_session_solution(
         db=db,
     ):
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=(
+                status.HTTP_409_CONFLICT
+            ),
             detail=(
                 "Bu AI oturumu için çözüm "
                 "zaten oluşturulmuş."
@@ -411,7 +839,9 @@ def generate_ai_session_solution(
 
     if ai_session.ticket_id is not None:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=(
+                status.HTTP_409_CONFLICT
+            ),
             detail=(
                 "Bu AI oturumu için ticket "
                 "zaten oluşturulmuş."
@@ -432,16 +862,19 @@ def generate_ai_session_solution(
     db.refresh(ai_session)
 
     try:
-        # Önce AI servisinden başarılı cevap beklenir.
-        rag_solution = generate_temporary_rag_solution(
-            ai_session=ai_session,
-            user_message=user_message,
+        rag_solution = (
+            generate_temporary_rag_solution(
+                ai_session=ai_session,
+                user_message=user_message,
+            )
         )
 
     except Exception as exc:
         mark_session_failed(
             session_id=session_id,
-            account_id=current_account.account_id,
+            account_id=(
+                current_account.account_id
+            ),
             db=db,
         )
 
@@ -451,7 +884,8 @@ def generate_ai_session_solution(
             ),
             detail=(
                 "AI çözüm servisi şu anda "
-                "kullanılamıyor. Ticket oluşturulmadı."
+                "kullanılamıyor. "
+                "Ticket oluşturulmadı."
             ),
         ) from exc
 
@@ -466,13 +900,12 @@ def generate_ai_session_solution(
     )
 
     try:
-        # AI cevabı başarılı olduktan sonra ticket,
-        # SLA tarihleri ve assistant mesajı aynı
-        # transaction içinde oluşturulur.
         ticket = Ticket(
             title=ai_session.title,
             description=user_message.content,
-            requester_name=current_account.full_name,
+            requester_name=(
+                current_account.full_name
+            ),
             department=ai_session.department,
             category=ai_session.category,
             subcategory=ai_session.subcategory,
@@ -502,23 +935,58 @@ def generate_ai_session_solution(
             content=rag_solution.content,
         )
 
-        ai_session.ticket_id = ticket.ticket_id
+        source_records = (
+            build_session_source_records(
+                session_id=session_id,
+                sources=rag_solution.sources,
+                created_at=completed_time,
+            )
+        )
+
+        ai_session.ticket_id = (
+            ticket.ticket_id
+        )
+
         ai_session.status = "completed"
 
         ai_session.confidence_score = Decimal(
-            str(rag_solution.confidence_score)
+            str(
+                rag_solution.confidence_score
+            )
         )
 
         ai_session.updated_at = completed_time
         ai_session.completed_at = completed_time
 
         db.add(assistant_message)
+
+        if source_records:
+            db.add_all(
+                source_records
+            )
+
         db.commit()
 
     except Exception as exc:
+        logger.exception(
+            (
+                "AI çözüm kayıt işlemi başarısız | "
+                "session_id=%s | "
+                "source_count=%s | "
+                "error_type=%s | "
+                "error=%s"
+            ),
+            session_id,
+            len(rag_solution.sources),
+            type(exc).__name__,
+            exc,
+        )
+
         mark_session_failed(
             session_id=session_id,
-            account_id=current_account.account_id,
+            account_id=(
+                current_account.account_id
+            ),
             db=db,
         )
 
@@ -528,7 +996,8 @@ def generate_ai_session_solution(
             ),
             detail=(
                 "AI çözümü alındı ancak kayıt "
-                "tamamlanamadı. Ticket oluşturulmadı."
+                "tamamlanamadı. "
+                "Ticket oluşturulmadı."
             ),
         ) from exc
 
@@ -565,7 +1034,9 @@ def update_ai_session_resolution(
 ) -> AISessionDetailResponse:
     ai_session = get_owned_session(
         session_id=session_id,
-        account_id=current_account.account_id,
+        account_id=(
+            current_account.account_id
+        ),
         db=db,
     )
 
@@ -574,7 +1045,9 @@ def update_ai_session_resolution(
         db=db,
     ):
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=(
+                status.HTTP_409_CONFLICT
+            ),
             detail=(
                 "AI çözümü oluşmadan sonuç "
                 "geri bildirimi kaydedilemez."
@@ -591,7 +1064,9 @@ def update_ai_session_resolution(
     ai_session.updated_at = current_time
 
     if ai_session.completed_at is None:
-        ai_session.completed_at = current_time
+        ai_session.completed_at = (
+            current_time
+        )
 
     db.commit()
     db.refresh(ai_session)

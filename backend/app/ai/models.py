@@ -173,6 +173,76 @@ class AISession(Base):
     )
 
 
+class AISessionSource(Base):
+    __tablename__ = "ai_session_sources"
+
+    __table_args__ = (
+        CheckConstraint(
+            (
+                "similarity_score >= 0 "
+                "AND similarity_score <= 1"
+            ),
+            name=(
+                "ck_ai_session_sources_"
+                "similarity_score_range"
+            ),
+        ),
+        UniqueConstraint(
+            "session_id",
+            "request_id",
+            name=(
+                "uq_ai_session_sources_"
+                "session_request"
+            ),
+        ),
+        Index(
+            "ix_ai_session_sources_session_id",
+            "session_id",
+        ),
+        Index(
+            "ix_ai_session_sources_request_id",
+            "request_id",
+        ),
+        Index(
+            "ix_ai_session_sources_similarity",
+            "similarity_score",
+        ),
+    )
+
+    source_id: Mapped[int] = mapped_column(
+        BigInteger,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    session_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey(
+            "ai_sessions.session_id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+    )
+
+    request_id: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+    )
+
+    similarity_score: Mapped[
+        Decimal
+    ] = mapped_column(
+        Numeric(5, 4),
+        nullable=False,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        default=datetime.now,
+    )
+
+
 class AIMessage(Base):
     __tablename__ = "ai_messages"
 
