@@ -597,3 +597,453 @@ a:focus-visible {
     padding: 18px;
   }
 }
+/* =========================================================
+   STAFF TICKET DETAIL
+   ========================================================= */
+
+.staff-detail-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(340px, 0.75fr);
+  align-items: stretch;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.staff-detail-overview > .panel {
+  min-width: 0;
+  margin: 0;
+}
+
+.staff-problem-panel,
+.staff-summary-panel,
+.staff-ai-panel,
+.management-panel,
+.feedback-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.staff-problem-panel::before,
+.staff-summary-panel::before,
+.staff-ai-panel::before,
+.management-panel::before,
+.feedback-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  pointer-events: none;
+}
+
+.staff-problem-panel::before {
+  background: linear-gradient(90deg, var(--color-info), var(--color-primary));
+}
+
+.staff-summary-panel::before {
+  background: linear-gradient(
+    90deg,
+    var(--color-primary),
+    var(--color-success)
+  );
+}
+
+.staff-ai-panel::before {
+  background: linear-gradient(
+    90deg,
+    var(--color-primary-strong),
+    var(--color-info)
+  );
+}
+
+.management-panel::before {
+  background: linear-gradient(
+    90deg,
+    var(--color-warning),
+    var(--color-primary)
+  );
+}
+
+.feedback-panel::before {
+  background: linear-gradient(90deg, var(--color-success), var(--color-info));
+}
+
+/* Kullanıcı bildirimi */
+
+.staff-problem-content {
+  display: grid;
+  gap: 16px;
+}
+
+.staff-problem-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: var(--color-surface-soft);
+}
+
+.staff-problem-avatar {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(129, 140, 248, 0.32);
+  border-radius: 13px;
+  color: #ffffff;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--color-primary-deep)
+  );
+  box-shadow: 0 10px 24px rgba(79, 70, 229, 0.22);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.staff-problem-user div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.staff-problem-user span:not(.staff-problem-avatar) {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.staff-problem-user strong {
+  color: var(--color-text);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.staff-problem-description {
+  position: relative;
+  margin: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 18px 19px 18px 22px;
+  background: var(--color-surface-soft);
+}
+
+.staff-problem-description::before {
+  content: "";
+  position: absolute;
+  top: 14px;
+  bottom: 14px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 4px 4px 0;
+  background: linear-gradient(180deg, var(--color-info), var(--color-primary));
+}
+
+.staff-info-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--color-primary);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.staff-problem-description h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 16px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.staff-problem-description p {
+  margin: 10px 0 0;
+  color: var(--color-text-soft);
+  font-size: 13px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.staff-classification-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.staff-classification-item {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+  border: 1px solid var(--color-border);
+  border-radius: 13px;
+  padding: 12px 13px;
+  background: var(--color-surface-soft);
+}
+
+.staff-classification-item span {
+  color: var(--color-text-muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.staff-classification-item strong {
+  color: var(--color-text);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+/* Ticket özeti */
+
+.staff-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 11px;
+}
+
+.staff-summary-card {
+  min-width: 0;
+  min-height: 78px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 13px 14px;
+  background: var(--color-surface-soft);
+}
+
+.staff-summary-card-wide {
+  grid-column: 1 / -1;
+  min-height: auto;
+}
+
+.staff-summary-card > span {
+  color: var(--color-text-muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.staff-summary-card > strong {
+  color: var(--color-text);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.staff-summary-card.status-open,
+.staff-summary-card.status-assigned,
+.staff-summary-card.status-in_progress,
+.staff-summary-card.status-waiting_user,
+.staff-summary-card.status-resolved,
+.staff-summary-card.status-closed,
+.staff-summary-card.status-cancelled,
+.staff-summary-card.priority-low,
+.staff-summary-card.priority-medium,
+.staff-summary-card.priority-high,
+.staff-summary-card.priority-critical {
+  color: inherit;
+}
+
+/* Personel AI alanı */
+
+.staff-ai-panel {
+  margin-bottom: 20px;
+}
+
+.staff-ai-status-row {
+  display: grid;
+  grid-template-columns: auto minmax(120px, 1fr) auto minmax(150px, 1fr);
+  align-items: center;
+  gap: 9px 14px;
+  margin: -2px 0 18px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: var(--color-surface-soft);
+}
+
+.staff-ai-status-row span {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.staff-ai-status-row strong {
+  color: var(--color-text);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.staff-ai-panel .ai-solution-content {
+  display: grid;
+  gap: 15px;
+}
+
+.staff-ai-panel .ai-evaluation-card,
+.staff-ai-panel .ai-solution-main-section,
+.staff-ai-panel .ai-solution-warning,
+.staff-ai-panel .ai-info-card {
+  box-shadow: none;
+}
+
+.staff-ai-panel .ai-solution-main-section {
+  padding: 18px;
+}
+
+.staff-ai-panel .ai-solution-timeline-content {
+  min-height: auto;
+}
+
+.staff-ai-panel .ai-solution-sources {
+  margin: 18px -22px -22px;
+}
+
+/* Ticket yönetimi */
+
+.management-panel {
+  margin-bottom: 20px;
+}
+
+.management-panel .ticket-form {
+  gap: 20px;
+}
+
+.management-panel .form-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.management-panel textarea {
+  min-height: 150px;
+}
+
+.management-panel .form-actions {
+  border-top: 1px solid var(--color-divider);
+  padding-top: 17px;
+}
+
+/* Zaman çizelgesi ve geri bildirim */
+
+.feedback-panel {
+  margin-top: 20px;
+}
+
+.feedback-panel .feedback-form .form-grid {
+  grid-template-columns: minmax(180px, 0.35fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+.feedback-panel .feedback-form textarea {
+  min-height: 96px;
+}
+
+.saved-feedback {
+  display: grid;
+  gap: 7px;
+  margin-bottom: 17px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 14px 15px;
+  background: var(--color-surface-soft);
+}
+
+.saved-feedback strong {
+  color: var(--color-text);
+  font-size: 13px;
+}
+
+.saved-feedback p {
+  margin: 0;
+  color: var(--color-text-soft);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.saved-feedback span {
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+
+.feedback-accepted {
+  border-left: 3px solid var(--color-success);
+}
+
+.feedback-rejected {
+  border-left: 3px solid var(--color-danger);
+}
+
+/* Personel ekranında ortak panel aralıkları */
+
+.staff-detail-overview + .staff-ai-panel,
+.staff-detail-overview + .ai-solution-panel {
+  margin-top: 0;
+}
+
+.staff-detail-overview .panel-header,
+.staff-ai-panel .panel-header,
+.management-panel .panel-header,
+.feedback-panel .panel-header {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-divider);
+}
+
+/* Responsive */
+
+@media (max-width: 1100px) {
+  .staff-detail-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .management-panel .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .staff-classification-list,
+  .staff-summary-grid,
+  .management-panel .form-grid,
+  .feedback-panel .feedback-form .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .staff-summary-card-wide {
+    grid-column: auto;
+  }
+
+  .staff-ai-status-row {
+    grid-template-columns: 1fr;
+  }
+
+  .staff-ai-status-row span {
+    margin-top: 4px;
+  }
+}
+
+@media (max-width: 520px) {
+  .staff-problem-description {
+    padding: 16px 15px 16px 19px;
+  }
+
+  .staff-problem-user {
+    align-items: flex-start;
+  }
+
+  .staff-ai-panel .ai-solution-sources {
+    margin-right: -18px;
+    margin-bottom: -18px;
+    margin-left: -18px;
+  }
+}

@@ -10,6 +10,7 @@ from sqlalchemy import (
     Numeric,
     String,
     Text,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import (
     Mapped,
@@ -61,6 +62,10 @@ class AISession(Base):
                 "confidence_score_range"
             ),
         ),
+        UniqueConstraint(
+            "ticket_id",
+            name="uq_ai_sessions_ticket_id",
+        ),
         Index(
             "ix_ai_sessions_account_created",
             "account_id",
@@ -70,6 +75,10 @@ class AISession(Base):
             "ix_ai_sessions_status_created",
             "status",
             "created_at",
+        ),
+        Index(
+            "ix_ai_sessions_ticket_id",
+            "ticket_id",
         ),
     )
 
@@ -86,6 +95,15 @@ class AISession(Base):
             ondelete="CASCADE",
         ),
         nullable=False,
+    )
+
+    ticket_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey(
+            "tickets.ticket_id",
+            ondelete="SET NULL",
+        ),
+        nullable=True,
     )
 
     title: Mapped[str] = mapped_column(

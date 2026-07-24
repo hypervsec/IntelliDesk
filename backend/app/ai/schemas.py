@@ -83,6 +83,7 @@ class AISessionResponse(BaseModel):
 
     session_id: int
     account_id: int
+    ticket_id: int | None
 
     title: str
 

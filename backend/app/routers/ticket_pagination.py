@@ -10,6 +10,7 @@ from fastapi import (
 )
 from pydantic import BaseModel
 from sqlalchemy import (
+    and_,
     case,
     func,
     or_,
@@ -19,6 +20,7 @@ from sqlalchemy.orm import Session
 
 from .. import models, schemas
 from ..database import get_db
+from .auth import get_current_account
 
 
 SortType = Literal[
@@ -27,6 +29,12 @@ SortType = Literal[
     "priority_high",
     "priority_low",
 ]
+
+
+STAFF_ROLES = {
+    "technician",
+    "admin",
+}
 
 
 INVALID_OPTION_VALUES = {
@@ -63,6 +71,76 @@ class TicketFormOptionsResponse(BaseModel):
     categories: list[str]
     subcategories: list[str]
 
+
+# =========================================================
+# TICKET GÖRÜNÜRLÜĞÜ
+# =========================================================
+
+def apply_ticket_visibility(
+    query,
+    current_account: models.Account,
+):
+    if current_account.role in STAFF_ROLES:
+        return query
+
+    created_by_current_account = (
+        select(
+            models.TicketTimelineEntry.entry_id
+        )
+        .where(
+            models.TicketTimelineEntry.ticket_id
+            == models.Ticket.ticket_id,
+            models.TicketTimelineEntry.entry_type
+            == "ticket_created",
+            models.TicketTimelineEntry.actor_account_id
+            == current_account.account_id,
+        )
+        .correlate(models.Ticket)
+        .exists()
+    )
+
+    created_by_known_account = (
+        select(
+            models.TicketTimelineEntry.entry_id
+        )
+        .where(
+            models.TicketTimelineEntry.ticket_id
+            == models.Ticket.ticket_id,
+            models.TicketTimelineEntry.entry_type
+            == "ticket_created",
+            models.TicketTimelineEntry.actor_account_id.is_not(
+                None
+            ),
+        )
+        .correlate(models.Ticket)
+        .exists()
+    )
+
+    normalized_account_name = " ".join(
+        current_account.full_name.strip().split()
+    ).lower()
+
+    legacy_requester_match = and_(
+        ~created_by_known_account,
+        func.lower(
+            func.trim(
+                models.Ticket.requester_name
+            )
+        )
+        == normalized_account_name,
+    )
+
+    return query.where(
+        or_(
+            created_by_current_account,
+            legacy_requester_match,
+        )
+    )
+
+
+# =========================================================
+# ORTAK FİLTRELER
+# =========================================================
 
 def apply_common_filters(
     query,
@@ -151,6 +229,10 @@ def apply_ticket_filters(
     return query
 
 
+# =========================================================
+# SIRALAMA
+# =========================================================
+
 def apply_ticket_sorting(
     query,
     sort: SortType,
@@ -205,11 +287,15 @@ def apply_ticket_sorting(
     )
 
 
+# =========================================================
+# SEÇENEK TEMİZLEME
+# =========================================================
+
 def clean_option_values(
     values: list[str | None],
 ) -> list[str]:
-    cleaned_values = []
-    seen_values = set()
+    cleaned_values: list[str] = []
+    seen_values: set[str] = set()
 
     for value in values:
         if not value:
@@ -248,6 +334,10 @@ def clean_option_values(
         key=lambda item: item.casefold(),
     )
 
+
+# =========================================================
+# FORM SEÇENEKLERİ
+# =========================================================
 
 @router.get(
     "/form-options",
@@ -387,6 +477,10 @@ def get_ticket_form_options(
     }
 
 
+# =========================================================
+# LİSTE FİLTRE SEÇENEKLERİ
+# =========================================================
+
 @router.get(
     "/filter-options",
     response_model=TicketFilterOptionsResponse,
@@ -413,6 +507,9 @@ def get_ticket_filter_options(
         default=None,
         max_length=150,
     ),
+    current_account: models.Account = Depends(
+        get_current_account
+    ),
     db: Session = Depends(get_db),
 ):
     category_query = (
@@ -430,6 +527,11 @@ def get_ticket_filter_options(
             )
             != ""
         )
+    )
+
+    category_query = apply_ticket_visibility(
+        query=category_query,
+        current_account=current_account,
     )
 
     category_query = apply_common_filters(
@@ -468,6 +570,11 @@ def get_ticket_filter_options(
             )
             != ""
         )
+    )
+
+    department_query = apply_ticket_visibility(
+        query=department_query,
+        current_account=current_account,
     )
 
     department_query = apply_common_filters(
@@ -513,6 +620,10 @@ def get_ticket_filter_options(
     }
 
 
+# =========================================================
+# SAYFALANMIŞ TICKET LİSTESİ
+# =========================================================
+
 @router.get(
     "/paged",
     response_model=PaginatedTicketResponse,
@@ -551,12 +662,20 @@ def list_paginated_tickets(
         ge=1,
         le=100,
     ),
+    current_account: models.Account = Depends(
+        get_current_account
+    ),
     db: Session = Depends(get_db),
 ):
     count_query = select(
         func.count(
             models.Ticket.ticket_id
         )
+    )
+
+    count_query = apply_ticket_visibility(
+        query=count_query,
+        current_account=current_account,
     )
 
     count_query = apply_ticket_filters(
@@ -590,6 +709,11 @@ def list_paginated_tickets(
 
     ticket_query = select(
         models.Ticket
+    )
+
+    ticket_query = apply_ticket_visibility(
+        query=ticket_query,
+        current_account=current_account,
     )
 
     ticket_query = apply_ticket_filters(
