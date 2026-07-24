@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 from dataclasses import dataclass
 from typing import Any
@@ -8,6 +9,8 @@ from ..services import find_similar_tickets
 from .ai_service import generate_gemini_solution
 from .models import AIMessage, AISession
 
+
+logger = logging.getLogger(__name__)
 
 SIMILAR_TICKET_LIMIT = 5
 SUPPORTED_AI_PROVIDER = "gemini"
@@ -140,17 +143,42 @@ def generate_temporary_rag_solution(
     ai_session: AISession,
     user_message: AIMessage,
 ) -> TemporaryRAGSolution:
-    get_ai_provider()
+    provider = get_ai_provider()
+
+    model_name = (
+        os.getenv(
+            "GEMINI_MODEL",
+            "",
+        ).strip()
+        or "varsayılan"
+    )
+
+    session_id = ai_session.session_id
 
     query_text = build_session_query(
         ai_session=ai_session,
         user_message=user_message,
     )
 
-    similar_tickets = find_similar_tickets(
-        query_text=query_text,
-        limit=SIMILAR_TICKET_LIMIT,
-    )
+    try:
+        similar_tickets = find_similar_tickets(
+            query_text=query_text,
+            limit=SIMILAR_TICKET_LIMIT,
+        )
+    except Exception as exc:
+        logger.exception(
+            (
+                "RAG benzer ticket araması başarısız | "
+                "session_id=%s | "
+                "error_type=%s | "
+                "error=%s"
+            ),
+            session_id,
+            type(exc).__name__,
+            exc,
+        )
+
+        raise
 
     confidence_score = get_best_confidence_score(
         similar_tickets=similar_tickets,
@@ -160,11 +188,32 @@ def generate_temporary_rag_solution(
         similar_tickets=similar_tickets,
     )
 
-    generated_solution = generate_gemini_solution(
-        ai_session=ai_session,
-        user_message=user_message,
-        similar_tickets=similar_tickets,
-    )
+    try:
+        generated_solution = generate_gemini_solution(
+            ai_session=ai_session,
+            user_message=user_message,
+            similar_tickets=similar_tickets,
+        )
+    except Exception as exc:
+        logger.exception(
+            (
+                "AI çözüm üretimi başarısız | "
+                "session_id=%s | "
+                "provider=%s | "
+                "model=%s | "
+                "source_count=%s | "
+                "error_type=%s | "
+                "error=%s"
+            ),
+            session_id,
+            provider,
+            model_name,
+            len(similar_tickets),
+            type(exc).__name__,
+            exc,
+        )
+
+        raise
 
     metadata = build_solution_metadata(
         confidence_score=confidence_score,
