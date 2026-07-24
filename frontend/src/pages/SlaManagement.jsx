@@ -1,81 +1,69 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 
 import api from "../api/api";
 
+import Icon from "../components/Icon";
+
 import "../styles/sla-management.css";
 
-const PAGE_SIZE = 100;
+const EMPTY_SUMMARY = {
+  total_sessions: 0,
 
-const SLA_POLICIES = [
-  {
-    priority: "critical",
-    firstResponse: "15 dakika",
-    resolution: "4 saat",
-  },
-  {
-    priority: "high",
-    firstResponse: "30 dakika",
-    resolution: "8 saat",
-  },
-  {
-    priority: "medium",
-    firstResponse: "2 saat",
-    resolution: "24 saat",
-  },
-  {
-    priority: "low",
-    firstResponse: "4 saat",
-    resolution: "48 saat",
-  },
-];
+  completed_sessions: 0,
+  failed_sessions: 0,
 
-const PRIORITY_LABELS = {
-  critical: "Kritik",
-  high: "Yüksek",
-  medium: "Orta",
-  low: "Düşük",
+  resolved_count: 0,
+  unresolved_count: 0,
+  awaiting_feedback_count: 0,
+
+  success_rate: null,
+
+  average_confidence_score: null,
+  average_solution_time_seconds: null,
+
+  source_supported_sessions: 0,
+  source_supported_feedback_count: 0,
+
+  source_supported_resolved_count: 0,
+  source_supported_unresolved_count: 0,
+
+  source_supported_success_rate: null,
+
+  high_confidence_unresolved_count: 0,
+
+  confidence_bands: [],
 };
 
-const TICKET_STATUS_LABELS = {
-  open: "Açık",
-  assigned: "Atandı",
-  in_progress: "İşlemde",
-  waiting_user: "Kullanıcı Bekleniyor",
-  resolved: "Çözüldü",
-  closed: "Kapandı",
-  cancelled: "İptal",
-};
+const CONFIDENCE_BAND_META = {
+  high: {
+    title: "Yüksek Güven",
+    description: "%80 ve üzeri benzerlik",
+    icon: "check",
+  },
 
-const SLA_STATUS_LABELS = {
-  on_track: "Normal",
-  approaching: "Yaklaşıyor",
-  breached: "İhlal Edildi",
-  met: "Karşılandı",
-  not_set: "Kapsam Dışı",
-};
+  medium: {
+    title: "Orta Güven",
+    description: "%60 - %79 benzerlik",
+    icon: "confidence",
+  },
 
-const SLA_SORT_ORDER = {
-  breached: 0,
-  approaching: 1,
-  on_track: 2,
-  met: 3,
-  not_set: 4,
+  low: {
+    title: "Düşük Güven",
+    description: "%60 altı benzerlik",
+    icon: "open",
+  },
 };
 
 function SlaManagement() {
-  const [tickets, setTickets] = useState([]);
-
-  const [search, setSearch] = useState("");
-  const [slaFilter, setSlaFilter] = useState("");
-  const [priorityFilter, setPriorityFilter] = useState("");
+  const [summary, setSummary] = useState(EMPTY_SUMMARY);
 
   const [loading, setLoading] = useState(true);
+
   const [refreshing, setRefreshing] = useState(false);
 
   const [error, setError] = useState("");
 
-  const loadTickets = useCallback(async (showMainLoading = true) => {
+  const loadSummary = useCallback(async (showMainLoading = true) => {
     try {
       if (showMainLoading) {
         setLoading(true);
@@ -85,46 +73,16 @@ function SlaManagement() {
 
       setError("");
 
-      let requestedPage = 1;
-      let totalPages = 1;
+      const response = await api.get("/ai/analytics/summary");
 
-      const loadedTickets = [];
-
-      do {
-        const response = await api.get("/tickets/paged", {
-          params: {
-            page: requestedPage,
-            page_size: PAGE_SIZE,
-            sort: "newest",
-          },
-        });
-
-        const responseData = response.data || {};
-
-        const pageItems = Array.isArray(responseData.items)
-          ? responseData.items
-          : [];
-
-        loadedTickets.push(...pageItems);
-
-        totalPages = Math.max(1, Number(responseData.total_pages) || 1);
-
-        requestedPage += 1;
-      } while (requestedPage <= totalPages);
-
-      const uniqueTickets = Array.from(
-        new Map(
-          loadedTickets.map((ticket) => [ticket.ticket_id, ticket]),
-        ).values(),
-      );
-
-      setTickets(uniqueTickets);
+      setSummary({
+        ...EMPTY_SUMMARY,
+        ...(response.data || {}),
+      });
     } catch (err) {
       console.error(err);
 
-      setTickets([]);
-
-      setError(getApiErrorMessage(err, "SLA takip verileri alınamadı."));
+      setError(getApiErrorMessage(err, "AI performans verileri alınamadı."));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -132,142 +90,99 @@ function SlaManagement() {
   }, []);
 
   useEffect(() => {
-    loadTickets();
-  }, [loadTickets]);
+    loadSummary();
+  }, [loadSummary]);
 
-  const trackedTickets = useMemo(() => {
-    return tickets
-      .filter((ticket) => ticket.status !== "cancelled")
-      .map((ticket) => ({
-        ...ticket,
-        combined_sla_status: getCombinedSlaStatus(ticket),
-      }));
-  }, [tickets]);
+  const calculatedMetrics = useMemo(() => {
+    const completedSessions = safeNumber(summary.completed_sessions);
 
-  const summary = useMemo(() => {
-    return trackedTickets.reduce(
-      (result, ticket) => {
-        const status = ticket.combined_sla_status;
+    const failedSessions = safeNumber(summary.failed_sessions);
 
-        if (status === "not_set") {
-          return result;
-        }
+    const resolvedCount = safeNumber(summary.resolved_count);
 
-        result.total += 1;
+    const unresolvedCount = safeNumber(summary.unresolved_count);
 
-        if (status === "breached") {
-          result.breached += 1;
-        }
+    const feedbackCount = resolvedCount + unresolvedCount;
 
-        if (status === "approaching") {
-          result.approaching += 1;
-        }
+    const processedCount = completedSessions + failedSessions;
 
-        if (status === "on_track") {
-          result.onTrack += 1;
-        }
+    return {
+      feedbackCount,
 
-        if (status === "met") {
-          result.met += 1;
-        }
+      operationSuccessRate: calculateRate(completedSessions, processedCount),
 
-        return result;
-      },
-      {
-        total: 0,
-        breached: 0,
-        approaching: 0,
-        onTrack: 0,
-        met: 0,
-      },
+      feedbackCoverageRate: calculateRate(feedbackCount, completedSessions),
+
+      sourceCoverageRate: calculateRate(
+        summary.source_supported_sessions,
+        completedSessions,
+      ),
+    };
+  }, [summary]);
+
+  const confidenceBands = useMemo(() => {
+    const bands = Array.isArray(summary.confidence_bands)
+      ? summary.confidence_bands
+      : [];
+
+    return ["high", "medium", "low"].map((bandName) => {
+      const bandData = bands.find((item) => item.band === bandName);
+
+      return {
+        band: bandName,
+
+        ...CONFIDENCE_BAND_META[bandName],
+
+        feedback_count: safeNumber(bandData?.feedback_count),
+
+        resolved_count: safeNumber(bandData?.resolved_count),
+
+        unresolved_count: safeNumber(bandData?.unresolved_count),
+
+        success_rate: bandData?.success_rate ?? null,
+      };
+    });
+  }, [summary.confidence_bands]);
+
+  if (loading) {
+    return (
+      <main className="page sla-page">
+        <section className="panel ai-sla-loading">
+          <span className="loading-spinner" />
+
+          <strong>AI performans verileri hazırlanıyor</strong>
+
+          <p>Çözüm sonuçları ve benzer ticket istatistikleri hesaplanıyor.</p>
+        </section>
+      </main>
     );
-  }, [trackedTickets]);
-
-  const filteredTickets = useMemo(() => {
-    const normalizedSearch = normalizeText(search);
-
-    return trackedTickets
-      .filter((ticket) => {
-        if (slaFilter && ticket.combined_sla_status !== slaFilter) {
-          return false;
-        }
-
-        if (priorityFilter && ticket.priority !== priorityFilter) {
-          return false;
-        }
-
-        if (!normalizedSearch) {
-          return true;
-        }
-
-        const searchableContent = [
-          ticket.ticket_id,
-          ticket.title,
-          ticket.requester_name,
-          ticket.department,
-          ticket.category,
-          ticket.subcategory,
-          ticket.assigned_technician,
-        ]
-          .filter((value) => value !== null && value !== undefined)
-          .join(" ");
-
-        return normalizeText(searchableContent).includes(normalizedSearch);
-      })
-      .sort((firstTicket, secondTicket) => {
-        const firstStatusOrder =
-          SLA_SORT_ORDER[firstTicket.combined_sla_status] ?? 99;
-
-        const secondStatusOrder =
-          SLA_SORT_ORDER[secondTicket.combined_sla_status] ?? 99;
-
-        if (firstStatusOrder !== secondStatusOrder) {
-          return firstStatusOrder - secondStatusOrder;
-        }
-
-        const firstRemaining = getUrgentRemainingMinutes(firstTicket);
-
-        const secondRemaining = getUrgentRemainingMinutes(secondTicket);
-
-        if (firstRemaining !== secondRemaining) {
-          return firstRemaining - secondRemaining;
-        }
-
-        return Number(secondTicket.ticket_id) - Number(firstTicket.ticket_id);
-      });
-  }, [trackedTickets, search, slaFilter, priorityFilter]);
-
-  function clearFilters() {
-    setSearch("");
-    setSlaFilter("");
-    setPriorityFilter("");
   }
-
-  const hasActiveFilters = Boolean(search || slaFilter || priorityFilter);
 
   return (
     <main className="page sla-page">
-      <header className="page-header sla-page-header">
+      <header className="page-header ai-sla-header">
         <div>
-          <span className="page-eyebrow">SERVİS SEVİYESİ YÖNETİMİ</span>
+          <span className="page-eyebrow">AI OPERASYON YÖNETİMİ</span>
 
-          <h1>SLA Yönetimi</h1>
+          <h1>AI SLA ve Çözüm Performansı</h1>
 
           <p>
-            İlk cevap ve çözüm hedeflerini takip edin, yaklaşan süreleri ve SLA
-            ihlallerini yönetin.
+            Yapay zekânın çözüm üretme süresini, kullanıcı doğrulamalı
+            başarısını ve benzer ticket kullanım performansını takip edin.
           </p>
         </div>
 
         <button
           type="button"
-          className="secondary-button sla-refresh-button"
-          disabled={loading || refreshing}
+          className="ai-sla-refresh"
+          disabled={refreshing}
           onClick={() => {
-            loadTickets(false);
+            loadSummary(false);
           }}
         >
-          {refreshing ? "Yenileniyor..." : "Verileri Yenile"}
+          <Icon name="activity" size={17} />
+
+          <span>{refreshing ? "Yenileniyor..." : "Verileri Yenile"}</span>
         </button>
       </header>
 
@@ -277,292 +192,289 @@ function SlaManagement() {
         </div>
       ) : null}
 
-      <section className="sla-summary-grid" aria-label="SLA özeti">
-        <SummaryCard
-          label="Takip Edilen"
-          value={summary.total}
-          description="SLA kapsamındaki ticketlar"
-          status="total"
-        />
-
-        <SummaryCard
-          label="SLA İhlali"
-          value={summary.breached}
-          description="Hedef süresi geçmiş ticketlar"
-          status="breached"
-        />
-
-        <SummaryCard
-          label="Süresi Yaklaşan"
-          value={summary.approaching}
-          description="Sürenin yüzde 25'i veya daha azı kaldı"
-          status="approaching"
-        />
-
-        <SummaryCard
-          label="Normal İlerleyen"
-          value={summary.onTrack}
-          description="SLA hedefi içinde devam ediyor"
-          status="on_track"
-        />
-
-        <SummaryCard
-          label="SLA Karşılandı"
-          value={summary.met}
-          description="Hedef süre içinde tamamlandı"
-          status="met"
-        />
-      </section>
-
-      <section className="panel sla-policy-panel">
-        <div className="sla-section-heading">
+      <section className="ai-summary-section" aria-label="AI operasyon özeti">
+        <div className="ai-group-heading">
           <div>
-            <span className="section-kicker">SLA POLİTİKALARI</span>
+            <span className="section-kicker">TEMEL GÖSTERGELER</span>
 
-            <h2>Öncelik bazlı hedef süreler</h2>
-
-            <p>Süreler ticket oluşturulduğu andan itibaren 7/24 hesaplanır.</p>
+            <h2>AI operasyon özeti</h2>
           </div>
 
-          <span className="sla-policy-badge">Otomatik hesaplama</span>
-        </div>
-
-        <div className="sla-policy-grid">
-          {SLA_POLICIES.map((policy) => (
-            <article
-              className={`sla-policy-card sla-policy-${policy.priority}`}
-              key={policy.priority}
-            >
-              <div className="sla-policy-card-header">
-                <span className={`priority-badge priority-${policy.priority}`}>
-                  {PRIORITY_LABELS[policy.priority]}
-                </span>
-              </div>
-
-              <dl>
-                <div>
-                  <dt>İlk cevap</dt>
-                  <dd>{policy.firstResponse}</dd>
-                </div>
-
-                <div>
-                  <dt>Çözüm</dt>
-                  <dd>{policy.resolution}</dd>
-                </div>
-              </dl>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="panel sla-tracking-panel">
-        <div className="sla-section-heading">
-          <div>
-            <span className="section-kicker">CANLI SLA TAKİBİ</span>
-
-            <h2>Ticket SLA durumları</h2>
-
-            <p>
-              En acil ve SLA ihlali bulunan ticketlar listenin başında
-              gösterilir.
-            </p>
-          </div>
-
-          <span className="sla-result-count">
-            {filteredTickets.length} ticket
+          <span className="ai-group-count">
+            {safeNumber(summary.total_sessions)} oturum
           </span>
         </div>
 
-        <div className="sla-toolbar">
-          <div className="sla-filter-field sla-search-field">
-            <label htmlFor="sla-search">Ticket ara</label>
+        <div className="ai-sla-summary-grid">
+          <MetricCard
+            label="AI Çözüm Başarısı"
+            value={formatPercent(summary.success_rate)}
+            description={
+              calculatedMetrics.feedbackCount > 0
+                ? `${calculatedMetrics.feedbackCount} kullanıcı geri bildirimi üzerinden`
+                : "Henüz kullanıcı geri bildirimi bulunmuyor"
+            }
+            tone="success"
+            icon="confidence"
+          />
 
-            <input
-              id="sla-search"
-              type="search"
-              value={search}
-              placeholder="Numara, konu, kullanıcı..."
-              onChange={(event) => {
-                setSearch(event.target.value);
-              }}
+          <MetricCard
+            label="AI ile Çözülen"
+            value={safeNumber(summary.resolved_count)}
+            description="Kullanıcının çözüldü olarak doğruladığı sorunlar"
+            tone="success"
+            icon="check"
+          />
+
+          <MetricCard
+            label="Çözülemeyen"
+            value={safeNumber(summary.unresolved_count)}
+            description="AI çözümünün yeterli olmadığı sorunlar"
+            tone="danger"
+            icon="close"
+          />
+
+          <MetricCard
+            label="Geri Bildirim Bekleyen"
+            value={safeNumber(summary.awaiting_feedback_count)}
+            description="Çözüm üretildi, kullanıcı sonucu bekleniyor"
+            tone="warning"
+            icon="open"
+          />
+
+          <MetricCard
+            label="AI İşlem Hatası"
+            value={safeNumber(summary.failed_sessions)}
+            description="Çözüm üretimi tamamlanamayan oturumlar"
+            tone="danger"
+            icon="logs"
+          />
+
+          <MetricCard
+            label="Ortalama Çözüm Süresi"
+            value={formatDuration(summary.average_solution_time_seconds)}
+            description="Oturum başlangıcından AI çözümüne kadar"
+            tone="info"
+            icon="activity"
+          />
+        </div>
+      </section>
+
+      <section className="ai-sla-main-grid">
+        <article className="panel ai-performance-panel">
+          <SectionHeading
+            eyebrow="GÜNCEL PERFORMANS"
+            title="Güncel AI performans özeti"
+            description="Oturumların çözüm üretme ve kullanıcı doğrulama aşamalarındaki dağılımı."
+            icon="activity"
+          />
+
+          <div className="ai-operation-overview">
+            <OperationStat
+              label="Toplam AI Oturumu"
+              value={summary.total_sessions}
+              detail="Başlatılan tüm işlemler"
+            />
+
+            <OperationStat
+              label="Tamamlanan İşlem"
+              value={summary.completed_sessions}
+              detail={`${formatPercent(
+                calculatedMetrics.operationSuccessRate,
+              )} işlem tamamlama oranı`}
+            />
+
+            <OperationStat
+              label="Kullanıcı Sonucu Alınan"
+              value={calculatedMetrics.feedbackCount}
+              detail={`${formatPercent(
+                calculatedMetrics.feedbackCoverageRate,
+              )} geri bildirim kapsamı`}
+            />
+
+            <OperationStat
+              label="Ortalama Güven"
+              value={formatConfidence(summary.average_confidence_score)}
+              detail="En benzer geçmiş ticket puanı"
             />
           </div>
 
-          <div className="sla-filter-field">
-            <label htmlFor="sla-status-filter">SLA durumu</label>
+          <div className="ai-process-flow">
+            <ProcessStep
+              index="01"
+              label="AI Oturumu"
+              value={summary.total_sessions}
+            />
 
-            <select
-              id="sla-status-filter"
-              value={slaFilter}
-              onChange={(event) => {
-                setSlaFilter(event.target.value);
-              }}
-            >
-              <option value="">Tüm SLA durumları</option>
+            <Icon name="chevronRight" size={16} className="ai-process-arrow" />
 
-              <option value="breached">İhlal edildi</option>
+            <ProcessStep
+              index="02"
+              label="Çözüm Üretildi"
+              value={summary.completed_sessions}
+            />
 
-              <option value="approaching">Yaklaşıyor</option>
+            <Icon name="chevronRight" size={16} className="ai-process-arrow" />
 
-              <option value="on_track">Normal</option>
+            <ProcessStep
+              index="03"
+              label="Sonuç Bildirildi"
+              value={calculatedMetrics.feedbackCount}
+            />
 
-              <option value="met">Karşılandı</option>
+            <Icon name="chevronRight" size={16} className="ai-process-arrow" />
 
-              <option value="not_set">Kapsam dışı</option>
-            </select>
+            <ProcessStep
+              index="04"
+              label="Sorun Çözüldü"
+              value={summary.resolved_count}
+              highlight
+            />
           </div>
+        </article>
 
-          <div className="sla-filter-field">
-            <label htmlFor="sla-priority-filter">Öncelik</label>
+        <article className="panel ai-quality-panel">
+          <SectionHeading
+            eyebrow="KALİTE KONTROLÜ"
+            title="Aksiyon gerektiren durumlar"
+            description="AI doğruluğunu ve veri kalitesini etkileyen güncel göstergeler."
+            icon="logs"
+          />
 
-            <select
-              id="sla-priority-filter"
-              value={priorityFilter}
-              onChange={(event) => {
-                setPriorityFilter(event.target.value);
-              }}
-            >
-              <option value="">Tüm öncelikler</option>
+          <div className="ai-quality-list">
+            <QualityItem
+              title="Yüksek güvenle çözülemeyen"
+              value={summary.high_confidence_unresolved_count}
+              description="AI güveni %80 üzerindeyken kullanıcı çözülmedi dedi."
+              tone={
+                safeNumber(summary.high_confidence_unresolved_count) > 0
+                  ? "danger"
+                  : "success"
+              }
+              icon="close"
+            />
 
-              <option value="critical">Kritik</option>
+            <QualityItem
+              title="AI servis hataları"
+              value={summary.failed_sessions}
+              description="Model, bağlantı veya kayıt işlemi tamamlanamadı."
+              tone={
+                safeNumber(summary.failed_sessions) > 0 ? "warning" : "success"
+              }
+              icon="logs"
+            />
 
-              <option value="high">Yüksek</option>
+            <QualityItem
+              title="Geri bildirim bekleyen"
+              value={summary.awaiting_feedback_count}
+              description="Başarı hesabına henüz dahil edilmeyen çözümler."
+              tone="info"
+              icon="open"
+            />
 
-              <option value="medium">Orta</option>
-
-              <option value="low">Düşük</option>
-            </select>
+            <QualityItem
+              title="Kaynak kayıt kapsamı"
+              value={formatPercent(calculatedMetrics.sourceCoverageRate)}
+              description={`${safeNumber(
+                summary.source_supported_sessions,
+              )} AI oturumunda kaynak ticketlar kalıcı olarak saklandı.`}
+              tone="info"
+              icon="archive"
+            />
           </div>
+        </article>
+      </section>
 
-          <div className="sla-filter-actions">
-            <button
-              type="button"
-              className="secondary-button"
-              disabled={!hasActiveFilters}
-              onClick={clearFilters}
-            >
-              Filtreleri Temizle
-            </button>
-          </div>
+      <section className="panel ai-rag-panel">
+        <SectionHeading
+          eyebrow="BENZER TICKET PERFORMANSI"
+          title="Benzer ticket destekli çözüm başarısı"
+          description="Geçmiş ticketlardan yararlanan çözümlerin kullanıcı doğrulamalı sonuçları."
+          badge={`${safeNumber(
+            summary.source_supported_sessions,
+          )} kaynak destekli oturum`}
+          icon="sparkles"
+          infoText="RAG, geçmiş ticketları bularak AI çözümünü bu kayıtlarla destekleyen yapıdır."
+        />
+
+        <div className="ai-rag-grid">
+          <RagMetric
+            label="Kaynak Destekli Oturum"
+            value={summary.source_supported_sessions}
+            icon="archive"
+          />
+
+          <RagMetric
+            label="Sonucu Bildirilen"
+            value={summary.source_supported_feedback_count}
+            icon="open"
+          />
+
+          <RagMetric
+            label="Çözülen"
+            value={summary.source_supported_resolved_count}
+            tone="success"
+            icon="check"
+          />
+
+          <RagMetric
+            label="Çözülemeyen"
+            value={summary.source_supported_unresolved_count}
+            tone="danger"
+            icon="close"
+          />
+
+          <RagMetric
+            label="RAG Başarı Oranı"
+            value={formatPercent(summary.source_supported_success_rate)}
+            tone="primary"
+            icon="confidence"
+          />
         </div>
 
-        {loading ? (
-          <div className="sla-loading-state">
-            <div className="loading-spinner" aria-hidden="true" />
+        {summary.source_supported_success_rate === null ? (
+          <div className="ai-rag-notice">
+            <Icon name="open" size={18} />
 
-            <span>SLA verileri yükleniyor...</span>
+            <div>
+              <strong>RAG başarı oranı henüz oluşmadı.</strong>
+
+              <p>
+                Kaynak ticketları saklanan yeni AI çözümlerinden kullanıcı geri
+                bildirimi geldiğinde oran otomatik hesaplanacak.
+              </p>
+            </div>
           </div>
         ) : null}
+      </section>
 
-        {!loading && filteredTickets.length === 0 ? (
-          <div className="sla-empty-state">
-            <strong>Gösterilecek ticket bulunamadı.</strong>
+      <section className="panel ai-confidence-panel">
+        <SectionHeading
+          eyebrow="GÜVEN ANALİZİ"
+          title="Güven seviyesine göre çözüm başarısı"
+          description="AI güven puanı arttıkça gerçek çözüm başarısının nasıl değiştiğini gösterir."
+          icon="confidence"
+        />
 
-            <p>Filtreleri değiştirerek tekrar deneyin.</p>
-          </div>
-        ) : null}
-
-        {!loading && filteredTickets.length > 0 ? (
-          <div className="sla-table-wrapper">
-            <table className="sla-table">
-              <thead>
-                <tr>
-                  <th>Ticket</th>
-                  <th>Öncelik</th>
-                  <th>Operasyon Durumu</th>
-                  <th>İlk Cevap SLA</th>
-                  <th>Çözüm SLA</th>
-                  <th>Genel SLA</th>
-                  <th>Atanan</th>
-                  <th aria-label="İşlem" />
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredTickets.map((ticket) => (
-                  <tr key={ticket.ticket_id}>
-                    <td>
-                      <div className="sla-ticket-cell">
-                        <Link to={`/tickets/${ticket.ticket_id}`}>
-                          #{ticket.ticket_id}
-                        </Link>
-
-                        <strong title={ticket.title}>{ticket.title}</strong>
-
-                        <span>
-                          {ticket.department || "Departman belirtilmemiş"}
-                        </span>
-                      </div>
-                    </td>
-
-                    <td>
-                      <span
-                        className={`priority-badge priority-${ticket.priority}`}
-                      >
-                        {PRIORITY_LABELS[ticket.priority] || ticket.priority}
-                      </span>
-                    </td>
-
-                    <td>
-                      <span className="ticket-status-text">
-                        {TICKET_STATUS_LABELS[ticket.status] || ticket.status}
-                      </span>
-                    </td>
-
-                    <td>
-                      <SlaDeadlineCell
-                        status={ticket.first_response_sla_status}
-                        remainingMinutes={
-                          ticket.first_response_remaining_minutes
-                        }
-                        dueAt={ticket.first_response_due_at}
-                      />
-                    </td>
-
-                    <td>
-                      <SlaDeadlineCell
-                        status={ticket.resolution_sla_status}
-                        remainingMinutes={ticket.resolution_remaining_minutes}
-                        dueAt={ticket.resolution_due_at}
-                      />
-                    </td>
-
-                    <td>
-                      <SlaBadge status={ticket.combined_sla_status} />
-                    </td>
-
-                    <td>
-                      <span className="sla-technician-name">
-                        {ticket.assigned_technician || "Atanmadı"}
-                      </span>
-                    </td>
-
-                    <td>
-                      <Link
-                        className="sla-detail-link"
-                        to={`/tickets/${ticket.ticket_id}`}
-                      >
-                        Detay
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : null}
+        <div className="ai-confidence-grid">
+          {confidenceBands.map((band) => (
+            <ConfidenceCard key={band.band} band={band} />
+          ))}
+        </div>
       </section>
     </main>
   );
 }
 
-function SummaryCard({ label, value, description, status }) {
+function MetricCard({ label, value, description, tone, icon }) {
   return (
-    <article className={`sla-summary-card sla-summary-${status}`}>
-      <div className="sla-summary-card-top">
-        <span className="sla-summary-label">{label}</span>
+    <article className={`ai-metric-card ai-metric-${tone}`}>
+      <div className="ai-metric-card-top">
+        <span className="ai-metric-icon">
+          <Icon name={icon} size={18} />
+        </span>
 
-        <span className="sla-summary-dot" aria-hidden="true" />
+        <span className="ai-metric-label">{label}</span>
       </div>
 
       <strong>{value}</strong>
@@ -572,168 +484,240 @@ function SummaryCard({ label, value, description, status }) {
   );
 }
 
-function SlaDeadlineCell({ status, remainingMinutes, dueAt }) {
+function SectionHeading({
+  eyebrow,
+  title,
+  description,
+  badge,
+  icon,
+  infoText,
+}) {
   return (
-    <div className="sla-deadline-cell">
-      <SlaBadge status={status} compact />
+    <div className="ai-section-heading">
+      <div className="ai-section-heading-main">
+        <span className="ai-section-heading-icon">
+          <Icon name={icon} size={18} />
+        </span>
 
-      <strong>{formatRemainingTime(status, remainingMinutes)}</strong>
+        <div>
+          <span className="section-kicker">{eyebrow}</span>
 
-      <span>{dueAt ? formatDate(dueAt) : "SLA kapsamı dışında"}</span>
+          <div className="ai-section-title-row">
+            <h2>{title}</h2>
+
+            {infoText ? (
+              <span
+                className="ai-info-badge"
+                title={infoText}
+                aria-label={infoText}
+              >
+                ?
+              </span>
+            ) : null}
+          </div>
+
+          <p>{description}</p>
+        </div>
+      </div>
+
+      {badge ? <span className="ai-section-badge">{badge}</span> : null}
     </div>
   );
 }
 
-function SlaBadge({ status = "not_set", compact = false }) {
-  const normalizedStatus = SLA_STATUS_LABELS[status] ? status : "not_set";
-
+function OperationStat({ label, value, detail }) {
   return (
-    <span
-      className={[
-        "sla-status-badge",
-        `sla-status-${normalizedStatus}`,
-        compact ? "sla-status-badge-compact" : "",
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    >
-      {SLA_STATUS_LABELS[normalizedStatus]}
-    </span>
+    <div className="ai-operation-stat">
+      <span>{label}</span>
+
+      <strong>{value}</strong>
+
+      <small>{detail}</small>
+    </div>
   );
 }
 
-function getCombinedSlaStatus(ticket) {
-  const statuses = [
-    ticket.first_response_sla_status,
-    ticket.resolution_sla_status,
-  ].filter((status) => status && status !== "not_set");
+function ProcessStep({ index, label, value, highlight = false }) {
+  return (
+    <div
+      className={
+        highlight
+          ? "ai-process-step ai-process-step-highlight"
+          : "ai-process-step"
+      }
+    >
+      <span>{index}</span>
 
-  if (statuses.length === 0) {
-    return "not_set";
-  }
+      <strong>{value}</strong>
 
-  if (statuses.includes("breached")) {
-    return "breached";
-  }
-
-  if (statuses.includes("approaching")) {
-    return "approaching";
-  }
-
-  if (statuses.every((status) => status === "met")) {
-    return "met";
-  }
-
-  return "on_track";
+      <small>{label}</small>
+    </div>
+  );
 }
 
-function getUrgentRemainingMinutes(ticket) {
-  const remainingValues = [];
+function QualityItem({ title, value, description, tone, icon }) {
+  return (
+    <div className={`ai-quality-item ai-quality-${tone}`}>
+      <span className="ai-quality-icon">
+        <Icon name={icon} size={17} />
+      </span>
 
-  if (
-    ticket.first_response_sla_status !== "met" &&
-    Number.isFinite(Number(ticket.first_response_remaining_minutes))
-  ) {
-    remainingValues.push(Number(ticket.first_response_remaining_minutes));
-  }
+      <div className="ai-quality-content">
+        <strong>{title}</strong>
 
-  if (
-    ticket.resolution_sla_status !== "met" &&
-    Number.isFinite(Number(ticket.resolution_remaining_minutes))
-  ) {
-    remainingValues.push(Number(ticket.resolution_remaining_minutes));
-  }
+        <p>{description}</p>
+      </div>
 
-  if (remainingValues.length === 0) {
-    return Number.MAX_SAFE_INTEGER;
-  }
-
-  return Math.min(...remainingValues);
+      <span className="ai-quality-value">{value}</span>
+    </div>
+  );
 }
 
-function formatRemainingTime(status, remainingMinutes) {
-  if (status === "met") {
-    return "Süre içinde tamamlandı";
-  }
+function RagMetric({ label, value, tone = "default", icon }) {
+  return (
+    <div className={`ai-rag-metric ai-rag-${tone}`}>
+      <div className="ai-rag-metric-label">
+        <Icon name={icon} size={15} />
 
-  if (status === "not_set") {
-    return "SLA kapsamı dışında";
-  }
+        <span>{label}</span>
+      </div>
 
-  if (remainingMinutes === null || remainingMinutes === undefined) {
-    return "Süre tanımsız";
-  }
-
-  const numericMinutes = Number(remainingMinutes);
-
-  if (!Number.isFinite(numericMinutes)) {
-    return "Süre hesaplanamadı";
-  }
-
-  if (status === "breached") {
-    if (numericMinutes < 0) {
-      return `${formatDuration(Math.abs(numericMinutes))} gecikti`;
-    }
-
-    return "Süre aşıldı";
-  }
-
-  if (numericMinutes <= 0) {
-    return "Son dakikalar";
-  }
-
-  return `${formatDuration(numericMinutes)} kaldı`;
+      <strong>{value}</strong>
+    </div>
+  );
 }
 
-function formatDuration(totalMinutes) {
-  const normalizedMinutes = Math.max(0, Math.floor(totalMinutes));
+function ConfidenceCard({ band }) {
+  const rate = safeNumber(band.success_rate);
 
-  const days = Math.floor(normalizedMinutes / 1440);
+  const progressWidth = Math.max(0, Math.min(rate, 100));
 
-  const hours = Math.floor((normalizedMinutes % 1440) / 60);
+  return (
+    <article className={`ai-confidence-card ai-confidence-${band.band}`}>
+      <div className="ai-confidence-card-header">
+        <div className="ai-confidence-title">
+          <span className="ai-confidence-icon">
+            <Icon name={band.icon} size={17} />
+          </span>
 
-  const minutes = normalizedMinutes % 60;
+          <div>
+            <span>{band.title}</span>
 
-  if (days > 0) {
-    if (hours > 0) {
-      return `${days} gün ${hours} saat`;
-    }
+            <small>{band.description}</small>
+          </div>
+        </div>
 
-    return `${days} gün`;
-  }
+        <strong>{formatPercent(band.success_rate)}</strong>
+      </div>
 
-  if (hours > 0) {
-    if (minutes > 0) {
-      return `${hours} saat ${minutes} dk`;
-    }
+      <div className="ai-confidence-progress">
+        <span
+          style={{
+            width: `${progressWidth}%`,
+          }}
+        />
+      </div>
 
-    return `${hours} saat`;
-  }
+      <dl>
+        <div>
+          <dt>Geri bildirim</dt>
+          <dd>{band.feedback_count}</dd>
+        </div>
 
-  return `${minutes} dk`;
+        <div>
+          <dt>Çözülen</dt>
+          <dd>{band.resolved_count}</dd>
+        </div>
+
+        <div>
+          <dt>Çözülemeyen</dt>
+          <dd>{band.unresolved_count}</dd>
+        </div>
+      </dl>
+    </article>
+  );
 }
 
-function formatDate(value) {
-  if (!value) {
-    return "Tarih belirtilmedi";
-  }
+function safeNumber(value) {
+  const numericValue = Number(value);
 
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "Geçersiz tarih";
-  }
-
-  return new Intl.DateTimeFormat("tr-TR", {
-    dateStyle: "short",
-    timeStyle: "short",
-  }).format(date);
+  return Number.isFinite(numericValue) ? numericValue : 0;
 }
 
-function normalizeText(value) {
-  return String(value || "")
-    .trim()
-    .toLocaleLowerCase("tr-TR");
+function calculateRate(part, total) {
+  const safePart = safeNumber(part);
+  const safeTotal = safeNumber(total);
+
+  if (safeTotal <= 0) {
+    return null;
+  }
+
+  return Number(((safePart / safeTotal) * 100).toFixed(2));
+}
+
+function formatPercent(value) {
+  if (value === null || value === undefined) {
+    return "—";
+  }
+
+  const numericValue = Number(value);
+
+  if (!Number.isFinite(numericValue)) {
+    return "—";
+  }
+
+  return `%${numericValue.toLocaleString("tr-TR", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
+function formatConfidence(value) {
+  if (value === null || value === undefined) {
+    return "—";
+  }
+
+  const numericValue = Number(value);
+
+  if (!Number.isFinite(numericValue)) {
+    return "—";
+  }
+
+  return formatPercent(numericValue * 100);
+}
+
+function formatDuration(seconds) {
+  if (seconds === null || seconds === undefined) {
+    return "—";
+  }
+
+  const totalSeconds = Math.max(0, Math.round(Number(seconds)));
+
+  if (!Number.isFinite(totalSeconds)) {
+    return "—";
+  }
+
+  if (totalSeconds < 60) {
+    return `${totalSeconds} sn`;
+  }
+
+  const minutes = Math.floor(totalSeconds / 60);
+
+  const remainingSeconds = totalSeconds % 60;
+
+  if (minutes < 60) {
+    return remainingSeconds > 0
+      ? `${minutes} dk ${remainingSeconds} sn`
+      : `${minutes} dk`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+
+  const remainingMinutes = minutes % 60;
+
+  return remainingMinutes > 0
+    ? `${hours} sa ${remainingMinutes} dk`
+    : `${hours} sa`;
 }
 
 function getApiErrorMessage(error, fallbackMessage) {
@@ -741,6 +725,13 @@ function getApiErrorMessage(error, fallbackMessage) {
 
   if (typeof detail === "string") {
     return detail;
+  }
+
+  if (Array.isArray(detail)) {
+    return detail
+      .map((item) => item?.msg)
+      .filter(Boolean)
+      .join(", ");
   }
 
   return fallbackMessage;
