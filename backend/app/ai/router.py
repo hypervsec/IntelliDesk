@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import Account, Ticket
 from ..routers.auth import get_current_account
+from ..sla import calculate_sla_deadlines
 from .models import AIMessage, AISession
 from .rag_service import generate_temporary_rag_solution
 from .schemas import (
@@ -219,6 +220,7 @@ def create_ai_session(
     db: Session = Depends(get_db),
 ) -> AISessionDetailResponse:
     normalized_title = session_data.title.strip()
+
     normalized_description = (
         session_data.description.strip()
     )
@@ -455,10 +457,18 @@ def generate_ai_session_solution(
 
     completed_time = datetime.now()
 
+    (
+        first_response_due_at,
+        resolution_due_at,
+    ) = calculate_sla_deadlines(
+        created_at=completed_time,
+        priority=ai_session.priority,
+    )
+
     try:
-        # AI cevabı başarılı olduktan sonra ticket
-        # ve assistant mesajı aynı transaction içinde
-        # oluşturulur.
+        # AI cevabı başarılı olduktan sonra ticket,
+        # SLA tarihleri ve assistant mesajı aynı
+        # transaction içinde oluşturulur.
         ticket = Ticket(
             title=ai_session.title,
             description=user_message.content,
@@ -468,6 +478,19 @@ def generate_ai_session_solution(
             subcategory=ai_session.subcategory,
             priority=ai_session.priority,
             status="open",
+
+            created_at=completed_time,
+            sla_started_at=completed_time,
+
+            first_response_due_at=(
+                first_response_due_at
+            ),
+
+            resolution_due_at=(
+                resolution_due_at
+            ),
+
+            first_responded_at=None,
         )
 
         db.add(ticket)
