@@ -258,39 +258,6 @@ function UserSupportTools({ ticketId }) {
           </button>
         </div>
       </form>
-
-      <section className="user-screenshot-upload-disabled" aria-disabled="true">
-        <div className="user-screenshot-upload-heading">
-          <span className="user-screenshot-upload-icon" aria-hidden="true">
-            ▧
-          </span>
-
-          <div>
-            <strong>Ekran görüntüsü ekle</strong>
-
-            <span>Görsel yükleme özelliği yakında aktif olacak.</span>
-          </div>
-        </div>
-
-        <div className="user-screenshot-upload-area">
-          <span
-            className="user-screenshot-upload-placeholder-icon"
-            aria-hidden="true"
-          >
-            +
-          </span>
-
-          <div>
-            <strong>Dosya seçimi kapalı</strong>
-
-            <span>PNG, JPG ve WEBP desteği sonraki sürümde eklenecek.</span>
-          </div>
-
-          <button type="button" className="secondary-button" disabled>
-            Dosya Seç
-          </button>
-        </div>
-      </section>
     </section>
   );
 }
@@ -445,6 +412,7 @@ function AISolutionResult({ solution, confidence, sourceTicketIds }) {
                       <li
                         className={[
                           "ai-solution-timeline-item",
+
                           isLastStep ? "ai-solution-timeline-item-last" : "",
                         ]
                           .filter(Boolean)

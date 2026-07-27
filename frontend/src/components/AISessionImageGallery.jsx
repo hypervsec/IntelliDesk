@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import api from "../api/api";
 import Icon from "./Icon";
 
-import "../styles/ai-session-images.css";
-import "../styles/ai-visual-guidance.css";
+import "../styles/ai/ai-session-images.css";
+import "../styles/ai/ai-visual-guidance.css";
 
 const EMPTY_VISUAL_GUIDANCE = {
   version: 1,

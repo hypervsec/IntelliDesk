@@ -1,4 +1,4 @@
-﻿import { StrictMode } from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import App from "./App";
@@ -11,24 +11,27 @@ import "./index.css";
 import "./styles/design-system.css";
 
 /* Ticket listesi */
-import "./styles/tickets-dark.css";
+import "./styles/tickets/tickets-dark.css";
 
 /* AI destek ekranı */
-import "./styles/ai-support-form.css";
+import "./styles/ai/ai-support-form.css";
 import "./styles/searchable-select.css";
-import "./styles/AISupport.css";
+import "./styles/ai/AISupport.css";
 import "./styles/theme-toggle.css";
 import "./styles/theme-light.css";
-import "./styles/ai-support-result.css";
+import "./styles/ai/ai-support-result.css";
 
 /* Ticket zaman çizelgesi */
-import "./styles/ticket-timeline.css";
+import "./styles/tickets/ticket-timeline.css";
 
 /* Ticket detay ekranı */
-import "./styles/ticket-detail-base.css";
-import "./styles/ticket-detail-staff.css";
-import "./styles/ticket-detail-user.css";
-import "./styles/ticket-ai-visual-section.css";
+import "./styles/tickets/ticket-detail-base.css";
+import "./styles/tickets/ticket-detail-dark.css";
+import "./styles/tickets/ticket-detail-staff.css";
+import "./styles/tickets/ticket-detail-user.css";
+import "./styles/tickets/ticket-bottom-layout.css";
+import "./styles/tickets/ticket-attachments.css";
+import "./styles/tickets/ticket-ai-visual-section.css";
 
 /* Diğer sayfalar */
 import "./styles/settings.css";
@@ -39,13 +42,13 @@ import "./styles/user-management.css";
  * Diğer tüm AI stillerinden sonra yüklenmelidir.
  * Çözüm adımları başlığının hizasını sabitler.
  */
-import "./styles/ai-solution-layout-fix.css";
+import "./styles/ai/ai-solution-layout-fix.css";
 
 /*
  * Orijinal ve AI çözüm görsellerinin
  * sonuç ekranında daha kompakt görünmesini sağlar.
  */
-import "./styles/ai-visual-guidance-compact.css";
+import "./styles/ai/ai-visual-guidance-compact.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

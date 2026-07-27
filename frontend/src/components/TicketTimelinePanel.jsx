@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import api from "../api/api";
 
-import "../styles/ticket-timeline.css";
+import "../styles/tickets/ticket-timeline.css";
 
 const FIELD_LABELS = {
   status: "Durum",

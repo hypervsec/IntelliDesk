@@ -9,7 +9,7 @@ import {
 
 import Icon from "./Icon";
 
-import "../styles/ticket-attachments.css";
+import "../styles/tickets/ticket-attachments.css";
 
 const MAX_IMAGE_COUNT = 3;
 const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;

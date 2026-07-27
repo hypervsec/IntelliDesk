@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import api from "../api/api";
 import { useAuth } from "../auth/AuthContext";
 
-import "../styles/ticket-attachments.css";
+import "../styles/tickets/ticket-attachments.css";
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
