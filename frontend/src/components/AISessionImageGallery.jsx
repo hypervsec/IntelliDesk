@@ -18,7 +18,6 @@ function AISessionImageGallery({ sessionId, compact = false }) {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
   const [activePreview, setActivePreview] = useState(null);
 
   useEffect(() => {
@@ -32,12 +31,10 @@ function AISessionImageGallery({ sessionId, compact = false }) {
       setError("");
       setLoading(false);
       setActivePreview(null);
-
       return undefined;
     }
 
     let cancelled = false;
-
     const createdObjectUrls = [];
 
     async function loadImages() {
@@ -50,7 +47,6 @@ function AISessionImageGallery({ sessionId, compact = false }) {
         const [attachmentListResult, sessionDetailResult] =
           await Promise.allSettled([
             api.get(`/ai/sessions/${normalizedSessionId}/attachments`),
-
             api.get(`/ai/sessions/${normalizedSessionId}`),
           ]);
 
@@ -76,9 +72,7 @@ function AISessionImageGallery({ sessionId, compact = false }) {
             const imageIndex = attachmentIndex + 1;
 
             const contentResponse = await api.get(
-              `/ai/sessions/${normalizedSessionId}` +
-                `/attachments/${attachment.attachment_id}` +
-                "/content",
+              `/ai/sessions/${normalizedSessionId}/attachments/${attachment.attachment_id}/content`,
               {
                 responseType: "blob",
               },
@@ -95,7 +89,6 @@ function AISessionImageGallery({ sessionId, compact = false }) {
 
             if (cancelled) {
               URL.revokeObjectURL(previewUrl);
-
               return null;
             }
 
@@ -120,21 +113,18 @@ function AISessionImageGallery({ sessionId, compact = false }) {
                 }
 
                 solutionPreviewUrl = URL.createObjectURL(solutionBlob);
-
                 createdObjectUrls.push(solutionPreviewUrl);
               } catch (guidanceError) {
                 console.error(
                   "AI çözüm görseli oluşturulamadı.",
                   guidanceError,
                 );
-
                 solutionPreviewError = "Çözüm görseli oluşturulamadı.";
               }
             }
 
             return {
               ...attachment,
-
               imageIndex,
               previewUrl,
               solutionPreviewUrl,
@@ -189,7 +179,6 @@ function AISessionImageGallery({ sessionId, compact = false }) {
     }
 
     const previousOverflow = document.body.style.overflow;
-
     document.body.style.overflow = "hidden";
 
     function handleKeyDown(event) {
@@ -202,23 +191,16 @@ function AISessionImageGallery({ sessionId, compact = false }) {
 
     return () => {
       document.body.style.overflow = previousOverflow;
-
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [activePreview]);
-
-  const markerCount = images.reduce(
-    (total, image) =>
-      total + (Array.isArray(image.markers) ? image.markers.length : 0),
-    0,
-  );
 
   if (loading) {
     return (
       <section
         className={[
           "ai-session-images",
-
+          "ai-session-images-comparison",
           compact ? "ai-session-images-compact" : "",
         ]
           .filter(Boolean)
@@ -228,14 +210,13 @@ function AISessionImageGallery({ sessionId, compact = false }) {
         <div className="ai-session-images-heading">
           <div>
             <span className="ai-session-images-kicker">GÖRSEL ANALİZİ</span>
-
-            <h3>Eklenen görseller</h3>
+            <h3>Görseller</h3>
+            <p>Ekran görüntüleri hazırlanıyor.</p>
           </div>
         </div>
 
         <div className="ai-session-images-loading" role="status">
           <span className="loading-spinner" aria-hidden="true" />
-
           <span>Görseller yükleniyor...</span>
         </div>
       </section>
@@ -252,7 +233,6 @@ function AISessionImageGallery({ sessionId, compact = false }) {
         className={[
           "ai-session-images",
           "ai-session-images-comparison",
-
           compact ? "ai-session-images-compact" : "",
         ]
           .filter(Boolean)
@@ -261,27 +241,11 @@ function AISessionImageGallery({ sessionId, compact = false }) {
         <div className="ai-session-images-heading">
           <div>
             <span className="ai-session-images-kicker">GÖRSEL ANALİZİ</span>
-
-            <h3>Sorun ve AI çözüm görselleri</h3>
-
+            <h3>Görseller</h3>
             <p>
-              Orijinal ekran görüntüsü ile işaretlenmiş çözüm görselini
-              karşılaştırın.
+              Kullanıcının yüklediği ekran ile AI tarafından hazırlanan çözüm
+              rehberini yan yana inceleyin.
             </p>
-          </div>
-
-          <div className="ai-session-images-summary">
-            {images.length > 0 ? (
-              <span className="ai-session-images-count">
-                {images.length} görsel
-              </span>
-            ) : null}
-
-            {markerCount > 0 ? (
-              <span className="ai-session-guidance-count">
-                {markerCount} yönlendirme
-              </span>
-            ) : null}
           </div>
         </div>
 
@@ -290,9 +254,9 @@ function AISessionImageGallery({ sessionId, compact = false }) {
         {images.length > 0 ? (
           <div className="ai-image-comparison-list">
             {images.map((image) => (
-              <ImageComparison
-                image={image}
+              <ImagePair
                 key={image.attachment_id}
+                image={image}
                 onOpenOriginal={() => {
                   setActivePreview({
                     image,
@@ -323,61 +287,47 @@ function AISessionImageGallery({ sessionId, compact = false }) {
   );
 }
 
-function ImageComparison({ image, onOpenOriginal, onOpenSolution }) {
+function ImagePair({ image, onOpenOriginal, onOpenSolution }) {
   const markerCount = Array.isArray(image.markers) ? image.markers.length : 0;
-
   const hasSolutionImage = Boolean(image.solutionPreviewUrl);
 
   return (
-    <article className="ai-image-comparison">
-      <header className="ai-image-comparison-header">
-        <div>
-          <span>GÖRSEL {image.imageIndex}</span>
-
-          <strong title={image.original_filename}>
-            {image.original_filename}
-          </strong>
-        </div>
-
-        <small>{formatFileSize(image.size_bytes)}</small>
-      </header>
-
+    <div className="ai-image-pair">
       <div className="ai-image-comparison-grid">
         <button
           type="button"
-          className={["ai-comparison-card", "ai-comparison-card-original"].join(
-            " ",
-          )}
+          className="ai-comparison-card ai-comparison-card-original"
           onClick={onOpenOriginal}
         >
           <ComparisonCardHeader
-            eyebrow="ORİJİNAL GÖRSEL"
+            eyebrow="ORİJİNAL EKRAN"
             title="Kullanıcının yüklediği ekran"
-            description={"Herhangi bir işaretleme " + "uygulanmamış görüntü."}
+            description="Sorunun bildirildiği işaretsiz ekran görüntüsü."
             icon="◫"
           />
 
           <span className="ai-comparison-image-stage">
-            <img src={image.previewUrl} alt={image.original_filename} />
-
-            <span className="ai-comparison-open-label">Orijinali büyüt</span>
+            <img
+              src={image.previewUrl}
+              alt="Kullanıcının yüklediği ekran görüntüsü"
+            />
+            <span className="ai-comparison-open-label">Büyüt</span>
           </span>
         </button>
 
         {hasSolutionImage ? (
           <button
             type="button"
-            className={[
-              "ai-comparison-card",
-              "ai-comparison-card-solution",
-            ].join(" ")}
+            className="ai-comparison-card ai-comparison-card-solution"
             onClick={onOpenSolution}
           >
             <ComparisonCardHeader
-              eyebrow="AI ÇÖZÜM GÖRSELİ"
+              eyebrow="AI ÇÖZÜM REHBERİ"
               title="İşaretlenmiş çözüm ekranı"
               description={
-                `${markerCount} hedef alan ` + "görsel üzerine işlendi."
+                markerCount === 1
+                  ? "1 hedef alan çözüm adımıyla işaretlendi."
+                  : `${markerCount} hedef alan çözüm adımlarıyla işaretlendi.`
               }
               icon="✦"
               badge={`${markerCount} adım`}
@@ -386,39 +336,31 @@ function ImageComparison({ image, onOpenOriginal, onOpenSolution }) {
             <span className="ai-comparison-image-stage">
               <img
                 src={image.solutionPreviewUrl}
-                alt={`${image.original_filename} ` + "AI çözüm görseli"}
+                alt="AI tarafından işaretlenmiş çözüm ekranı"
               />
-
-              <span className="ai-comparison-open-label">
-                Çözüm görselini aç
-              </span>
+              <span className="ai-comparison-open-label">Büyüt</span>
             </span>
           </button>
         ) : (
-          <div
-            className={["ai-comparison-card", "ai-comparison-card-empty"].join(
-              " ",
-            )}
-          >
+          <div className="ai-comparison-card ai-comparison-card-empty">
             <ComparisonCardHeader
-              eyebrow="AI ÇÖZÜM GÖRSELİ"
+              eyebrow="AI ÇÖZÜM REHBERİ"
               title="Görsel yönlendirme bulunamadı"
               description={
                 image.solutionPreviewError ||
-                "Bu görselde güvenilir bir " + "tıklama hedefi belirlenmedi."
+                "Bu ekranda güvenilir bir tıklama hedefi belirlenmedi."
               }
               icon="—"
             />
 
             <div className="ai-comparison-empty-state">
               <span aria-hidden="true">◎</span>
-
               <p>Çözüm adımlarını metin bölümünden uygulayın.</p>
             </div>
           </div>
         )}
       </div>
-    </article>
+    </div>
   );
 }
 
@@ -435,9 +377,7 @@ function ComparisonCardHeader({
 
       <span className="ai-comparison-card-copy">
         <span className="ai-comparison-card-eyebrow">{eyebrow}</span>
-
         <strong>{title}</strong>
-
         <small>{description}</small>
       </span>
 
@@ -448,19 +388,22 @@ function ComparisonCardHeader({
 
 function ImagePreviewModal({ preview, onClose }) {
   const isSolution = preview.mode === "solution";
-
   const image = preview.image;
 
   const markers = Array.isArray(image.markers) ? image.markers : [];
 
   const imageUrl = isSolution ? image.solutionPreviewUrl : image.previewUrl;
 
+  const modalTitle = isSolution
+    ? "İşaretlenmiş çözüm ekranı"
+    : "Kullanıcının yüklediği ekran";
+
   return (
     <div
       className="ai-image-modal"
       role="dialog"
       aria-modal="true"
-      aria-label={isSolution ? "AI çözüm görseli" : image.original_filename}
+      aria-label={modalTitle}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
@@ -470,8 +413,9 @@ function ImagePreviewModal({ preview, onClose }) {
       <div
         className={[
           "ai-image-modal-card",
-
-          isSolution ? "ai-image-modal-card-guided" : "",
+          isSolution
+            ? "ai-image-modal-card-guided"
+            : "ai-image-modal-card-original",
         ]
           .filter(Boolean)
           .join(" ")}
@@ -479,12 +423,9 @@ function ImagePreviewModal({ preview, onClose }) {
         <header className="ai-image-modal-header">
           <div>
             <span className="ai-image-modal-kicker">
-              {isSolution ? "AI ÇÖZÜM GÖRSELİ" : "ORİJİNAL GÖRSEL"}
+              {isSolution ? "AI ÇÖZÜM REHBERİ" : "ORİJİNAL EKRAN"}
             </span>
-
-            <strong title={image.original_filename}>
-              {image.original_filename}
-            </strong>
+            <strong>{modalTitle}</strong>
           </div>
 
           <button
@@ -500,8 +441,9 @@ function ImagePreviewModal({ preview, onClose }) {
         <div
           className={[
             "ai-image-modal-content",
-
-            isSolution ? "ai-image-modal-content-guided" : "",
+            isSolution
+              ? "ai-image-modal-content-guided"
+              : "ai-image-modal-content-original",
           ]
             .filter(Boolean)
             .join(" ")}
@@ -511,24 +453,25 @@ function ImagePreviewModal({ preview, onClose }) {
               <div className="ai-guided-image-stage">
                 <img
                   src={imageUrl}
-                  alt={`${image.original_filename} ` + "AI çözüm görseli"}
+                  alt="AI tarafından işaretlenmiş çözüm ekranı"
                 />
               </div>
 
               <VisualGuidancePanel markers={markers} />
             </div>
           ) : (
-            <img src={imageUrl} alt={image.original_filename} />
+            <img src={imageUrl} alt="Kullanıcının yüklediği ekran görüntüsü" />
           )}
         </div>
 
         <footer className="ai-image-modal-footer">
           <span>{formatFileSize(image.size_bytes)}</span>
-
           <span>
             {isSolution
-              ? `${markers.length} ` + "işaretli yönlendirme"
-              : image.content_type}
+              ? markers.length === 1
+                ? "1 işaretli yönlendirme"
+                : `${markers.length} işaretli yönlendirme`
+              : "Orijinal ekran görüntüsü"}
           </span>
         </footer>
       </div>
@@ -546,7 +489,6 @@ function VisualGuidancePanel({ markers }) {
 
         <div>
           <span>GÖRSEL ÜZERİNDEKİ ADIMLAR</span>
-
           <h3>Numaralı alanları sırayla uygulayın</h3>
         </div>
       </div>
@@ -558,9 +500,7 @@ function VisualGuidancePanel({ markers }) {
 
             <div>
               <strong>{marker.label}</strong>
-
               <p>{marker.instruction}</p>
-
               <small>
                 Konum güveni: %{(marker.confidence * 100).toFixed(0)}
               </small>
@@ -614,23 +554,19 @@ function extractVisualGuidance(content) {
 
     return {
       version: Number(parsedPayload?.version) || 1,
-
       coordinateSystem: String(
         parsedPayload?.coordinate_system || "normalized_0_1000",
       ),
-
       markers,
     };
   } catch (parseError) {
     console.error("Görsel yönlendirme JSON ayrıştırılamadı.", parseError);
-
     return EMPTY_VISUAL_GUIDANCE;
   }
 }
 
 function readFirstJsonObject(value) {
   const text = String(value || "");
-
   const objectStart = text.indexOf("{");
 
   if (objectStart < 0) {
@@ -647,13 +583,11 @@ function readFirstJsonObject(value) {
     if (insideString) {
       if (escaped) {
         escaped = false;
-
         continue;
       }
 
       if (character === "\\") {
         escaped = true;
-
         continue;
       }
 
@@ -666,13 +600,11 @@ function readFirstJsonObject(value) {
 
     if (character === '"') {
       insideString = true;
-
       continue;
     }
 
     if (character === "{") {
       depth += 1;
-
       continue;
     }
 
@@ -694,15 +626,11 @@ function normalizeVisualMarker(marker, markerIndex) {
   }
 
   const imageIndex = toSafeInteger(marker.image_index);
-
   const stepNumber = toSafeInteger(marker.step_number);
 
   const xMin = clampCoordinate(marker.x_min);
-
   const yMin = clampCoordinate(marker.y_min);
-
   const xMax = clampCoordinate(marker.x_max);
-
   const yMax = clampCoordinate(marker.y_max);
 
   const confidence = clampNumber(marker.confidence, 0, 1);
@@ -712,7 +640,6 @@ function normalizeVisualMarker(marker, markerIndex) {
   }
 
   const label = cleanGuidanceText(marker.label, "Tıklanacak alan");
-
   const instruction = cleanGuidanceText(
     marker.instruction,
     "İşaretli alana tıklayın.",

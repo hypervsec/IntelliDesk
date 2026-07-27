@@ -1,12 +1,26 @@
 /* =========================================================
    TICKET DETAYINDA AI GÖRSEL ANALİZİ
+   VE KOMPAKT SAYFA BOŞLUKLARI
    ========================================================= */
 
+/* Sayfanın üst ve alt boşluğunu biraz azaltır. */
+.ticket-detail-page {
+  padding-top: 16px;
+  padding-bottom: 44px;
+}
+
+/* Üst ticket başlığı ile görsel analizi arasındaki boşluk. */
+.ticket-detail-page > .page-header,
+.staff-ticket-detail-page > .page-header {
+  margin-bottom: 10px;
+}
+
+/* Görsel analizi ile sonraki içerik arasındaki boşluk. */
 .ticket-ai-visual-section {
   width: 100%;
   min-width: 0;
 
-  margin-bottom: 18px;
+  margin: 0 0 10px;
 }
 
 .ticket-ai-visual-section > .ai-session-images {
@@ -15,20 +29,172 @@
   margin: 0;
 }
 
+/* Görsel analiz kutusunun iç yüksekliğini azaltır. */
+.ticket-ai-visual-section .ai-session-images-comparison {
+  gap: 8px;
+
+  padding: 12px 14px;
+}
+
+/* Başlık altındaki gereksiz dikey boşluğu azaltır. */
+.ticket-ai-visual-section .ai-session-images-heading {
+  gap: 0;
+}
+
+.ticket-ai-visual-section .ai-session-images-heading p {
+  margin-top: 1px;
+}
+
+/* Görsel kartlarının bulunduğu alan. */
+.ticket-ai-visual-section .ai-image-comparison-list {
+  gap: 10px;
+}
+
 .ticket-ai-visual-section .ai-image-comparison-grid {
+  width: 100%;
   max-width: 900px;
+
+  gap: 10px;
+
+  margin-right: auto;
+  margin-left: auto;
 }
 
-.staff-ticket-detail-page .ticket-ai-visual-section {
-  margin-bottom: 20px;
+/* Görsel kartlarının başlık ve görsel alanı arasındaki boşluğu azaltır. */
+.ticket-ai-visual-section .ai-comparison-card-header {
+  padding: 10px 12px;
 }
 
+.ticket-ai-visual-section .ai-comparison-image-stage {
+  min-height: 140px;
+
+  padding: 8px 10px;
+}
+
+.ticket-ai-visual-section .ai-comparison-image-stage img {
+  max-height: 195px;
+}
+
+/* Ticket özeti ve AI çözümü kolonları arasındaki boşluk. */
+.staff-ticket-detail-page .staff-primary-layout {
+  gap: 14px;
+
+  margin-bottom: 14px;
+}
+
+/* Sol taraftaki özet ve zaman çizelgesi arasındaki boşluk. */
+.staff-ticket-detail-page .staff-left-column {
+  gap: 14px;
+}
+
+/* Alt panel grubundaki boşluklar. */
+.ticket-detail-page .ticket-bottom-layout {
+  gap: 16px;
+
+  margin-top: 14px;
+}
+
+.ticket-detail-page .ticket-side-column {
+  gap: 16px;
+}
+
+/* Rol bazlı eski boşluk değerlerini ezer. */
+.staff-ticket-detail-page .ticket-ai-visual-section,
 .user-ticket-detail-page .ticket-ai-visual-section {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
-@media (max-width: 760px) {
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .ticket-detail-page {
+    padding-top: 14px;
+    padding-bottom: 36px;
+  }
+
+  .ticket-detail-page > .page-header,
+  .staff-ticket-detail-page > .page-header {
+    margin-bottom: 9px;
+  }
+
   .ticket-ai-visual-section {
-    margin-bottom: 14px;
+    margin-bottom: 9px;
+  }
+
+  .ticket-ai-visual-section .ai-session-images-comparison {
+    padding: 11px;
+  }
+
+  .ticket-ai-visual-section .ai-image-comparison-grid {
+    gap: 9px;
+  }
+
+  .staff-ticket-detail-page .staff-primary-layout,
+  .staff-ticket-detail-page .staff-left-column {
+    gap: 12px;
+  }
+
+  .staff-ticket-detail-page .staff-primary-layout {
+    margin-bottom: 12px;
+  }
+
+  .ticket-detail-page .ticket-bottom-layout {
+    gap: 12px;
+
+    margin-top: 12px;
+  }
+
+  .ticket-detail-page .ticket-side-column {
+    gap: 12px;
+  }
+}
+
+/* =========================================================
+   MOBİL
+   ========================================================= */
+
+@media (max-width: 520px) {
+  .ticket-detail-page {
+    padding-top: 12px;
+    padding-bottom: 30px;
+  }
+
+  .ticket-detail-page > .page-header,
+  .staff-ticket-detail-page > .page-header,
+  .ticket-ai-visual-section {
+    margin-bottom: 8px;
+  }
+
+  .ticket-ai-visual-section .ai-session-images-comparison {
+    gap: 7px;
+
+    padding: 9px;
+  }
+
+  .ticket-ai-visual-section .ai-comparison-image-stage {
+    min-height: 130px;
+
+    padding: 6px;
+  }
+
+  .ticket-ai-visual-section .ai-comparison-image-stage img {
+    max-height: 175px;
+  }
+
+  .staff-ticket-detail-page .staff-primary-layout,
+  .staff-ticket-detail-page .staff-left-column,
+  .ticket-detail-page .ticket-bottom-layout,
+  .ticket-detail-page .ticket-side-column {
+    gap: 10px;
+  }
+
+  .staff-ticket-detail-page .staff-primary-layout {
+    margin-bottom: 10px;
+  }
+
+  .ticket-detail-page .ticket-bottom-layout {
+    margin-top: 10px;
   }
 }

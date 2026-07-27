@@ -1,11 +1,965 @@
 /* =========================================================
-   AI ÇÖZÜM GÖRSELİ — TAM GENİŞLİK MODAL
+   INTELLIDESK — KOMPAKT TICKET VE GÖRSEL ANALİZ TASARIMI
+
+   Bu dosya en son yüklendiği için:
+   - Ticket Detayı üst panelini
+   - Görsel analizi alanını
+   - Orijinal ve AI çözüm kartlarını
+   - Görsel modal pencerelerini
+
+   mevcut CSS dosyalarının üzerinde düzenler.
+   ========================================================= */
+
+/* =========================================================
+   TICKET DETAYI — KOMPAKT ÜST PANEL
+   ========================================================= */
+
+.ticket-detail-page {
+  padding-top: 14px;
+  padding-bottom: 42px;
+}
+
+.ticket-detail-page .page-header,
+.ticket-detail-page.staff-ticket-detail-page > .page-header {
+  position: relative;
+  isolation: isolate;
+
+  min-height: 0;
+
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+
+  align-items: center;
+  gap: 20px;
+
+  margin: 0 0 10px;
+  padding: 14px 18px;
+
+  overflow: hidden;
+
+  border: 1px solid
+    color-mix(in srgb, var(--color-primary) 17%, var(--color-border));
+
+  border-radius: 18px;
+
+  background:
+    radial-gradient(
+      circle at 94% 10%,
+      color-mix(in srgb, var(--color-primary) 9%, transparent),
+      transparent 210px
+    ),
+    linear-gradient(145deg, var(--color-surface-raised), var(--color-surface));
+
+  box-shadow:
+    0 12px 30px rgba(2, 6, 23, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.ticket-detail-page .page-header::before {
+  position: absolute;
+  top: 0;
+  right: 8%;
+  left: 8%;
+
+  height: 2px;
+
+  content: "";
+  pointer-events: none;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-primary),
+    var(--color-info),
+    transparent
+  );
+
+  opacity: 0.82;
+}
+
+.ticket-detail-page .page-header::after {
+  position: absolute;
+  z-index: -1;
+
+  top: 50%;
+  right: -72px;
+
+  width: 170px;
+  height: 170px;
+
+  border: 1px solid color-mix(in srgb, var(--color-primary) 9%, transparent);
+
+  border-radius: 50%;
+
+  content: "";
+  pointer-events: none;
+
+  transform: translateY(-50%);
+}
+
+.ticket-detail-page .page-header > div {
+  position: relative;
+  z-index: 1;
+
+  min-width: 0;
+}
+
+.ticket-detail-page .page-header > div:first-child {
+  display: grid;
+  justify-items: start;
+}
+
+/* Geri dönüş bağlantısı */
+
+.ticket-detail-page .back-link {
+  width: fit-content;
+  min-height: 25px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  margin: 0 0 6px;
+  padding: 3px 8px;
+
+  border: 1px solid
+    color-mix(in srgb, var(--color-primary) 20%, var(--color-border));
+
+  border-radius: var(--radius-pill);
+
+  color: var(--color-primary);
+
+  background: color-mix(in srgb, var(--color-primary) 5%, transparent);
+
+  font-size: 9px;
+  font-weight: 760;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    color 150ms ease,
+    border-color 150ms ease,
+    background 150ms ease,
+    transform 150ms ease;
+}
+
+.ticket-detail-page .back-link:hover {
+  border-color: color-mix(in srgb, var(--color-info) 42%, var(--color-border));
+
+  color: var(--color-info);
+
+  background: color-mix(in srgb, var(--color-info) 7%, transparent);
+
+  transform: translateX(-2px);
+}
+
+.ticket-detail-page .back-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Ticket Detayı alt başlığı */
+
+.ticket-detail-page .page-eyebrow {
+  width: fit-content;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+
+  color: var(--color-text-faint);
+  background: transparent;
+
+  font-size: 7px;
+  font-weight: 850;
+  line-height: 1;
+  letter-spacing: 0.15em;
+
+  text-transform: uppercase;
+}
+
+.ticket-detail-page .page-eyebrow::before {
+  width: 13px;
+  height: 1px;
+
+  border-radius: var(--radius-pill);
+
+  content: "";
+
+  background: color-mix(in srgb, var(--color-primary) 72%, transparent);
+
+  box-shadow: none;
+}
+
+/* Ticket ana başlığı */
+
+.ticket-detail-page .page-header h1 {
+  max-width: 1000px;
+
+  margin: 6px 0 0;
+
+  color: var(--color-text);
+
+  font-size: clamp(25px, 2.25vw, 33px);
+  font-weight: 820;
+  line-height: 1.12;
+  letter-spacing: -0.043em;
+
+  overflow-wrap: anywhere;
+}
+
+/* Talep sahibi */
+
+.ticket-detail-page .page-header p {
+  max-width: 760px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  margin: 7px 0 0;
+
+  color: var(--color-text-muted);
+
+  font-size: 10px;
+  font-weight: 620;
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+}
+
+.ticket-detail-page .page-header p::before {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+
+  border-radius: 50%;
+
+  content: "";
+
+  background: var(--color-success);
+
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--color-success) 12%, transparent);
+}
+
+/* Sağ durum etiketleri */
+
+.ticket-detail-page .header-actions {
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 7px;
+
+  padding: 0;
+
+  border: 0;
+
+  background: transparent;
+
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.ticket-detail-page .header-actions .badge {
+  width: auto;
+  min-width: 0;
+  min-height: 27px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 4px 10px;
+
+  border-radius: var(--radius-pill);
+
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+
+  text-align: center;
+  white-space: nowrap;
+
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.ticket-detail-page .header-actions .badge::before {
+  display: none;
+
+  content: none;
+}
+
+/* =========================================================
+   TICKET SAYFASI DİKEY BOŞLUKLARI
+   ========================================================= */
+
+.ticket-detail-page .ticket-ai-visual-section,
+.staff-ticket-detail-page .ticket-ai-visual-section,
+.user-ticket-detail-page .ticket-ai-visual-section {
+  margin: 0 0 10px;
+}
+
+.ticket-detail-page .staff-primary-layout {
+  gap: 14px;
+
+  margin-bottom: 14px;
+}
+
+.ticket-detail-page .staff-left-column {
+  gap: 14px;
+}
+
+.ticket-detail-page .ticket-bottom-layout {
+  gap: 14px;
+
+  margin-top: 14px;
+}
+
+.ticket-detail-page .ticket-side-column {
+  gap: 14px;
+}
+
+/* =========================================================
+   GÖRSEL ANALİZİ — ANA ALAN
+   ========================================================= */
+
+.ai-session-images-comparison {
+  position: relative;
+
+  gap: 9px;
+
+  padding: 11px 13px;
+
+  overflow: hidden;
+
+  border: 1px solid
+    color-mix(in srgb, var(--color-primary) 17%, var(--color-border));
+
+  border-radius: 17px;
+
+  background:
+    radial-gradient(
+      circle at 8% 0%,
+      color-mix(in srgb, var(--color-primary) 7%, transparent),
+      transparent 30%
+    ),
+    linear-gradient(
+      145deg,
+      var(--color-surface-raised),
+      var(--color-surface-soft)
+    );
+
+  box-shadow:
+    0 10px 27px rgba(2, 6, 23, 0.075),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.ai-session-images-comparison::before {
+  right: 25px;
+  left: 25px;
+
+  height: 1px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-primary) 62%, transparent),
+    transparent
+  );
+}
+
+/* Görseller başlığı */
+
+.ai-session-images-comparison .ai-session-images-heading {
+  width: 100%;
+
+  display: block;
+}
+
+.ai-session-images-comparison .ai-session-images-heading > div {
+  display: grid;
+  gap: 1px;
+}
+
+.ai-session-images-comparison .ai-session-images-kicker {
+  margin: 0;
+
+  color: color-mix(in srgb, var(--color-primary) 86%, var(--color-text-muted));
+
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: 0.15em;
+}
+
+.ai-session-images-comparison .ai-session-images-heading h3 {
+  max-width: none;
+
+  margin: 1px 0 0;
+
+  font-size: 14px;
+  font-weight: 790;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.ai-session-images-comparison .ai-session-images-heading p {
+  max-width: 680px;
+
+  margin: 2px 0 0;
+
+  color: var(--color-text-muted);
+
+  font-size: 8px;
+  font-weight: 450;
+  line-height: 1.45;
+}
+
+.ai-session-images-summary {
+  display: none;
+}
+
+/* =========================================================
+   GÖRSEL KARŞILAŞTIRMA DÜZENİ
+   ========================================================= */
+
+.ai-image-comparison-list {
+  display: grid;
+  gap: 9px;
+}
+
+.ai-image-pair {
+  min-width: 0;
+
+  padding: 0;
+
+  border: 0;
+
+  background: transparent;
+
+  box-shadow: none;
+}
+
+.ai-image-comparison-grid {
+  width: min(850px, 100%);
+  min-width: 0;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  align-items: stretch;
+  gap: 11px;
+
+  margin-right: auto;
+  margin-left: auto;
+}
+
+/* =========================================================
+   GÖRSEL KARTLARI
+   ========================================================= */
+
+.ai-comparison-card,
+.ai-comparison-card-empty {
+  min-width: 0;
+  width: 100%;
+
+  display: grid;
+  grid-template-rows:
+    auto
+    minmax(138px, 1fr);
+
+  overflow: hidden;
+
+  appearance: none;
+
+  padding: 0;
+
+  border: 1px solid
+    color-mix(in srgb, var(--color-primary) 17%, var(--color-border));
+
+  border-radius: 14px;
+
+  color: inherit;
+
+  background: var(--color-surface-raised);
+
+  box-shadow:
+    0 6px 17px rgba(2, 6, 23, 0.075),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+
+  text-align: left;
+}
+
+button.ai-comparison-card {
+  cursor: pointer;
+
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+button.ai-comparison-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 11px 25px rgba(2, 6, 23, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.ai-comparison-card-original {
+  border-color: color-mix(in srgb, var(--color-info) 25%, var(--color-border));
+}
+
+.ai-comparison-card-original:hover {
+  border-color: color-mix(in srgb, var(--color-info) 48%, var(--color-border));
+}
+
+.ai-comparison-card-solution {
+  border-color: color-mix(
+    in srgb,
+    var(--color-primary) 29%,
+    var(--color-border)
+  );
+
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--color-primary) 4%, transparent),
+      transparent 52%
+    ),
+    var(--color-surface-raised);
+}
+
+.ai-comparison-card-solution:hover {
+  border-color: color-mix(
+    in srgb,
+    var(--color-primary) 55%,
+    var(--color-border)
+  );
+}
+
+button.ai-comparison-card:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Kart başlığı */
+
+.ai-comparison-card-header {
+  min-width: 0;
+
+  display: grid;
+  grid-template-columns:
+    30px
+    minmax(0, 1fr)
+    auto;
+
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 10px;
+
+  border-bottom: 1px solid var(--color-divider);
+
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-surface-soft) 74%, transparent),
+    color-mix(in srgb, var(--color-surface-raised) 88%, transparent)
+  );
+}
+
+/* Minimal ikon */
+
+.ai-comparison-card-icon {
+  width: 30px;
+  height: 30px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid
+    color-mix(in srgb, var(--color-primary) 24%, var(--color-border));
+
+  border-radius: 9px;
+
+  color: var(--color-primary);
+
+  background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.ai-comparison-card-original .ai-comparison-card-icon {
+  border-color: color-mix(in srgb, var(--color-info) 31%, var(--color-border));
+
+  color: var(--color-info);
+
+  background: color-mix(in srgb, var(--color-info) 6%, transparent);
+}
+
+/* Kart metinleri */
+
+.ai-comparison-card-copy {
+  min-width: 0;
+
+  display: grid;
+  gap: 1px;
+}
+
+.ai-comparison-card-eyebrow {
+  color: var(--color-primary);
+
+  font-size: 6px;
+  font-weight: 850;
+  letter-spacing: 0.13em;
+}
+
+.ai-comparison-card-original .ai-comparison-card-eyebrow {
+  color: var(--color-info);
+}
+
+.ai-comparison-card-copy strong {
+  overflow: hidden;
+
+  color: var(--color-text);
+
+  font-size: 10px;
+  font-weight: 770;
+  line-height: 1.28;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ai-comparison-card-copy small {
+  overflow: hidden;
+
+  color: var(--color-text-muted);
+
+  font-size: 7px;
+  font-weight: 430;
+  line-height: 1.35;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Adım rozeti */
+
+.ai-comparison-card-badge {
+  min-width: 28px;
+  height: 22px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 7px;
+
+  border: 1px solid color-mix(in srgb, var(--color-primary) 27%, transparent);
+
+  border-radius: var(--radius-pill);
+
+  color: var(--color-primary);
+
+  background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+
+  font-size: 7px;
+  font-weight: 820;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   GÖRSEL ÖNİZLEMELERİ
+   ========================================================= */
+
+.ai-comparison-image-stage {
+  position: relative;
+
+  min-width: 0;
+  width: 100%;
+  min-height: 138px;
+
+  display: grid;
+  place-items: center;
+
+  overflow: hidden;
+
+  padding: 7px 9px;
+
+  background: linear-gradient(
+    145deg,
+    var(--color-surface-soft),
+    color-mix(in srgb, var(--color-surface-raised) 92%, transparent)
+  );
+}
+
+.ai-comparison-card-original .ai-comparison-image-stage {
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--color-info) 3%, transparent),
+    var(--color-surface-soft)
+  );
+}
+
+.ai-comparison-card-solution .ai-comparison-image-stage {
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--color-primary) 4%, transparent),
+    var(--color-surface-soft)
+  );
+}
+
+.ai-comparison-image-stage img {
+  width: 100%;
+  height: 100%;
+  max-height: 170px;
+
+  display: block;
+
+  border-radius: 7px;
+
+  object-fit: contain;
+  object-position: center;
+
+  filter: contrast(1.025) saturate(1.015);
+
+  image-rendering: auto;
+
+  transition:
+    transform 180ms ease,
+    filter 180ms ease;
+}
+
+button.ai-comparison-card:hover .ai-comparison-image-stage img {
+  transform: scale(1.012);
+
+  filter: contrast(1.035) saturate(1.02) brightness(0.82);
+}
+
+/* Büyüt etiketi */
+
+.ai-comparison-open-label {
+  position: absolute;
+  inset: auto 8px 8px auto;
+
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 23px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  place-items: initial;
+
+  padding: 3px 8px;
+
+  border: 1px solid rgba(255, 255, 255, 0.27);
+  border-radius: var(--radius-pill);
+
+  color: #ffffff;
+  background: rgba(15, 23, 42, 0.83);
+
+  box-shadow: 0 6px 16px rgba(2, 6, 23, 0.23);
+
+  opacity: 0;
+  pointer-events: none;
+
+  font-size: 7px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+
+  transform: translateY(2px);
+
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease;
+}
+
+.ai-comparison-open-label::before,
+.ai-comparison-open-label::after {
+  display: none;
+
+  content: none;
+}
+
+button.ai-comparison-card:hover .ai-comparison-open-label,
+button.ai-comparison-card:focus-visible .ai-comparison-open-label {
+  opacity: 1;
+
+  transform: translateY(0);
+}
+
+/* Boş yönlendirme kartı */
+
+.ai-comparison-empty-state {
+  min-height: 138px;
+
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 6px;
+
+  padding: 14px;
+
+  color: var(--color-text-muted);
+
+  text-align: center;
+}
+
+.ai-comparison-empty-state > span {
+  font-size: 19px;
+}
+
+.ai-comparison-empty-state p {
+  margin: 0;
+
+  font-size: 8px;
+  line-height: 1.4;
+}
+
+/* =========================================================
+   MODAL — ORTAK TASARIM
+   ========================================================= */
+
+.ai-image-modal {
+  padding: 14px;
+
+  background: rgba(2, 6, 23, 0.82);
+
+  backdrop-filter: blur(13px) saturate(120%);
+}
+
+.ai-image-modal-card {
+  max-width: none;
+  max-height: calc(100dvh - 28px);
+
+  border: 1px solid
+    color-mix(in srgb, var(--color-primary) 25%, var(--color-border-strong));
+
+  border-radius: 18px;
+
+  background: var(--color-surface-raised);
+
+  box-shadow:
+    0 38px 100px rgba(2, 6, 23, 0.57),
+    0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.ai-image-modal-header {
+  min-height: 62px;
+
+  padding: 11px 15px;
+
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-primary) 6%, transparent),
+      transparent 48%
+    ),
+    var(--color-surface-raised);
+}
+
+.ai-image-modal-header > div {
+  gap: 3px;
+}
+
+.ai-image-modal-kicker {
+  font-size: 7px;
+  letter-spacing: 0.15em;
+}
+
+.ai-image-modal-header strong {
+  font-size: 12px;
+  font-weight: 780;
+}
+
+.ai-image-modal-close {
+  width: 36px;
+  height: 36px;
+
+  border-radius: 10px;
+}
+
+.ai-image-modal-footer {
+  min-height: 37px;
+
+  padding: 8px 15px;
+
+  font-size: 8px;
+}
+
+/* =========================================================
+   ORİJİNAL GÖRSEL MODALI
+   ========================================================= */
+
+.ai-image-modal-card-original {
+  width: min(1440px, calc(100vw - 28px));
+}
+
+.ai-image-modal-content-original {
+  min-height: min(720px, calc(100dvh - 125px));
+
+  display: grid;
+  place-items: center;
+
+  padding: 9px;
+
+  overflow: auto;
+
+  background:
+    radial-gradient(
+      circle at 50% 10%,
+      color-mix(in srgb, var(--color-info) 7%, transparent),
+      transparent 48%
+    ),
+    var(--color-surface-soft);
+}
+
+.ai-image-modal-content-original > img {
+  width: 100%;
+  height: 100%;
+
+  max-width: 1400px;
+  max-height: calc(100dvh - 130px);
+
+  border: 1px solid
+    color-mix(in srgb, var(--color-info) 23%, var(--color-border));
+
+  border-radius: 12px;
+
+  object-fit: contain;
+  object-position: center;
+
+  background: var(--color-surface-raised);
+
+  box-shadow: 0 22px 58px rgba(2, 6, 23, 0.32);
+}
+
+/* =========================================================
+   AI ÇÖZÜM MODALI
    ========================================================= */
 
 .ai-image-modal-card-guided {
-  width: min(1540px, calc(100vw - 32px));
+  width: min(1540px, calc(100vw - 28px));
+
   max-width: none;
-  max-height: calc(100dvh - 32px);
 }
 
 .ai-image-modal-card-guided .ai-image-modal-content-guided {
@@ -14,23 +968,19 @@
   display: grid;
   place-items: center;
 
-  padding: 12px;
+  padding: 9px;
 
   overflow: auto;
 
   background:
     radial-gradient(
       circle at 50% 0%,
-      color-mix(in srgb, var(--color-primary) 8%, transparent),
+      color-mix(in srgb, var(--color-primary) 7%, transparent),
       transparent 42%
     ),
     var(--color-surface-soft);
 }
 
-/*
- * Çözüm panosunun içerisinde adımlar zaten yer aldığı için
- * sağ taraftaki tekrar eden yönlendirme paneli gizlenir.
- */
 .ai-image-modal-card-guided .ai-visual-guidance-panel {
   display: none;
 }
@@ -55,35 +1005,109 @@
   height: auto;
 
   max-width: 1500px;
-  max-height: calc(100dvh - 150px);
+  max-height: calc(100dvh - 130px);
 
   display: block;
 
   border: 1px solid var(--color-border);
-  border-radius: 14px;
+  border-radius: 12px;
 
   object-fit: contain;
   object-position: center;
 
   background: var(--color-surface-raised);
 
-  box-shadow:
-    0 24px 64px rgba(2, 6, 23, 0.34),
-    0 0 0 1px rgba(255, 255, 255, 0.025);
+  box-shadow: 0 22px 58px rgba(2, 6, 23, 0.32);
 }
 
 /* =========================================================
-   BÜYÜK EKRAN
+   AYDINLIK TEMA
    ========================================================= */
 
-@media (min-width: 1600px) {
-  .ai-image-modal-card-guided {
-    width: min(1720px, calc(100vw - 48px));
-  }
+html[data-theme="light"] .ticket-detail-page .page-header {
+  border-color: rgba(100, 116, 139, 0.17);
 
-  .ai-image-modal-card-guided .ai-guided-image-stage > img {
-    max-width: 1680px;
-  }
+  background:
+    radial-gradient(
+      circle at 94% 10%,
+      rgba(99, 102, 241, 0.075),
+      transparent 210px
+    ),
+    linear-gradient(145deg, #ffffff, #f6f8fc);
+
+  box-shadow:
+    0 12px 30px rgba(51, 65, 85, 0.075),
+    inset 0 1px 0 #ffffff;
+}
+
+html[data-theme="light"] .ticket-detail-page .page-header h1 {
+  color: #172033;
+}
+
+html[data-theme="light"] .ticket-detail-page .page-header p {
+  color: #64748b;
+}
+
+html[data-theme="light"] .ai-session-images-comparison {
+  border-color: rgba(99, 102, 241, 0.16);
+
+  background:
+    radial-gradient(
+      circle at 8% 0%,
+      rgba(99, 102, 241, 0.055),
+      transparent 30%
+    ),
+    linear-gradient(145deg, #ffffff, #f6f8fc);
+
+  box-shadow:
+    0 10px 27px rgba(51, 65, 85, 0.065),
+    inset 0 1px 0 #ffffff;
+}
+
+html[data-theme="light"] .ai-comparison-card,
+html[data-theme="light"] .ai-comparison-card-empty {
+  background: #ffffff;
+
+  box-shadow:
+    0 6px 17px rgba(51, 65, 85, 0.065),
+    inset 0 1px 0 #ffffff;
+}
+
+/* =========================================================
+   KARANLIK TEMA
+   ========================================================= */
+
+html[data-theme="dark"] .ticket-detail-page .page-header {
+  background:
+    radial-gradient(
+      circle at 94% 10%,
+      rgba(99, 102, 241, 0.13),
+      transparent 210px
+    ),
+    linear-gradient(145deg, #111c32, #0d1729);
+
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+html[data-theme="dark"] .ai-session-images-comparison {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(99, 102, 241, 0.09), transparent 30%),
+    linear-gradient(145deg, #101c31, #0b1628);
+
+  box-shadow:
+    0 14px 32px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+html[data-theme="dark"] .ai-comparison-card,
+html[data-theme="dark"] .ai-comparison-card-empty {
+  background: #121f35;
+
+  box-shadow:
+    0 8px 21px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
 }
 
 /* =========================================================
@@ -91,19 +1115,73 @@
    ========================================================= */
 
 @media (max-width: 900px) {
+  .ticket-detail-page {
+    padding-top: 12px;
+    padding-bottom: 34px;
+  }
+
+  .ticket-detail-page .page-header,
+  .ticket-detail-page.staff-ticket-detail-page > .page-header {
+    grid-template-columns:
+      minmax(0, 1fr)
+      auto;
+
+    gap: 14px;
+
+    padding: 13px 14px;
+  }
+
+  .ticket-detail-page .page-header h1 {
+    font-size: clamp(24px, 4.5vw, 31px);
+  }
+
+  .ai-session-images-comparison {
+    padding: 10px;
+  }
+
+  .ai-image-comparison-grid {
+    width: min(760px, 100%);
+
+    gap: 9px;
+  }
+
+  .ai-comparison-card,
+  .ai-comparison-card-empty {
+    grid-template-rows:
+      auto
+      minmax(130px, 1fr);
+  }
+
+  .ai-comparison-image-stage {
+    min-height: 130px;
+
+    padding: 6px;
+  }
+
+  .ai-comparison-image-stage img {
+    max-height: 165px;
+  }
+
+  .ai-image-modal-card-original,
   .ai-image-modal-card-guided {
-    width: calc(100vw - 20px);
-    max-height: calc(100dvh - 20px);
+    width: calc(100vw - 18px);
+    max-height: calc(100dvh - 18px);
   }
 
+  .ai-image-modal-content-original,
   .ai-image-modal-card-guided .ai-image-modal-content-guided {
-    padding: 8px;
+    padding: 6px;
   }
 
-  .ai-image-modal-card-guided .ai-guided-image-stage > img {
-    max-height: calc(100dvh - 135px);
+  .ai-image-modal-content-original {
+    min-height: calc(100dvh - 118px);
+  }
 
-    border-radius: 10px;
+  .ai-image-modal-content-original > img,
+  .ai-image-modal-card-guided .ai-guided-image-stage > img {
+    max-height: calc(100dvh - 118px);
+
+    border-radius: 9px;
   }
 }
 
@@ -111,21 +1189,165 @@
    MOBİL
    ========================================================= */
 
-@media (max-width: 520px) {
-  .ai-image-modal-card-guided {
-    width: calc(100vw - 12px);
-    max-height: calc(100dvh - 12px);
-
-    border-radius: 12px;
+@media (max-width: 700px) {
+  .ticket-detail-page {
+    padding-top: 10px;
+    padding-bottom: 28px;
   }
 
-  .ai-image-modal-card-guided .ai-image-modal-content-guided {
+  .ticket-detail-page .page-header,
+  .ticket-detail-page.staff-ticket-detail-page > .page-header {
+    grid-template-columns: 1fr;
+
+    align-items: stretch;
+    gap: 10px;
+
+    padding: 12px;
+
+    border-radius: 15px;
+  }
+
+  .ticket-detail-page .page-header::after {
+    top: auto;
+    right: -75px;
+    bottom: -115px;
+
+    transform: none;
+  }
+
+  .ticket-detail-page .page-header h1 {
+    font-size: 25px;
+  }
+
+  .ticket-detail-page .header-actions {
+    justify-content: flex-start;
+  }
+
+  .ticket-detail-page .staff-primary-layout,
+  .ticket-detail-page .staff-left-column,
+  .ticket-detail-page .ticket-bottom-layout,
+  .ticket-detail-page .ticket-side-column {
+    gap: 10px;
+  }
+
+  .ticket-detail-page .staff-primary-layout {
+    margin-bottom: 10px;
+  }
+
+  .ticket-detail-page .ticket-bottom-layout {
+    margin-top: 10px;
+  }
+
+  .ai-session-images-comparison {
+    gap: 7px;
+
+    padding: 9px;
+
+    border-radius: 14px;
+  }
+
+  .ai-session-images-comparison .ai-session-images-heading h3 {
+    font-size: 13px;
+  }
+
+  .ai-image-comparison-grid {
+    grid-template-columns: 1fr;
+
+    gap: 8px;
+  }
+
+  .ai-comparison-card,
+  .ai-comparison-card-empty {
+    grid-template-rows:
+      auto
+      minmax(145px, 1fr);
+  }
+
+  .ai-comparison-image-stage {
+    min-height: 145px;
+  }
+
+  .ai-comparison-image-stage img {
+    max-height: 190px;
+  }
+}
+
+@media (max-width: 520px) {
+  .ticket-detail-page .page-header h1 {
+    font-size: 23px;
+  }
+
+  .ticket-detail-page .header-actions .badge {
+    min-height: 25px;
+
+    padding: 4px 9px;
+
+    font-size: 8px;
+  }
+
+  .ai-comparison-card-header {
+    grid-template-columns:
+      28px
+      minmax(0, 1fr);
+
+    padding: 8px;
+  }
+
+  .ai-comparison-card-icon {
+    width: 28px;
+    height: 28px;
+
+    border-radius: 8px;
+  }
+
+  .ai-comparison-card-badge {
+    grid-column: 2;
+
+    justify-self: start;
+
+    margin-top: 3px;
+  }
+
+  .ai-image-modal {
     padding: 5px;
   }
 
-  .ai-image-modal-card-guided .ai-guided-image-stage > img {
-    max-height: calc(100dvh - 125px);
+  .ai-image-modal-card-original,
+  .ai-image-modal-card-guided {
+    width: calc(100vw - 10px);
+    max-height: calc(100dvh - 10px);
 
-    border-radius: 8px;
+    border-radius: 11px;
+  }
+
+  .ai-image-modal-header {
+    min-height: 55px;
+
+    padding: 9px 10px;
+  }
+
+  .ai-image-modal-close {
+    width: 34px;
+    height: 34px;
+  }
+
+  .ai-image-modal-content-original,
+  .ai-image-modal-card-guided .ai-image-modal-content-guided {
+    padding: 4px;
+  }
+
+  .ai-image-modal-content-original {
+    min-height: calc(100dvh - 108px);
+  }
+
+  .ai-image-modal-content-original > img,
+  .ai-image-modal-card-guided .ai-guided-image-stage > img {
+    max-height: calc(100dvh - 110px);
+
+    border-radius: 7px;
+  }
+
+  .ai-image-modal-footer {
+    padding: 7px 10px;
   }
 }
