@@ -4,10 +4,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import api from "../api/api";
 import AIImageUploadField from "../components/AIImageUploadField";
+import AISessionImageGallery from "../components/AISessionImageGallery";
 import SearchableSelect from "../components/SearchableSelect";
 
 import {
-  AI_LOADING_STEPS,
   AISolutionLoading,
   AISolutionResult,
   FormField,
@@ -25,25 +25,20 @@ import {
 
 function CreateTicket() {
   const location = useLocation();
-
   const navigate = useNavigate();
 
   const activeSessionId = getAiSessionId(location.search);
 
   const resolutionRequestInFlight = useRef(false);
-
   const imageUploadRef = useRef(null);
 
   const [formData, setFormData] = useState(initialFormData);
 
   const [departments, setDepartments] = useState([]);
-
   const [categories, setCategories] = useState([]);
-
   const [subcategories, setSubcategories] = useState([]);
 
   const [optionsLoading, setOptionsLoading] = useState(true);
-
   const [aiLoading, setAiLoading] = useState(false);
 
   const [sessionLoading, setSessionLoading] = useState(
@@ -51,15 +46,12 @@ function CreateTicket() {
   );
 
   const [resolutionLoading, setResolutionLoading] = useState(false);
-
   const [loadingStage, setLoadingStage] = useState(0);
-
   const [pendingResolution, setPendingResolution] = useState(null);
 
   const [aiSession, setAiSession] = useState(null);
 
   const [error, setError] = useState("");
-
   const [optionsError, setOptionsError] = useState("");
 
   const assistantMessage = getAssistantMessage(aiSession);
@@ -176,9 +168,7 @@ function CreateTicket() {
           : [];
 
         setDepartments(nextDepartments);
-
         setCategories(nextCategories);
-
         setSubcategories(nextSubcategories);
 
         setFormData((currentData) => {
@@ -264,7 +254,6 @@ function CreateTicket() {
       if (name === "department") {
         return {
           ...currentData,
-
           department: value,
           category: "",
           subcategory: "",
@@ -274,7 +263,6 @@ function CreateTicket() {
       if (name === "category") {
         return {
           ...currentData,
-
           category: value,
           subcategory: "",
         };
@@ -299,27 +287,26 @@ function CreateTicket() {
 
   function validateForm() {
     const title = formData.title.trim();
-
     const description = formData.description.trim();
 
     if (title.length < 3) {
-      return "Konu en az 3 karakter " + "olmalıdır.";
+      return "Konu en az 3 karakter olmalıdır.";
     }
 
     if (description.length < 3) {
-      return "Açıklama en az 3 karakter " + "olmalıdır.";
+      return "Açıklama en az 3 karakter olmalıdır.";
     }
 
     if (!formData.department) {
-      return "Lütfen bir departman " + "seçin.";
+      return "Lütfen bir departman seçin.";
     }
 
     if (!formData.category) {
-      return "Lütfen bir kategori " + "seçin.";
+      return "Lütfen bir kategori seçin.";
     }
 
     if (!formData.subcategory) {
-      return "Lütfen bir alt kategori " + "seçin.";
+      return "Lütfen bir alt kategori seçin.";
     }
 
     return "";
@@ -336,6 +323,12 @@ function CreateTicket() {
       return;
     }
 
+    /*
+     * setAiLoading(true) formu ve görsel bileşenini ekrandan
+     * kaldıracağı için dosyalar yükleme başlamadan önce alınır.
+     */
+    const selectedImages = [...(imageUploadRef.current?.getFiles?.() || [])];
+
     let requestStage = "session";
 
     try {
@@ -345,21 +338,14 @@ function CreateTicket() {
 
       const sessionResponse = await api.post("/ai/sessions", {
         title: formData.title.trim(),
-
         description: formData.description.trim(),
-
         department: formData.department,
-
         category: formData.category,
-
         subcategory: formData.subcategory,
-
         priority: formData.priority,
       });
 
       const sessionId = sessionResponse.data.session_id;
-
-      const selectedImages = imageUploadRef.current?.getFiles?.() || [];
 
       if (selectedImages.length > 0) {
         requestStage = "images";
@@ -386,13 +372,11 @@ function CreateTicket() {
       console.error(requestError);
 
       let fallbackMessage =
-        "AI çözümü oluşturulamadı. " + "Lütfen daha sonra tekrar " + "deneyin.";
+        "AI çözümü oluşturulamadı. " + "Lütfen daha sonra tekrar deneyin.";
 
       if (requestStage === "session") {
         fallbackMessage =
-          "AI oturumu oluşturulamadı. " +
-          "Lütfen daha sonra tekrar " +
-          "deneyin.";
+          "AI oturumu oluşturulamadı. " + "Lütfen daha sonra tekrar deneyin.";
       }
 
       if (requestStage === "images") {
@@ -415,9 +399,7 @@ function CreateTicket() {
 
     try {
       setResolutionLoading(true);
-
       setPendingResolution(resolutionValue);
-
       setError("");
 
       const response = await api.patch(
@@ -442,7 +424,6 @@ function CreateTicket() {
       resolutionRequestInFlight.current = false;
 
       setResolutionLoading(false);
-
       setPendingResolution(null);
     }
   }
@@ -461,11 +442,8 @@ function CreateTicket() {
     imageUploadRef.current?.clear?.();
 
     setFormData(initialFormData);
-
     setAiSession(null);
-
     setPendingResolution(null);
-
     setError("");
 
     navigate("/ai-support", {
@@ -515,7 +493,6 @@ function CreateTicket() {
             <p
               style={{
                 fontSize: "1.0625rem",
-
                 lineHeight: 1.5,
               }}
             >
@@ -558,7 +535,7 @@ function CreateTicket() {
                 onChange={handleChange}
                 minLength={3}
                 maxLength={500}
-                placeholder={"Örneğin: Bilgisayar " + "internete bağlanmıyor"}
+                placeholder="Örneğin: Bilgisayar internete bağlanmıyor"
                 disabled={isBusy}
                 required
               />
@@ -573,11 +550,9 @@ function CreateTicket() {
                 onChange={handleChange}
                 minLength={3}
                 placeholder={
-                  "Sorunu, hata mesajını " +
-                  "ve daha önce " +
-                  "denediğiniz işlemleri " +
-                  "ayrıntılı şekilde " +
-                  "açıklayın..."
+                  "Sorunu, hata mesajını ve daha önce " +
+                  "denediğiniz işlemleri ayrıntılı " +
+                  "şekilde açıklayın..."
                 }
                 disabled={isBusy}
                 required
@@ -593,8 +568,8 @@ function CreateTicket() {
                   value={formData.department}
                   options={departments}
                   placeholder={departmentPlaceholder}
-                  searchPlaceholder={"Departman ara..."}
-                  emptyMessage={"Departman bulunamadı."}
+                  searchPlaceholder="Departman ara..."
+                  emptyMessage="Departman bulunamadı."
                   disabled={
                     isBusy || optionsLoading || departments.length === 0
                   }
@@ -610,8 +585,8 @@ function CreateTicket() {
                   value={formData.category}
                   options={categories}
                   placeholder={categoryPlaceholder}
-                  searchPlaceholder={"Kategori ara..."}
-                  emptyMessage={"Kategori bulunamadı."}
+                  searchPlaceholder="Kategori ara..."
+                  emptyMessage="Kategori bulunamadı."
                   disabled={
                     isBusy ||
                     optionsLoading ||
@@ -630,8 +605,8 @@ function CreateTicket() {
                   value={formData.subcategory}
                   options={subcategories}
                   placeholder={subcategoryPlaceholder}
-                  searchPlaceholder={"Alt kategori ara..."}
-                  emptyMessage={"Alt kategori bulunamadı."}
+                  searchPlaceholder="Alt kategori ara..."
+                  emptyMessage="Alt kategori bulunamadı."
                   disabled={
                     isBusy ||
                     optionsLoading ||
@@ -649,7 +624,7 @@ function CreateTicket() {
                   id="priority"
                   value={formData.priority}
                   options={PRIORITY_OPTIONS}
-                  placeholder={"Öncelik seçin"}
+                  placeholder="Öncelik seçin"
                   searchable={false}
                   disabled={isBusy}
                   onChange={(value) => {
@@ -690,16 +665,20 @@ function CreateTicket() {
       {aiLoading ? <AISolutionLoading activeStep={loadingStage} /> : null}
 
       {assistantMessage ? (
-        <AISolutionResult
-          solution={parsedSolution}
-          confidence={confidence}
-          sourceTicketIds={sourceTicketIds}
-          resolutionStatus={resolutionStatus}
-          resolutionLoading={resolutionLoading}
-          pendingResolution={pendingResolution}
-          onResolved={handleResolved}
-          onUnresolved={handleUnresolved}
-        />
+        <>
+          <AISessionImageGallery sessionId={aiSession.session_id} />
+
+          <AISolutionResult
+            solution={parsedSolution}
+            confidence={confidence}
+            sourceTicketIds={sourceTicketIds}
+            resolutionStatus={resolutionStatus}
+            resolutionLoading={resolutionLoading}
+            pendingResolution={pendingResolution}
+            onResolved={handleResolved}
+            onUnresolved={handleUnresolved}
+          />
+        </>
       ) : null}
 
       {resolutionStatus === "resolved" ? (

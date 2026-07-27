@@ -1,0 +1,82 @@
+/* =========================================================
+   AI ÇÖZÜM ADIMLARI BAŞLIK HİZASI
+   ========================================================= */
+
+.ai-solution-main-section .ai-section-heading {
+  width: 100%;
+
+  display: grid;
+  grid-template-columns:
+    28px
+    minmax(0, 1fr);
+
+  align-items: center;
+  justify-content: start;
+  gap: 10px;
+
+  margin-bottom: 15px;
+
+  text-align: left;
+}
+
+.ai-solution-main-section .ai-section-heading > div {
+  min-width: 0;
+
+  margin: 0;
+
+  justify-self: start;
+
+  text-align: left;
+}
+
+.ai-solution-main-section .ai-section-heading-icon {
+  grid-column: 1;
+
+  margin: 0;
+
+  justify-self: start;
+}
+
+.ai-solution-main-section .ai-section-heading > div {
+  grid-column: 2;
+}
+
+.ai-solution-main-section .ai-section-heading h3 {
+  width: auto;
+
+  margin: 0;
+
+  text-align: left;
+}
+
+.ai-solution-main-section .ai-section-description {
+  display: block;
+
+  width: auto;
+
+  margin-top: 2px;
+
+  text-align: left;
+}
+
+@media (max-height: 950px) and (min-width: 761px) {
+  .ai-solution-main-section .ai-section-heading {
+    grid-template-columns:
+      24px
+      minmax(0, 1fr);
+
+    gap: 8px;
+
+    margin-bottom: 9px;
+  }
+}
+
+@media (max-width: 520px) {
+  .ai-solution-main-section .ai-section-heading {
+    grid-template-columns:
+      24px
+      minmax(0, 1fr);
+
+    align-items: start;
+  }
+}

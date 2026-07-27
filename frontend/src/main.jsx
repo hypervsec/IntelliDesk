@@ -34,6 +34,12 @@ import "./styles/settings.css";
 import "./styles/auth-input-fix.css";
 import "./styles/user-management.css";
 
+/*
+ * Diğer tüm AI stillerinden sonra yüklenmelidir.
+ * Çözüm adımları başlığının hizasını sabitler.
+ */
+import "./styles/ai-solution-layout-fix.css";
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ThemeProvider>

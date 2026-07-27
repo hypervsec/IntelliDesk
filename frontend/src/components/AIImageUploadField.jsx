@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useRef,
@@ -33,15 +34,38 @@ const AIImageUploadField = forwardRef(function AIImageUploadField(
 
   const [validationError, setValidationError] = useState("");
 
-  useEffect(() => {
-    selectedImagesRef.current = selectedImages;
-  }, [selectedImages]);
+  const clearValidationError = useCallback(() => {
+    setValidationError("");
+
+    if (typeof onValidationError === "function") {
+      onValidationError("");
+    }
+  }, [onValidationError]);
+
+  const clearSelectedImages = useCallback(() => {
+    const currentImages = selectedImagesRef.current;
+
+    currentImages.forEach((image) => {
+      URL.revokeObjectURL(image.previewUrl);
+    });
+
+    selectedImagesRef.current = [];
+    setSelectedImages([]);
+    setIsDragging(false);
+    clearValidationError();
+
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+  }, [clearValidationError]);
 
   useEffect(() => {
     return () => {
       selectedImagesRef.current.forEach((image) => {
         URL.revokeObjectURL(image.previewUrl);
       });
+
+      selectedImagesRef.current = [];
     };
   }, []);
 
@@ -60,7 +84,7 @@ const AIImageUploadField = forwardRef(function AIImageUploadField(
         return selectedImagesRef.current.length;
       },
     }),
-    [],
+    [clearSelectedImages],
   );
 
   function reportValidationError(message) {
@@ -68,33 +92,6 @@ const AIImageUploadField = forwardRef(function AIImageUploadField(
 
     if (typeof onValidationError === "function") {
       onValidationError(message);
-    }
-  }
-
-  function clearValidationError() {
-    setValidationError("");
-
-    if (typeof onValidationError === "function") {
-      onValidationError("");
-    }
-  }
-
-  function clearSelectedImages() {
-    setSelectedImages((currentImages) => {
-      currentImages.forEach((image) => {
-        URL.revokeObjectURL(image.previewUrl);
-      });
-
-      return [];
-    });
-
-    selectedImagesRef.current = [];
-
-    setIsDragging(false);
-    clearValidationError();
-
-    if (inputRef.current) {
-      inputRef.current.value = "";
     }
   }
 
@@ -143,20 +140,23 @@ const AIImageUploadField = forwardRef(function AIImageUploadField(
       knownFileKeys.add(fileKey);
     }
 
-    const nextImages = incomingFiles.map((file) => ({
+    const newImages = incomingFiles.map((file) => ({
       id: createImageId(file),
       file,
       previewUrl: URL.createObjectURL(file),
     }));
 
-    setSelectedImages((currentImagesValue) => {
-      const mergedImages = [...currentImagesValue, ...nextImages];
+    const nextImages = [...currentImages, ...newImages];
 
-      selectedImagesRef.current = mergedImages;
+    /*
+     * Ref, React render işlemini beklemeden
+     * hemen güncellenir. Kullanıcı doğrudan
+     * gönder butonuna bassa bile getFiles()
+     * güncel dosyaları döndürür.
+     */
+    selectedImagesRef.current = nextImages;
 
-      return mergedImages;
-    });
-
+    setSelectedImages(nextImages);
     clearValidationError();
   }
 
@@ -165,20 +165,19 @@ const AIImageUploadField = forwardRef(function AIImageUploadField(
       return;
     }
 
-    setSelectedImages((currentImages) => {
-      const removedImage = currentImages.find((image) => image.id === imageId);
+    const currentImages = selectedImagesRef.current;
 
-      if (removedImage) {
-        URL.revokeObjectURL(removedImage.previewUrl);
-      }
+    const removedImage = currentImages.find((image) => image.id === imageId);
 
-      const nextImages = currentImages.filter((image) => image.id !== imageId);
+    if (removedImage) {
+      URL.revokeObjectURL(removedImage.previewUrl);
+    }
 
-      selectedImagesRef.current = nextImages;
+    const nextImages = currentImages.filter((image) => image.id !== imageId);
 
-      return nextImages;
-    });
+    selectedImagesRef.current = nextImages;
 
+    setSelectedImages(nextImages);
     clearValidationError();
 
     if (inputRef.current) {
@@ -263,7 +262,9 @@ const AIImageUploadField = forwardRef(function AIImageUploadField(
         className={[
           "ticket-file-selector",
           "ai-image-dropzone",
+
           isDragging ? "ai-image-dropzone-active" : "",
+
           disabled ? "ai-image-dropzone-disabled" : "",
         ]
           .filter(Boolean)
@@ -290,8 +291,8 @@ const AIImageUploadField = forwardRef(function AIImageUploadField(
         <span className="ticket-file-selector-text">
           <strong>
             {remainingCount > 0
-              ? "Görsel seçin veya " + "buraya sürükleyin"
-              : "Görsel sınırına " + "ulaşıldı"}
+              ? "Görsel seçin veya buraya sürükleyin"
+              : "Görsel sınırına ulaşıldı"}
           </strong>
 
           <small>
@@ -321,7 +322,7 @@ const AIImageUploadField = forwardRef(function AIImageUploadField(
                 src={image.previewUrl}
                 width="38"
                 height="38"
-                alt={`${image.file.name} ` + "önizlemesi"}
+                alt={`${image.file.name} önizlemesi`}
               />
 
               <div className="ticket-attachment-info">
@@ -343,7 +344,7 @@ const AIImageUploadField = forwardRef(function AIImageUploadField(
                     removeImage(image.id);
                   }}
                   disabled={disabled}
-                  aria-label={`${image.file.name} ` + "görselini kaldır"}
+                  aria-label={`${image.file.name} görselini kaldır`}
                 >
                   <Icon name="close" size={15} />
                   Kaldır
