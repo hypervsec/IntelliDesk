@@ -243,6 +243,135 @@ class AISessionSource(Base):
     )
 
 
+class AISessionAttachment(Base):
+    __tablename__ = "ai_session_attachments"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "stored_filename",
+            name=(
+                "uq_ai_session_attachments_"
+                "stored_filename"
+            ),
+        ),
+        CheckConstraint(
+            "size_bytes > 0",
+            name=(
+                "ck_ai_session_attachments_"
+                "size_positive"
+            ),
+        ),
+        CheckConstraint(
+            (
+                "content_type IN "
+                "('image/png', 'image/jpeg', 'image/webp')"
+            ),
+            name=(
+                "ck_ai_session_attachments_"
+                "content_type"
+            ),
+        ),
+        CheckConstraint(
+            (
+                "file_extension IN "
+                "('.png', '.jpg', '.jpeg', '.webp')"
+            ),
+            name=(
+                "ck_ai_session_attachments_"
+                "file_extension"
+            ),
+        ),
+        Index(
+            "ix_ai_session_attachments_session_created",
+            "session_id",
+            "created_at",
+        ),
+        Index(
+            "ix_ai_session_attachments_uploader",
+            "uploader_account_id",
+        ),
+    )
+
+    attachment_id: Mapped[int] = mapped_column(
+        BigInteger,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    session_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey(
+            "ai_sessions.session_id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+    )
+
+    uploader_account_id: Mapped[
+        int | None
+    ] = mapped_column(
+        BigInteger,
+        ForeignKey(
+            "accounts.account_id",
+            ondelete="SET NULL",
+        ),
+        nullable=True,
+    )
+
+    uploader_name: Mapped[str] = mapped_column(
+        String(150),
+        nullable=False,
+    )
+
+    uploader_role: Mapped[
+        str | None
+    ] = mapped_column(
+        String(30),
+        nullable=True,
+    )
+
+    original_filename: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
+
+    stored_filename: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
+
+    storage_path: Mapped[str] = mapped_column(
+        String(500),
+        nullable=False,
+    )
+
+    content_type: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+    )
+
+    file_extension: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+    )
+
+    size_bytes: Mapped[int] = mapped_column(
+        BigInteger,
+        nullable=False,
+    )
+
+    sha256: Mapped[str] = mapped_column(
+        String(64),
+        nullable=False,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        default=datetime.now,
+    )
+
+
 class AIMessage(Base):
     __tablename__ = "ai_messages"
 

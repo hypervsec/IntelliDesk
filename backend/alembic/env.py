@@ -59,6 +59,8 @@ MANAGED_TABLES = {
     "ticket_attachments",
     "ai_sessions",
     "ai_messages",
+    "ai_session_sources",
+    "ai_session_attachments",
 }
 
 

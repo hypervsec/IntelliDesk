@@ -1,0 +1,443 @@
+/* =========================================================
+   AI OTURUM GÖRSELLERİ
+   ========================================================= */
+
+.ai-session-images {
+  width: 100%;
+
+  display: grid;
+  gap: 15px;
+
+  padding: 18px;
+
+  border: 1px solid rgba(56, 189, 248, 0.2);
+
+  border-radius: 17px;
+
+  background:
+    radial-gradient(
+      circle at 90% 0%,
+      rgba(56, 189, 248, 0.08),
+      transparent 18rem
+    ),
+    rgba(7, 20, 38, 0.48);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 12px 28px rgba(2, 6, 23, 0.12);
+}
+
+.ai-session-images-compact {
+  padding: 15px;
+}
+
+.ai-session-images-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.ai-session-images-heading > div {
+  min-width: 0;
+}
+
+.ai-session-images-kicker {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #67e8f9;
+
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: 0.15em;
+}
+
+.ai-session-images-heading h3 {
+  margin: 0;
+
+  color: var(--color-text);
+
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.ai-session-images-heading p {
+  max-width: 620px;
+
+  margin: 5px 0 0;
+
+  color: var(--color-text-muted);
+
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.ai-session-images-count {
+  flex: 0 0 auto;
+
+  padding: 5px 9px;
+
+  border: 1px solid rgba(56, 189, 248, 0.24);
+
+  border-radius: var(--radius-pill);
+
+  color: #67e8f9;
+
+  background: rgba(56, 189, 248, 0.08);
+
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.ai-session-images-loading {
+  min-height: 84px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  color: var(--color-text-muted);
+
+  font-size: 10px;
+}
+
+.ai-session-images-error {
+  margin: 0;
+
+  padding: 10px 12px;
+
+  border: 1px solid rgba(251, 113, 133, 0.28);
+
+  border-radius: 11px;
+
+  color: #fecdd3;
+
+  background: rgba(244, 63, 94, 0.08);
+
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   GÖRSEL KARTLARI
+   ========================================================= */
+
+.ai-session-images-grid {
+  display: grid;
+
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+
+  gap: 11px;
+}
+
+.ai-session-image-card {
+  min-width: 0;
+
+  display: grid;
+  gap: 0;
+
+  overflow: hidden;
+
+  border: 1px solid var(--color-border);
+
+  border-radius: 14px;
+
+  padding: 0;
+
+  color: inherit;
+
+  background: var(--color-surface-raised);
+
+  box-shadow: 0 10px 22px rgba(2, 6, 23, 0.14);
+
+  cursor: pointer;
+
+  text-align: left;
+}
+
+.ai-session-image-card:hover {
+  border-color: rgba(56, 189, 248, 0.46);
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 16px 30px rgba(2, 6, 23, 0.22);
+}
+
+.ai-session-image-preview {
+  position: relative;
+
+  aspect-ratio: 16 / 10;
+
+  display: block;
+
+  overflow: hidden;
+
+  background: rgba(2, 6, 23, 0.44);
+}
+
+.ai-session-image-preview img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  transition:
+    transform 180ms ease,
+    filter 180ms ease;
+}
+
+.ai-session-image-card:hover .ai-session-image-preview img {
+  transform: scale(1.035);
+
+  filter: brightness(0.78);
+}
+
+.ai-session-image-overlay {
+  position: absolute;
+  inset: 0;
+
+  display: grid;
+  place-items: center;
+
+  color: #ffffff;
+
+  background: rgba(2, 6, 23, 0.28);
+
+  opacity: 0;
+
+  transition: opacity 160ms ease;
+}
+
+.ai-session-image-overlay span {
+  padding: 6px 10px;
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
+
+  border-radius: var(--radius-pill);
+
+  background: rgba(15, 23, 42, 0.72);
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.ai-session-image-card:hover .ai-session-image-overlay,
+.ai-session-image-card:focus-visible .ai-session-image-overlay {
+  opacity: 1;
+}
+
+.ai-session-image-info {
+  min-width: 0;
+
+  display: grid;
+  gap: 3px;
+
+  padding: 10px 11px;
+}
+
+.ai-session-image-info strong {
+  overflow: hidden;
+
+  color: var(--color-text);
+
+  font-size: 10px;
+  line-height: 1.4;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ai-session-image-info small {
+  color: var(--color-text-faint);
+
+  font-size: 8px;
+}
+
+/* =========================================================
+   BÜYÜK GÖRSEL PENCERESİ
+   ========================================================= */
+
+.ai-image-modal {
+  position: fixed;
+  z-index: 10000;
+  inset: 0;
+
+  display: grid;
+  place-items: center;
+
+  padding: 24px;
+
+  background: rgba(2, 6, 23, 0.82);
+
+  backdrop-filter: blur(12px);
+}
+
+.ai-image-modal-card {
+  width: min(1080px, 100%);
+
+  max-height: calc(100dvh - 48px);
+
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+
+  overflow: hidden;
+
+  border: 1px solid rgba(129, 140, 248, 0.32);
+
+  border-radius: 20px;
+
+  background: linear-gradient(145deg, #172944, #09182d);
+
+  box-shadow: 0 36px 90px rgba(2, 6, 23, 0.56);
+}
+
+.ai-image-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 15px 17px;
+
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.ai-image-modal-header > div {
+  min-width: 0;
+
+  display: grid;
+  gap: 3px;
+}
+
+.ai-image-modal-kicker {
+  color: #a5b4fc;
+
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: 0.13em;
+}
+
+.ai-image-modal-header strong {
+  overflow: hidden;
+
+  color: var(--color-text);
+
+  font-size: 12px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ai-image-modal-close {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid var(--color-border-strong);
+
+  border-radius: 11px;
+
+  padding: 0;
+
+  color: var(--color-text-soft);
+
+  background: var(--color-surface-soft);
+
+  cursor: pointer;
+}
+
+.ai-image-modal-close:hover {
+  color: #ffffff;
+
+  border-color: rgba(251, 113, 133, 0.42);
+
+  background: rgba(244, 63, 94, 0.12);
+}
+
+.ai-image-modal-content {
+  min-height: 0;
+
+  display: grid;
+  place-items: center;
+
+  padding: 18px;
+
+  overflow: auto;
+
+  background: rgba(2, 6, 23, 0.5);
+}
+
+.ai-image-modal-content img {
+  display: block;
+
+  max-width: 100%;
+  max-height: calc(100dvh - 190px);
+
+  border-radius: 10px;
+
+  object-fit: contain;
+
+  box-shadow: 0 18px 42px rgba(2, 6, 23, 0.38);
+}
+
+.ai-image-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  padding: 10px 17px;
+
+  border-top: 1px solid var(--color-divider);
+
+  color: var(--color-text-muted);
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   MOBİL
+   ========================================================= */
+
+@media (max-width: 680px) {
+  .ai-session-images-heading {
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .ai-session-images-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ai-image-modal {
+    padding: 10px;
+  }
+
+  .ai-image-modal-card {
+    max-height: calc(100dvh - 20px);
+
+    border-radius: 15px;
+  }
+
+  .ai-image-modal-content {
+    padding: 10px;
+  }
+
+  .ai-image-modal-content img {
+    max-height: calc(100dvh - 160px);
+  }
+}
+
+@media (max-width: 420px) {
+  .ai-session-images-grid {
+    grid-template-columns: 1fr;
+  }
+}

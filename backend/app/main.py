@@ -18,6 +18,7 @@ from fastapi.middleware.cors import (
     CORSMiddleware,
 )
 
+from .ai import attachments_router as ai_attachments_router
 from .ai import router as ai_router
 from .audit import events as audit_events  # noqa: F401
 from .audit.failures import (
@@ -160,6 +161,7 @@ async def attach_request_metadata(
         )
 
         return response
+
     finally:
         reset_request_metadata(
             metadata_token
@@ -222,6 +224,7 @@ async def authorize_ticket_request(
 
     try:
         yield current_account
+
     finally:
         reset_request_actor(
             actor_token
@@ -244,6 +247,11 @@ app.include_router(
 
 app.include_router(
     ai_router.router
+)
+
+
+app.include_router(
+    ai_attachments_router.router
 )
 
 

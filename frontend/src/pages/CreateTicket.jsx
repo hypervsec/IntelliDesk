@@ -3,76 +3,36 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import api from "../api/api";
+import AIImageUploadField from "../components/AIImageUploadField";
 import SearchableSelect from "../components/SearchableSelect";
 
-const SERVICE_DESK_URL = (import.meta.env.VITE_SERVICE_DESK_URL || "").trim();
-
-const AI_LOADING_STEPS = [
-  {
-    title: "Sorun bilgileri değerlendiriliyor",
-    detail: "Teknik detaylar analiz ediliyor",
-    description:
-      "Sorununuzun konusu, açıklaması ve seçtiğiniz kategoriler değerlendiriliyor.",
-  },
-  {
-    title: "Benzer ticketlar aranıyor",
-    detail: "Geçmiş kayıtlar taranıyor",
-    description:
-      "Geçmiş Service Desk kayıtlarında benzer sorunlar ve çözümler aranıyor.",
-  },
-  {
-    title: "Çözümler karşılaştırılıyor",
-    detail: "En uygun kaynaklar seçiliyor",
-    description:
-      "Bulunan geçmiş çözümler benzerlik ve kullanılabilirlik açısından karşılaştırılıyor.",
-  },
-  {
-    title: "AI çözümü hazırlanıyor",
-    detail: "Son kontroller yapılıyor",
-    description:
-      "Geçmiş kayıtlar ve teknik bilgiler kullanılarak çözüm adımları hazırlanıyor.",
-  },
-];
-
-const PRIORITY_OPTIONS = [
-  {
-    value: "low",
-    label: "Düşük",
-    tone: "low",
-  },
-  {
-    value: "medium",
-    label: "Orta",
-    tone: "medium",
-  },
-  {
-    value: "high",
-    label: "Yüksek",
-    tone: "high",
-  },
-  {
-    value: "critical",
-    label: "Kritik",
-    tone: "critical",
-  },
-];
-
-const initialFormData = {
-  title: "",
-  description: "",
-  department: "",
-  category: "",
-  subcategory: "",
-  priority: "medium",
-};
+import {
+  AI_LOADING_STEPS,
+  AISolutionLoading,
+  AISolutionResult,
+  FormField,
+  PRIORITY_OPTIONS,
+  ResolutionResultCard,
+  getAiSessionId,
+  getApiErrorMessage,
+  getAssistantMessage,
+  getConfidenceMeta,
+  getSourceTicketIds,
+  initialFormData,
+  parseAiSolution,
+  uploadSessionImages,
+} from "./CreateTicketParts";
 
 function CreateTicket() {
   const location = useLocation();
+
   const navigate = useNavigate();
 
   const activeSessionId = getAiSessionId(location.search);
 
   const resolutionRequestInFlight = useRef(false);
+
+  const imageUploadRef = useRef(null);
 
   const [formData, setFormData] = useState(initialFormData);
 
@@ -124,11 +84,13 @@ function CreateTicket() {
   useEffect(() => {
     if (!activeSessionId) {
       setSessionLoading(false);
+
       return undefined;
     }
 
     if (aiSession?.session_id === activeSessionId) {
       setSessionLoading(false);
+
       return undefined;
     }
 
@@ -214,7 +176,9 @@ function CreateTicket() {
           : [];
 
         setDepartments(nextDepartments);
+
         setCategories(nextCategories);
+
         setSubcategories(nextSubcategories);
 
         setFormData((currentData) => {
@@ -228,7 +192,9 @@ function CreateTicket() {
 
           return {
             ...currentData,
+
             category: categoryIsValid ? currentData.category : "",
+
             subcategory: subcategoryIsValid ? currentData.subcategory : "",
           };
         });
@@ -264,6 +230,7 @@ function CreateTicket() {
   useEffect(() => {
     if (!aiLoading) {
       setLoadingStage(0);
+
       return undefined;
     }
 
@@ -297,6 +264,7 @@ function CreateTicket() {
       if (name === "department") {
         return {
           ...currentData,
+
           department: value,
           category: "",
           subcategory: "",
@@ -306,6 +274,7 @@ function CreateTicket() {
       if (name === "category") {
         return {
           ...currentData,
+
           category: value,
           subcategory: "",
         };
@@ -334,23 +303,23 @@ function CreateTicket() {
     const description = formData.description.trim();
 
     if (title.length < 3) {
-      return "Konu en az 3 karakter olmalıdır.";
+      return "Konu en az 3 karakter " + "olmalıdır.";
     }
 
     if (description.length < 3) {
-      return "Açıklama en az 3 karakter olmalıdır.";
+      return "Açıklama en az 3 karakter " + "olmalıdır.";
     }
 
     if (!formData.department) {
-      return "Lütfen bir departman seçin.";
+      return "Lütfen bir departman " + "seçin.";
     }
 
     if (!formData.category) {
-      return "Lütfen bir kategori seçin.";
+      return "Lütfen bir kategori " + "seçin.";
     }
 
     if (!formData.subcategory) {
-      return "Lütfen bir alt kategori seçin.";
+      return "Lütfen bir alt kategori " + "seçin.";
     }
 
     return "";
@@ -363,8 +332,11 @@ function CreateTicket() {
 
     if (validationError) {
       setError(validationError);
+
       return;
     }
+
+    let requestStage = "session";
 
     try {
       setAiLoading(true);
@@ -373,20 +345,37 @@ function CreateTicket() {
 
       const sessionResponse = await api.post("/ai/sessions", {
         title: formData.title.trim(),
+
         description: formData.description.trim(),
+
         department: formData.department,
+
         category: formData.category,
+
         subcategory: formData.subcategory,
+
         priority: formData.priority,
       });
 
       const sessionId = sessionResponse.data.session_id;
+
+      const selectedImages = imageUploadRef.current?.getFiles?.() || [];
+
+      if (selectedImages.length > 0) {
+        requestStage = "images";
+
+        await uploadSessionImages(sessionId, selectedImages);
+      }
+
+      requestStage = "solution";
 
       const solutionResponse = await api.post(
         `/ai/sessions/${sessionId}/solution`,
       );
 
       const completedSession = solutionResponse.data;
+
+      imageUploadRef.current?.clear?.();
 
       setAiSession(completedSession);
 
@@ -396,12 +385,22 @@ function CreateTicket() {
     } catch (requestError) {
       console.error(requestError);
 
-      setError(
-        getApiErrorMessage(
-          requestError,
-          "AI çözümü oluşturulamadı. Lütfen daha sonra tekrar deneyin.",
-        ),
-      );
+      let fallbackMessage =
+        "AI çözümü oluşturulamadı. " + "Lütfen daha sonra tekrar " + "deneyin.";
+
+      if (requestStage === "session") {
+        fallbackMessage =
+          "AI oturumu oluşturulamadı. " +
+          "Lütfen daha sonra tekrar " +
+          "deneyin.";
+      }
+
+      if (requestStage === "images") {
+        fallbackMessage =
+          "Görseller yüklenemedi. " + "AI çözümü oluşturulmadı.";
+      }
+
+      setError(getApiErrorMessage(requestError, fallbackMessage));
     } finally {
       setAiLoading(false);
     }
@@ -416,7 +415,9 @@ function CreateTicket() {
 
     try {
       setResolutionLoading(true);
+
       setPendingResolution(resolutionValue);
+
       setError("");
 
       const response = await api.patch(
@@ -441,6 +442,7 @@ function CreateTicket() {
       resolutionRequestInFlight.current = false;
 
       setResolutionLoading(false);
+
       setPendingResolution(null);
     }
   }
@@ -456,9 +458,14 @@ function CreateTicket() {
   function handleNewIssue() {
     resolutionRequestInFlight.current = false;
 
+    imageUploadRef.current?.clear?.();
+
     setFormData(initialFormData);
+
     setAiSession(null);
+
     setPendingResolution(null);
+
     setError("");
 
     navigate("/ai-support", {
@@ -469,6 +476,7 @@ function CreateTicket() {
   function handleCancel() {
     if (window.history.length > 1) {
       navigate(-1);
+
       return;
     }
 
@@ -504,7 +512,13 @@ function CreateTicket() {
           <div>
             <h1>Çözüm Asistanı</h1>
 
-            <p style={{ fontSize: "1.0625rem", lineHeight: 1.5 }}>
+            <p
+              style={{
+                fontSize: "1.0625rem",
+
+                lineHeight: 1.5,
+              }}
+            >
               Sorununuzu tanımlayın; geçmiş benzer kayıtlar incelenerek
               uygulanabilir bir çözüm planı hazırlansın.
             </p>
@@ -544,7 +558,7 @@ function CreateTicket() {
                 onChange={handleChange}
                 minLength={3}
                 maxLength={500}
-                placeholder="Örneğin: Bilgisayar internete bağlanmıyor"
+                placeholder={"Örneğin: Bilgisayar " + "internete bağlanmıyor"}
                 disabled={isBusy}
                 required
               />
@@ -558,11 +572,19 @@ function CreateTicket() {
                 value={formData.description}
                 onChange={handleChange}
                 minLength={3}
-                placeholder="Sorunu, hata mesajını ve daha önce denediğiniz işlemleri ayrıntılı şekilde açıklayın..."
+                placeholder={
+                  "Sorunu, hata mesajını " +
+                  "ve daha önce " +
+                  "denediğiniz işlemleri " +
+                  "ayrıntılı şekilde " +
+                  "açıklayın..."
+                }
                 disabled={isBusy}
                 required
               />
             </FormField>
+
+            <AIImageUploadField ref={imageUploadRef} disabled={isBusy} />
 
             <div className="form-grid">
               <FormField label="Departman" htmlFor="department" required>
@@ -571,8 +593,8 @@ function CreateTicket() {
                   value={formData.department}
                   options={departments}
                   placeholder={departmentPlaceholder}
-                  searchPlaceholder="Departman ara..."
-                  emptyMessage="Departman bulunamadı."
+                  searchPlaceholder={"Departman ara..."}
+                  emptyMessage={"Departman bulunamadı."}
                   disabled={
                     isBusy || optionsLoading || departments.length === 0
                   }
@@ -588,8 +610,8 @@ function CreateTicket() {
                   value={formData.category}
                   options={categories}
                   placeholder={categoryPlaceholder}
-                  searchPlaceholder="Kategori ara..."
-                  emptyMessage="Kategori bulunamadı."
+                  searchPlaceholder={"Kategori ara..."}
+                  emptyMessage={"Kategori bulunamadı."}
                   disabled={
                     isBusy ||
                     optionsLoading ||
@@ -608,8 +630,8 @@ function CreateTicket() {
                   value={formData.subcategory}
                   options={subcategories}
                   placeholder={subcategoryPlaceholder}
-                  searchPlaceholder="Alt kategori ara..."
-                  emptyMessage="Alt kategori bulunamadı."
+                  searchPlaceholder={"Alt kategori ara..."}
+                  emptyMessage={"Alt kategori bulunamadı."}
                   disabled={
                     isBusy ||
                     optionsLoading ||
@@ -627,7 +649,7 @@ function CreateTicket() {
                   id="priority"
                   value={formData.priority}
                   options={PRIORITY_OPTIONS}
-                  placeholder="Öncelik seçin"
+                  placeholder={"Öncelik seçin"}
                   searchable={false}
                   disabled={isBusy}
                   onChange={(value) => {
@@ -689,760 +711,6 @@ function CreateTicket() {
       ) : null}
     </main>
   );
-}
-
-function AISolutionResult({
-  solution,
-  confidence,
-  sourceTicketIds,
-  resolutionStatus,
-  resolutionLoading,
-  pendingResolution,
-  onResolved,
-  onUnresolved,
-}) {
-  const hasStructuredContent =
-    solution.evaluation ||
-    solution.steps.length > 0 ||
-    solution.solutionIntro ||
-    solution.warning ||
-    solution.control ||
-    solution.nextAction;
-
-  return (
-    <section className="panel ai-solution-panel">
-      <header className="ai-solution-header">
-        <div className="ai-solution-title-area">
-          <span className="ai-solution-header-icon" aria-hidden="true">
-            ✦
-          </span>
-
-          <div className="ai-solution-title-copy">
-            <span className="ai-solution-eyebrow">ÇÖZÜM PLANI</span>
-
-            <h2 className="ai-solution-title">Çözüm Önerisi</h2>
-          </div>
-        </div>
-
-        {confidence ? <ConfidenceIndicator confidence={confidence} /> : null}
-      </header>
-
-      {hasStructuredContent ? (
-        <div className="ai-solution-content">
-          {solution.evaluation ? (
-            <section className="ai-evaluation-card">
-              <div className="ai-evaluation-accent" aria-hidden="true" />
-
-              <div className="ai-evaluation-body">
-                <div className="ai-evaluation-heading">
-                  <span className="ai-evaluation-badge">AI ÖZETİ</span>
-
-                  <h3>Kök neden analizi</h3>
-                </div>
-
-                <p>{solution.evaluation}</p>
-              </div>
-            </section>
-          ) : null}
-
-          {solution.steps.length > 0 || solution.solutionIntro ? (
-            <section className="ai-solution-main-section">
-              <div className="ai-section-heading">
-                <span
-                  className="ai-section-heading-icon ai-section-heading-icon-primary"
-                  aria-hidden="true"
-                >
-                  ✦
-                </span>
-
-                <div>
-                  <h3>Uygulanacak adımlar</h3>
-
-                  <span className="ai-section-description">
-                    İşlemleri sırayla uygulayın.
-                  </span>
-                </div>
-              </div>
-
-              {solution.solutionIntro ? (
-                <p className="ai-solution-intro">{solution.solutionIntro}</p>
-              ) : null}
-
-              {solution.steps.length > 0 ? (
-                <ol className="ai-solution-timeline">
-                  {solution.steps.map((step, index) => {
-                    const isLastStep = index === solution.steps.length - 1;
-
-                    return (
-                      <li
-                        className={[
-                          "ai-solution-timeline-item",
-                          isLastStep ? "ai-solution-timeline-item-last" : "",
-                        ]
-                          .filter(Boolean)
-                          .join(" ")}
-                        key={`${index}-${step}`}
-                      >
-                        <div className="ai-solution-timeline-rail">
-                          <span className="ai-solution-timeline-number">
-                            {index + 1}
-                          </span>
-
-                          {!isLastStep ? (
-                            <span
-                              className="ai-solution-timeline-line"
-                              aria-hidden="true"
-                            />
-                          ) : null}
-                        </div>
-
-                        <div className="ai-solution-timeline-content">
-                          <p>{step}</p>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ol>
-              ) : null}
-            </section>
-          ) : null}
-
-          {solution.warning ? (
-            <aside className="ai-solution-warning">
-              <span className="ai-solution-warning-icon" aria-hidden="true">
-                !
-              </span>
-
-              <div>
-                <strong>Önemli uyarı</strong>
-
-                <p>{solution.warning}</p>
-              </div>
-            </aside>
-          ) : null}
-
-          {solution.control || solution.nextAction ? (
-            <div className="ai-solution-info-grid">
-              {solution.control ? (
-                <section className="ai-info-card ai-info-card-control">
-                  <span
-                    className="ai-info-card-icon ai-info-card-icon-control"
-                    aria-hidden="true"
-                  >
-                    ✓
-                  </span>
-
-                  <div>
-                    <span className="ai-info-card-label">DOĞRULAMA</span>
-
-                    <h3>Kontrol</h3>
-
-                    <p>{solution.control}</p>
-                  </div>
-                </section>
-              ) : null}
-
-              {solution.nextAction ? (
-                <section className="ai-info-card ai-info-card-next">
-                  <span
-                    className="ai-info-card-icon ai-info-card-icon-next"
-                    aria-hidden="true"
-                  >
-                    →
-                  </span>
-
-                  <div>
-                    <span className="ai-info-card-label">DEVAM EDİYORSA</span>
-
-                    <h3>Sonraki işlem</h3>
-
-                    <p>{solution.nextAction}</p>
-                  </div>
-                </section>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
-      ) : (
-        <div className="ai-solution-fallback">{solution.fallback}</div>
-      )}
-
-      {sourceTicketIds.length > 0 ? (
-        <footer className="ai-solution-sources">
-          <div>
-            <span className="ai-solution-sources-label">Benzer kayıtlar</span>
-
-            <p>Çözümle ilişkili geçmiş Service Desk kayıtları</p>
-          </div>
-
-          <div className="ai-source-ticket-list">
-            {sourceTicketIds.map((requestId) => (
-              <span
-                className="ai-source-ticket"
-                title={`Kaynak ticket ${formatSourceTicketId(requestId)}`}
-                key={requestId}
-              >
-                <span aria-hidden="true">#</span>
-
-                {String(requestId).replace(/^#/, "")}
-              </span>
-            ))}
-          </div>
-        </footer>
-      ) : null}
-
-      {!resolutionStatus ? (
-        <section className="ai-feedback-box">
-          <div className="ai-feedback-copy">
-            <span className="ai-feedback-label">SONUÇ</span>
-
-            <h3>Bu adımlar sorununuzu çözdü mü?</h3>
-
-            <p>Çözülmediyse gerçek IT desteğine yönlendirileceksiniz.</p>
-          </div>
-
-          <div className="ai-feedback-actions">
-            <button
-              type="button"
-              className="ai-feedback-button ai-feedback-button-secondary"
-              onClick={onUnresolved}
-              disabled={resolutionLoading}
-            >
-              {pendingResolution === "unresolved"
-                ? "Kaydediliyor..."
-                : "Sorunum Çözülmedi"}
-            </button>
-
-            <button
-              type="button"
-              className="ai-feedback-button ai-feedback-button-primary"
-              onClick={onResolved}
-              disabled={resolutionLoading}
-            >
-              {pendingResolution === "resolved"
-                ? "Kaydediliyor..."
-                : "Sorunum Çözüldü"}
-            </button>
-          </div>
-        </section>
-      ) : null}
-    </section>
-  );
-}
-
-function ConfidenceIndicator({ confidence }) {
-  const style = {
-    "--confidence-progress": `${confidence.progress}deg`,
-  };
-
-  return (
-    <div
-      className={[
-        "ai-confidence-card",
-        `ai-confidence-card-${confidence.tone}`,
-      ].join(" ")}
-      style={style}
-      aria-label={`Güven puanı yüzde ${confidence.value.toFixed(2)}`}
-    >
-      <span className="ai-confidence-ring" aria-hidden="true">
-        <span className="ai-confidence-ring-center">
-          {Math.round(confidence.value)}
-        </span>
-      </span>
-
-      <span className="ai-confidence-copy">
-        <span className="ai-confidence-label">Güven puanı</span>
-
-        <strong className="ai-confidence-value">{confidence.label}</strong>
-
-        <span className="ai-confidence-status">{confidence.status}</span>
-      </span>
-    </div>
-  );
-}
-
-function ResolutionResultCard({ type, onNewIssue }) {
-  const isResolved = type === "resolved";
-
-  return (
-    <section
-      className={[
-        "panel",
-        "ai-resolution-card",
-        isResolved
-          ? "ai-resolution-card-success"
-          : "ai-resolution-card-warning",
-      ].join(" ")}
-    >
-      <span className="ai-resolution-icon" aria-hidden="true">
-        {isResolved ? "✓" : "!"}
-      </span>
-
-      <div className="ai-resolution-copy">
-        <span className="ai-resolution-kicker">
-          {isResolved ? "GERİ BİLDİRİM ALINDI" : "IT DESTEĞİ GEREKİYOR"}
-        </span>
-
-        <h2>
-          {isResolved
-            ? "Sorun çözüldü olarak kaydedildi"
-            : "Service Desk kaydı oluşturun"}
-        </h2>
-
-        <p>
-          {isResolved
-            ? "Teşekkürler. Yeni bir sorun için formu yeniden açabilirsiniz."
-            : "Sorunun ayrıntılarını kurumunuzun Service Desk sistemine ileterek IT ekibinden destek alın."}
-        </p>
-      </div>
-
-      <div className="ai-resolution-actions">
-        <button
-          type="button"
-          className="ai-resolution-secondary-button"
-          onClick={onNewIssue}
-        >
-          Yeni Sorun Bildir
-        </button>
-
-        {!isResolved && SERVICE_DESK_URL ? (
-          <a
-            href={SERVICE_DESK_URL}
-            className="ai-resolution-primary-button"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            IT Destek Kaydı Aç
-          </a>
-        ) : null}
-      </div>
-    </section>
-  );
-}
-
-function AISolutionLoading({ activeStep }) {
-  const currentStep = AI_LOADING_STEPS[activeStep] || AI_LOADING_STEPS[0];
-
-  return (
-    <section
-      className="panel ai-loading-panel"
-      role="status"
-      aria-live="polite"
-      aria-atomic="true"
-    >
-      <div className="ai-loading-glow" aria-hidden="true" />
-
-      <div className="ai-loading-content">
-        <div className="ai-loading-heading">
-          <div className="ai-loading-orb" aria-hidden="true">
-            <div className="ai-loading-orb-ring" />
-
-            <div className="ai-loading-orb-core">
-              <span>✦</span>
-            </div>
-          </div>
-
-          <div className="ai-loading-heading-copy">
-            <span className="ai-loading-brand">IntelliDesk AI</span>
-
-            <h2>{currentStep.title}</h2>
-          </div>
-        </div>
-
-        <p className="ai-loading-description">{currentStep.description}</p>
-
-        <div className="ai-loading-progress" aria-hidden="true" />
-
-        <div className="ai-loading-steps">
-          {AI_LOADING_STEPS.map((step, index) => {
-            const isDone = index < activeStep;
-
-            const isActive = index === activeStep;
-
-            const statusClass = isDone
-              ? "ai-loading-step-done"
-              : isActive
-                ? "ai-loading-step-active"
-                : "ai-loading-step-pending";
-
-            return (
-              <div
-                className={`ai-loading-step ${statusClass}`}
-                key={step.title}
-                aria-current={isActive ? "step" : undefined}
-              >
-                <span className="ai-loading-step-icon">
-                  {isDone ? (
-                    "✓"
-                  ) : isActive ? (
-                    <span className="ai-loading-step-pulse" />
-                  ) : (
-                    index + 1
-                  )}
-                </span>
-
-                <span className="ai-loading-step-copy">
-                  <strong>{step.title}</strong>
-
-                  <span>{step.detail}</span>
-                </span>
-              </div>
-            );
-          })}
-        </div>
-
-        <p className="ai-loading-footer">
-          <span className="ai-loading-footer-dot" aria-hidden="true" />
-          Bu işlem genellikle birkaç saniye sürer. Lütfen sayfayı kapatmayın.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-function FormField({ label, htmlFor, required = false, children }) {
-  return (
-    <div className="form-group">
-      <label htmlFor={htmlFor}>
-        {label}
-
-        {required ? <span className="required-mark">*</span> : null}
-      </label>
-
-      {children}
-    </div>
-  );
-}
-
-function getAiSessionId(search) {
-  const searchParams = new URLSearchParams(search);
-  const sessionValue = searchParams.get("session");
-
-  if (!sessionValue || !/^\d+$/.test(sessionValue)) {
-    return null;
-  }
-
-  const sessionId = Number(sessionValue);
-
-  if (!Number.isSafeInteger(sessionId) || sessionId <= 0) {
-    return null;
-  }
-
-  return sessionId;
-}
-
-function getAssistantMessage(aiSession) {
-  if (!Array.isArray(aiSession?.messages)) {
-    return null;
-  }
-
-  return (
-    aiSession.messages.find((message) => message.sender_type === "assistant") ||
-    null
-  );
-}
-
-function parseAiSolution(content) {
-  const emptySolution = {
-    evaluation: "",
-    solutionIntro: "",
-    steps: [],
-    warning: "",
-    control: "",
-    nextAction: "",
-    sourceTicketIds: [],
-    fallback: "",
-  };
-
-  if (typeof content !== "string") {
-    return emptySolution;
-  }
-
-  const normalizedContent = normalizeAiContent(content);
-
-  const sections = {
-    evaluation: [],
-    solution: [],
-    control: [],
-    nextAction: [],
-    metadata: [],
-    other: [],
-  };
-
-  let currentSection = "other";
-
-  normalizedContent.split("\n").forEach((rawLine) => {
-    const line = rawLine.trim();
-
-    if (!line) {
-      return;
-    }
-
-    if (/^-{3,}$/.test(line)) {
-      currentSection = "metadata";
-      return;
-    }
-
-    const sectionMatch = matchAiSection(line);
-
-    if (sectionMatch) {
-      currentSection = sectionMatch.section;
-
-      if (sectionMatch.value) {
-        sections[currentSection].push(sectionMatch.value);
-      }
-
-      return;
-    }
-
-    sections[currentSection].push(line);
-  });
-
-  const parsedSteps = parseSolutionSteps(sections.solution);
-
-  const metadataText = sections.metadata.join("\n");
-
-  const sourceTicketIds = extractSourceTicketIds(metadataText);
-
-  const fallback =
-    cleanParagraph(sections.other.join(" ")) ||
-    cleanParagraph(normalizedContent);
-
-  return {
-    evaluation:
-      cleanParagraph(sections.evaluation.join(" ")) ||
-      cleanParagraph(sections.other.join(" ")),
-    solutionIntro: parsedSteps.intro,
-    steps: parsedSteps.steps,
-    warning: parsedSteps.warning,
-    control: cleanParagraph(sections.control.join(" ")),
-    nextAction: cleanParagraph(sections.nextAction.join(" ")),
-    sourceTicketIds,
-    fallback,
-  };
-}
-
-function matchAiSection(line) {
-  const sectionDefinitions = [
-    {
-      section: "evaluation",
-      pattern: /^sorun\s+değerlendirmesi\s*:?\s*(.*)$/i,
-    },
-    {
-      section: "solution",
-      pattern: /^önerilen\s+çözüm\s*:?\s*(.*)$/i,
-    },
-    {
-      section: "control",
-      pattern: /^kontrol\s*:?\s*(.*)$/i,
-    },
-    {
-      section: "nextAction",
-      pattern: /^sonraki\s+işlem\s*:?\s*(.*)$/i,
-    },
-    {
-      section: "metadata",
-      pattern: /^rag\s+bilgileri\s*:?\s*(.*)$/i,
-    },
-  ];
-
-  for (const definition of sectionDefinitions) {
-    const match = line.match(definition.pattern);
-
-    if (match) {
-      return {
-        section: definition.section,
-        value: cleanTextLine(match[1] || ""),
-      };
-    }
-  }
-
-  return null;
-}
-
-function parseSolutionSteps(lines) {
-  const steps = [];
-  const introParts = [];
-  const warningParts = [];
-
-  let activeStepIndex = -1;
-
-  lines.forEach((rawLine) => {
-    const line = cleanTextLine(rawLine);
-
-    if (!line) {
-      return;
-    }
-
-    const warningMatch = line.match(/^(?:uyarı|önemli\s+uyarı)\s*:?\s*(.*)$/i);
-
-    if (warningMatch) {
-      warningParts.push(warningMatch[1] || line);
-      return;
-    }
-
-    const numberedStep = line.match(/^\d+[.)]\s*(.+)$/);
-
-    const bulletStep = line.match(/^[•-]\s*(.+)$/);
-
-    const stepMatch = numberedStep || bulletStep;
-
-    if (stepMatch) {
-      steps.push(stepMatch[1].trim());
-      activeStepIndex = steps.length - 1;
-      return;
-    }
-
-    if (activeStepIndex >= 0) {
-      steps[activeStepIndex] = `${steps[activeStepIndex]} ${line}`.trim();
-
-      return;
-    }
-
-    introParts.push(line);
-  });
-
-  return {
-    intro: cleanParagraph(introParts.join(" ")),
-    steps,
-    warning: cleanParagraph(warningParts.join(" ")),
-  };
-}
-
-function extractSourceTicketIds(metadataText) {
-  const sourceLine = metadataText
-    .split("\n")
-    .find((line) => /^kaynak\s+ticketlar\s*:/i.test(line.trim()));
-
-  if (!sourceLine) {
-    return [];
-  }
-
-  return sourceLine
-    .replace(/^kaynak\s+ticketlar\s*:/i, "")
-    .split(",")
-    .map((item) => item.replace(/^#/, "").trim())
-    .filter(Boolean);
-}
-
-function getSourceTicketIds(aiSession, parsedSourceIds) {
-  const directSourceIds = Array.isArray(aiSession?.source_request_ids)
-    ? aiSession.source_request_ids
-    : [];
-
-  const selectedSourceIds =
-    directSourceIds.length > 0 ? directSourceIds : parsedSourceIds;
-
-  return [
-    ...new Set(
-      selectedSourceIds
-        .map((requestId) => String(requestId).replace(/^#/, "").trim())
-        .filter(Boolean),
-    ),
-  ];
-}
-
-function formatSourceTicketId(requestId) {
-  const normalizedId = String(requestId || "").replace(/^#/, "");
-
-  return `#${normalizedId}`;
-}
-
-function getConfidenceMeta(value) {
-  const numericValue = Number(value);
-
-  if (!Number.isFinite(numericValue)) {
-    return null;
-  }
-
-  const percentage =
-    numericValue > 1
-      ? clamp(numericValue, 0, 100)
-      : clamp(numericValue, 0, 1) * 100;
-
-  let tone = "low";
-  let status = "Düşük eşleşme";
-
-  if (percentage >= 80) {
-    tone = "high";
-    status = "Yüksek eşleşme";
-  } else if (percentage >= 60) {
-    tone = "medium";
-    status = "Orta eşleşme";
-  }
-
-  return {
-    value: percentage,
-    label: `%${percentage.toFixed(2)}`,
-    progress: percentage * 3.6,
-    tone,
-    status,
-  };
-}
-
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max);
-}
-
-function normalizeAiContent(content) {
-  if (typeof content !== "string") {
-    return "";
-  }
-
-  return content
-    .replace(/\r\n/g, "\n")
-    .replace(/\bBT\s+ekibi\b/gi, "IT ekibi")
-    .replace(/\*\*(.*?)\*\*/g, "$1")
-    .replace(/^\s*#{1,6}\s*/gm, "")
-    .replace(/^\s*\*\s+/gm, "• ")
-    .trim();
-}
-
-function cleanTextLine(value) {
-  return String(value || "")
-    .replace(/^\*+|\*+$/g, "")
-    .trim();
-}
-
-function cleanParagraph(value) {
-  return cleanTextLine(value).replace(/\s+/g, " ").trim();
-}
-
-function getApiErrorMessage(error, fallbackMessage) {
-  const detail = error?.response?.data?.detail;
-
-  if (typeof detail === "string") {
-    return detail;
-  }
-
-  if (Array.isArray(detail)) {
-    const messages = detail
-      .map((item) => {
-        if (typeof item?.msg === "string") {
-          return item.msg;
-        }
-
-        if (typeof item === "string") {
-          return item;
-        }
-
-        return null;
-      })
-      .filter(Boolean);
-
-    if (messages.length > 0) {
-      return messages.join(" ");
-    }
-  }
-
-  if (
-    typeof error?.message === "string" &&
-    error.message === "Çözüm sonucu beklenen değerle eşleşmedi."
-  ) {
-    return error.message;
-  }
-
-  return fallbackMessage;
 }
 
 export default CreateTicket;

@@ -45,8 +45,10 @@ Thumbs.db
 *.tmp
 *.temp
 
-# Yerel veriler ve raporlar
+# Yerel veriler, yüklemeler ve raporlar
 
+backend/uploads/
+uploads/
 ServiceDeskReport.xlsx
 ServiceDeskReport_repaired.xlsx
 
