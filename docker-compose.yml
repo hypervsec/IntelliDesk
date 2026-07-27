@@ -1,0 +1,28 @@
+services:
+  backend:
+    image: intellidesk-backend:local
+
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    env_file:
+      - ./backend/.env
+
+    environment:
+      DB_HOST: host.docker.internal
+      DB_PORT: "5433"
+      UPLOAD_ROOT: /app/uploads
+      PORT: "8000"
+
+    ports:
+      - "8000:8000"
+
+    volumes:
+      - ./backend/uploads:/app/uploads
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    init: true
+    restart: unless-stopped
