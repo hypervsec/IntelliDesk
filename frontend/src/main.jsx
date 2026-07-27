@@ -50,6 +50,12 @@ import "./styles/ai/ai-solution-layout-fix.css";
  */
 import "./styles/ai/ai-visual-guidance-compact.css";
 
+/*
+ * AI çözüm görselini modal içerisinde tam genişlikte gösterir.
+ * Tekrarlanan sağ yönlendirme panelini çözüm modunda gizler.
+ */
+import "./styles/ai/ai-solution-modal-full.css";
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ThemeProvider>

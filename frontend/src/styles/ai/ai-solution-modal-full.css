@@ -1,0 +1,131 @@
+/* =========================================================
+   AI ÇÖZÜM GÖRSELİ — TAM GENİŞLİK MODAL
+   ========================================================= */
+
+.ai-image-modal-card-guided {
+  width: min(1540px, calc(100vw - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+}
+
+.ai-image-modal-card-guided .ai-image-modal-content-guided {
+  min-height: 0;
+
+  display: grid;
+  place-items: center;
+
+  padding: 12px;
+
+  overflow: auto;
+
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      color-mix(in srgb, var(--color-primary) 8%, transparent),
+      transparent 42%
+    ),
+    var(--color-surface-soft);
+}
+
+/*
+ * Çözüm panosunun içerisinde adımlar zaten yer aldığı için
+ * sağ taraftaki tekrar eden yönlendirme paneli gizlenir.
+ */
+.ai-image-modal-card-guided .ai-visual-guidance-panel {
+  display: none;
+}
+
+.ai-image-modal-card-guided .ai-guided-visual {
+  width: 100%;
+  min-width: 0;
+
+  display: block;
+}
+
+.ai-image-modal-card-guided .ai-guided-image-stage {
+  width: 100%;
+  min-width: 0;
+
+  display: grid;
+  place-items: center;
+}
+
+.ai-image-modal-card-guided .ai-guided-image-stage > img {
+  width: 100%;
+  height: auto;
+
+  max-width: 1500px;
+  max-height: calc(100dvh - 150px);
+
+  display: block;
+
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+
+  object-fit: contain;
+  object-position: center;
+
+  background: var(--color-surface-raised);
+
+  box-shadow:
+    0 24px 64px rgba(2, 6, 23, 0.34),
+    0 0 0 1px rgba(255, 255, 255, 0.025);
+}
+
+/* =========================================================
+   BÜYÜK EKRAN
+   ========================================================= */
+
+@media (min-width: 1600px) {
+  .ai-image-modal-card-guided {
+    width: min(1720px, calc(100vw - 48px));
+  }
+
+  .ai-image-modal-card-guided .ai-guided-image-stage > img {
+    max-width: 1680px;
+  }
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .ai-image-modal-card-guided {
+    width: calc(100vw - 20px);
+    max-height: calc(100dvh - 20px);
+  }
+
+  .ai-image-modal-card-guided .ai-image-modal-content-guided {
+    padding: 8px;
+  }
+
+  .ai-image-modal-card-guided .ai-guided-image-stage > img {
+    max-height: calc(100dvh - 135px);
+
+    border-radius: 10px;
+  }
+}
+
+/* =========================================================
+   MOBİL
+   ========================================================= */
+
+@media (max-width: 520px) {
+  .ai-image-modal-card-guided {
+    width: calc(100vw - 12px);
+    max-height: calc(100dvh - 12px);
+
+    border-radius: 12px;
+  }
+
+  .ai-image-modal-card-guided .ai-image-modal-content-guided {
+    padding: 5px;
+  }
+
+  .ai-image-modal-card-guided .ai-guided-image-stage > img {
+    max-height: calc(100dvh - 125px);
+
+    border-radius: 8px;
+  }
+}
