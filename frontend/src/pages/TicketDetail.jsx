@@ -1,576 +1,566 @@
-import { useCallback, useEffect, useState } from "react";
-
-import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
 
 import api from "../api/api";
-import { useAuth } from "../auth/AuthContext";
-
-import StaffTicketDetail from "../components/StaffTicketDetail";
-import UserTicketDetail from "../components/UserTicketDetail";
 
 import {
-  createUniqueOptions,
+  formatDate,
+  formatSourceTicketId,
   getApiErrorMessage,
-  getUserStatusMessage,
-  normalizeConfidence,
+  getAssistantMessage,
+  getConfidenceMeta,
+  getSourceTicketIds,
+  parseAiSolution,
+  translateAiStatus,
   translatePriority,
   translateStatus,
 } from "../utils/ticketDetailUtils";
 
-const INITIAL_UPDATE_FORM = {
-  status: "open",
-  assigned_technician: "",
-  department: "",
-  category: "",
-  subcategory: "",
-  priority: "medium",
-  resolution: "",
-};
+function UserTicketDetail({
+  ticket,
+  aiSession,
+  aiSessionLoading,
+  aiSessionError,
+}) {
+  const assistantMessage = getAssistantMessage(aiSession);
 
-function TicketDetail() {
-  const { ticketId } = useParams();
+  const parsedSolution = parseAiSolution(assistantMessage?.content);
 
-  const navigate = useNavigate();
+  const confidence = getConfidenceMeta(aiSession?.confidence_score);
 
-  const { account } = useAuth();
-
-  const canManageTicket =
-    account?.role === "technician" || account?.role === "admin";
-
-  const ticketDetailPageClassName = [
-    "page",
-    "ticket-detail-page",
-    canManageTicket ? "staff-ticket-detail-page" : "user-ticket-detail-page",
-  ].join(" ");
-
-  const [ticket, setTicket] = useState(null);
-
-  const [aiSession, setAiSession] = useState(null);
-
-  const [recommendation, setRecommendation] = useState(null);
-
-  const [updateForm, setUpdateForm] = useState(INITIAL_UPDATE_FORM);
-
-  const [staffAccounts, setStaffAccounts] = useState([]);
-
-  const [departmentOptions, setDepartmentOptions] = useState([]);
-
-  const [categoryOptions, setCategoryOptions] = useState([]);
-
-  const [subcategoryOptions, setSubcategoryOptions] = useState([]);
-
-  const [loading, setLoading] = useState(true);
-
-  const [aiSessionLoading, setAiSessionLoading] = useState(false);
-
-  const [recommendationLoading, setRecommendationLoading] = useState(false);
-
-  const [updateLoading, setUpdateLoading] = useState(false);
-
-  const [formOptionsLoading, setFormOptionsLoading] = useState(false);
-
-  const [staffLoading, setStaffLoading] = useState(false);
-
-  const [error, setError] = useState("");
-
-  const [message, setMessage] = useState("");
-
-  const [aiSessionError, setAiSessionError] = useState("");
-
-  const [formOptionsError, setFormOptionsError] = useState("");
-
-  const [staffError, setStaffError] = useState("");
-
-  const loadDependentOptions = useCallback(
-    async (
-      selectedDepartment = "",
-      selectedCategory = "",
-      currentSubcategory = "",
-    ) => {
-      try {
-        setFormOptionsLoading(true);
-        setFormOptionsError("");
-
-        const categoryParams = {};
-
-        if (selectedDepartment.trim()) {
-          categoryParams.department = selectedDepartment.trim();
-        }
-
-        const categoryResponse = await api.get("/tickets/form-options", {
-          params: categoryParams,
-        });
-
-        const departments = Array.isArray(categoryResponse.data?.departments)
-          ? categoryResponse.data.departments
-          : [];
-
-        const categories = Array.isArray(categoryResponse.data?.categories)
-          ? categoryResponse.data.categories
-          : [];
-
-        setDepartmentOptions(
-          createUniqueOptions(departments, selectedDepartment),
-        );
-
-        setCategoryOptions(createUniqueOptions(categories, selectedCategory));
-
-        if (!selectedDepartment || !selectedCategory) {
-          setSubcategoryOptions([]);
-
-          return;
-        }
-
-        const subcategoryResponse = await api.get("/tickets/form-options", {
-          params: {
-            department: selectedDepartment.trim(),
-
-            category: selectedCategory.trim(),
-          },
-        });
-
-        const subcategories = Array.isArray(
-          subcategoryResponse.data?.subcategories,
-        )
-          ? subcategoryResponse.data.subcategories
-          : [];
-
-        setSubcategoryOptions(
-          createUniqueOptions(subcategories, currentSubcategory),
-        );
-      } catch (requestError) {
-        console.error(requestError);
-
-        setDepartmentOptions((currentOptions) =>
-          createUniqueOptions(currentOptions, selectedDepartment),
-        );
-
-        setCategoryOptions((currentOptions) =>
-          createUniqueOptions(currentOptions, selectedCategory),
-        );
-
-        setSubcategoryOptions((currentOptions) =>
-          createUniqueOptions(currentOptions, currentSubcategory),
-        );
-
-        setFormOptionsError(
-          getApiErrorMessage(
-            requestError,
-            "Departman, kategori ve alt kategori seçenekleri alınamadı.",
-          ),
-        );
-      } finally {
-        setFormOptionsLoading(false);
-      }
-    },
-    [],
+  const sourceTicketIds = getSourceTicketIds(
+    aiSession,
+    parsedSolution.sourceTicketIds,
   );
-
-  const loadStaffAccounts = useCallback(async () => {
-    if (!canManageTicket) {
-      setStaffAccounts([]);
-      setStaffError("");
-
-      return;
-    }
-
-    try {
-      setStaffLoading(true);
-      setStaffError("");
-
-      const response = await api.get("/auth/staff");
-
-      const accounts = Array.isArray(response.data) ? response.data : [];
-
-      const activeStaff = accounts.filter(
-        (staffAccount) =>
-          staffAccount?.is_active === true &&
-          (staffAccount?.role === "technician" ||
-            staffAccount?.role === "admin"),
-      );
-
-      setStaffAccounts(activeStaff);
-    } catch (requestError) {
-      console.error(requestError);
-
-      setStaffAccounts([]);
-
-      setStaffError(
-        getApiErrorMessage(requestError, "Teknik personel listesi alınamadı."),
-      );
-    } finally {
-      setStaffLoading(false);
-    }
-  }, [canManageTicket]);
-
-  const loadTicket = useCallback(
-    async (showLoading = true) => {
-      try {
-        if (showLoading) {
-          setLoading(true);
-        }
-
-        setError("");
-
-        const response = await api.get(`/tickets/${ticketId}`);
-
-        const ticketData = response.data;
-
-        const nextUpdateForm = {
-          status: ticketData.status || "open",
-
-          assigned_technician: ticketData.assigned_technician || "",
-
-          department: ticketData.department || "",
-
-          category: ticketData.category || "",
-
-          subcategory: ticketData.subcategory || "",
-
-          priority: ticketData.priority || "medium",
-
-          resolution: ticketData.resolution || "",
-        };
-
-        setTicket(ticketData);
-
-        setUpdateForm(nextUpdateForm);
-
-        if (ticketData.ai_recommendation) {
-          setRecommendation((currentRecommendation) => ({
-            ticket_id: ticketData.ticket_id,
-
-            recommendation: ticketData.ai_recommendation,
-
-            confidence_score: normalizeConfidence(
-              ticketData.ai_confidence_score,
-            ),
-
-            source_request_ids: currentRecommendation?.source_request_ids || [],
-          }));
-        } else {
-          setRecommendation(null);
-        }
-
-        if (canManageTicket) {
-          await loadDependentOptions(
-            nextUpdateForm.department,
-
-            nextUpdateForm.category,
-
-            nextUpdateForm.subcategory,
-          );
-        } else {
-          setDepartmentOptions([]);
-          setCategoryOptions([]);
-          setSubcategoryOptions([]);
-          setFormOptionsError("");
-        }
-      } catch (requestError) {
-        console.error(requestError);
-
-        setTicket(null);
-
-        setError(
-          getApiErrorMessage(requestError, "Ticket bilgileri alınamadı."),
-        );
-      } finally {
-        if (showLoading) {
-          setLoading(false);
-        }
-      }
-    },
-    [ticketId, canManageTicket, loadDependentOptions],
-  );
-
-  const loadAiSession = useCallback(async () => {
-    try {
-      setAiSessionLoading(true);
-
-      setAiSessionError("");
-
-      const response = await api.get(`/ai/tickets/${ticketId}`);
-
-      setAiSession(response.data);
-    } catch (requestError) {
-      console.error(requestError);
-
-      setAiSession(null);
-
-      if (requestError?.response?.status === 404) {
-        setAiSessionError(
-          canManageTicket
-            ? "Bu ticketa bağlı kullanıcı AI oturumu bulunamadı."
-            : "Bu talebe bağlı AI çözümü bulunamadı.",
-        );
-      } else {
-        setAiSessionError(
-          getApiErrorMessage(
-            requestError,
-            canManageTicket
-              ? "Kullanıcının AI oturumu alınamadı."
-              : "AI çözümü alınamadı.",
-          ),
-        );
-      }
-    } finally {
-      setAiSessionLoading(false);
-    }
-  }, [ticketId, canManageTicket]);
-
-  useEffect(() => {
-    void loadTicket();
-  }, [loadTicket]);
-
-  useEffect(() => {
-    void loadStaffAccounts();
-  }, [loadStaffAccounts]);
-
-  useEffect(() => {
-    void loadAiSession();
-  }, [loadAiSession]);
-
-  function handleUpdateChange(event) {
-    const { name, value } = event.target;
-
-    setUpdateForm((currentData) => ({
-      ...currentData,
-      [name]: value,
-    }));
-  }
-
-  async function handleDepartmentChange(event) {
-    const nextDepartment = event.target.value;
-
-    setUpdateForm((currentData) => ({
-      ...currentData,
-
-      department: nextDepartment,
-
-      category: "",
-
-      subcategory: "",
-    }));
-
-    setCategoryOptions([]);
-    setSubcategoryOptions([]);
-
-    await loadDependentOptions(nextDepartment, "", "");
-  }
-
-  async function handleCategoryChange(event) {
-    const nextCategory = event.target.value;
-
-    setUpdateForm((currentData) => ({
-      ...currentData,
-
-      category: nextCategory,
-
-      subcategory: "",
-    }));
-
-    setSubcategoryOptions([]);
-
-    await loadDependentOptions(updateForm.department, nextCategory, "");
-  }
-
-  async function updateTicket(event) {
-    event.preventDefault();
-
-    if (!canManageTicket) {
-      setError("Bu işlem için teknisyen veya yönetici yetkisi gereklidir.");
-
-      return;
-    }
-
-    try {
-      setUpdateLoading(true);
-      setError("");
-      setMessage("");
-
-      const requestData = {
-        status: updateForm.status,
-
-        assigned_technician: updateForm.assigned_technician.trim() || null,
-
-        department: updateForm.department.trim() || null,
-
-        category: updateForm.category.trim() || null,
-
-        subcategory: updateForm.subcategory.trim() || null,
-
-        priority: updateForm.priority,
-
-        resolution: updateForm.resolution.trim() || null,
-      };
-
-      await api.put(`/tickets/${ticketId}`, requestData);
-
-      setMessage("Ticket bilgileri güncellendi.");
-
-      await loadTicket(false);
-    } catch (requestError) {
-      console.error(requestError);
-
-      setError(getApiErrorMessage(requestError, "Ticket güncellenemedi."));
-    } finally {
-      setUpdateLoading(false);
-    }
-  }
-
-  async function createRecommendation() {
-    if (!canManageTicket) {
-      setError("Bu işlem için teknisyen veya yönetici yetkisi gereklidir.");
-
-      return;
-    }
-
-    try {
-      setRecommendationLoading(true);
-
-      setError("");
-      setMessage("");
-
-      const response = await api.post(`/tickets/${ticketId}/recommendation`);
-
-      const recommendationData = response.data;
-
-      setRecommendation({
-        ...recommendationData,
-
-        confidence_score: normalizeConfidence(
-          recommendationData.confidence_score,
-        ),
-
-        source_request_ids: Array.isArray(recommendationData.source_request_ids)
-          ? recommendationData.source_request_ids
-          : [],
-      });
-
-      setMessage("AI çözüm önerisi oluşturuldu.");
-
-      await loadTicket(false);
-    } catch (requestError) {
-      console.error(requestError);
-
-      setError(getApiErrorMessage(requestError, "AI önerisi oluşturulamadı."));
-    } finally {
-      setRecommendationLoading(false);
-    }
-  }
-
-  if (loading) {
-    return (
-      <main className={ticketDetailPageClassName}>
-        <div className="page-loading">
-          <div className="loading-spinner" aria-hidden="true" />
-
-          <span>
-            {canManageTicket
-              ? "Ticket yükleniyor..."
-              : "Talebiniz yükleniyor..."}
-          </span>
-        </div>
-      </main>
-    );
-  }
-
-  if (!ticket) {
-    return (
-      <main className={ticketDetailPageClassName}>
-        <button
-          type="button"
-          className="back-link"
-          onClick={() => navigate(-1)}
-        >
-          ← {canManageTicket ? "Ticketlara dön" : "Taleplerime dön"}
-        </button>
-
-        <p className="error-message">
-          {error ||
-            (canManageTicket ? "Ticket bulunamadı." : "Talep bulunamadı.")}
-        </p>
-      </main>
-    );
-  }
 
   return (
-    <main className={ticketDetailPageClassName}>
-      <header className="page-header">
-        <div>
-          <button
-            type="button"
-            className="back-link"
-            onClick={() => navigate(-1)}
-          >
-            ← {canManageTicket ? "Ticketlara dön" : "Taleplerime dön"}
-          </button>
+    <section className="user-ticket-detail-layout">
+      <UserIssueSummary ticket={ticket} />
 
-          <span className="page-eyebrow">
-            {canManageTicket ? "TICKET DETAYI" : "AI DESTEK SONUCU"}
-          </span>
+      <div className="user-ticket-ai-column">
+        {aiSessionLoading ? <AiSessionLoading /> : null}
 
-          <h1>
-            #{ticket.ticket_id} {ticket.title}
-          </h1>
+        {!aiSessionLoading && aiSessionError ? (
+          <AiSessionError message={aiSessionError} />
+        ) : null}
 
-          <p>
-            {canManageTicket
-              ? ticket.requester_name || "Kullanıcı belirtilmemiş"
-              : getUserStatusMessage(ticket.status)}
-          </p>
-        </div>
+        {!aiSessionLoading &&
+        !aiSessionError &&
+        aiSession &&
+        !assistantMessage ? (
+          <AiSessionPending aiSession={aiSession} />
+        ) : null}
 
-        <div className="header-actions">
-          <span className={`badge priority-${ticket.priority}`}>
-            {translatePriority(ticket.priority)}
-          </span>
-
-          <span className={`badge status-${ticket.status}`}>
-            {translateStatus(ticket.status)}
-          </span>
-        </div>
-      </header>
-
-      {error ? <p className="error-message">{error}</p> : null}
-
-      {message ? <p className="success-message">{message}</p> : null}
-
-      {canManageTicket ? (
-        <StaffTicketDetail
-          ticket={ticket}
-          aiSession={aiSession}
-          aiSessionLoading={aiSessionLoading}
-          aiSessionError={aiSessionError}
-          recommendation={recommendation}
-          recommendationLoading={recommendationLoading}
-          onCreateRecommendation={createRecommendation}
-          updateForm={updateForm}
-          staffAccounts={staffAccounts}
-          departmentOptions={departmentOptions}
-          categoryOptions={categoryOptions}
-          subcategoryOptions={subcategoryOptions}
-          formOptionsLoading={formOptionsLoading}
-          staffLoading={staffLoading}
-          updateLoading={updateLoading}
-          staffError={staffError}
-          formOptionsError={formOptionsError}
-          onUpdateChange={handleUpdateChange}
-          onDepartmentChange={handleDepartmentChange}
-          onCategoryChange={handleCategoryChange}
-          onUpdateTicket={updateTicket}
-          onTimelineChanged={() => loadTicket(false)}
-        />
-      ) : (
-        <UserTicketDetail
-          ticket={ticket}
-          aiSession={aiSession}
-          aiSessionLoading={aiSessionLoading}
-          aiSessionError={aiSessionError}
-        />
-      )}
-    </main>
+        {!aiSessionLoading && !aiSessionError && assistantMessage ? (
+          <AISolutionResult
+            solution={parsedSolution}
+            confidence={confidence}
+            sourceTicketIds={sourceTicketIds}
+          />
+        ) : null}
+      </div>
+    </section>
   );
 }
 
-export default TicketDetail;
+function UserIssueSummary({ ticket }) {
+  return (
+    <section className="panel user-issue-panel">
+      <header className="user-issue-header">
+        <div className="user-issue-title-area">
+          <span className="user-issue-header-icon" aria-hidden="true">
+            !
+          </span>
+
+          <div className="user-issue-title-copy">
+            <span className="user-issue-eyebrow">TALEBİNİZ</span>
+
+            <h2 className="user-issue-title">Bildirdiğiniz Sorun</h2>
+          </div>
+        </div>
+      </header>
+
+      <div className="user-issue-content">
+        <section className="user-issue-description-card">
+          <span className="user-issue-description-accent" aria-hidden="true" />
+
+          <div className="user-issue-description-body">
+            <div className="user-issue-description-heading">
+              <span className="user-issue-description-badge">AÇIKLAMA</span>
+
+              <h3>{ticket.title}</h3>
+            </div>
+
+            <p>{ticket.description || "Açıklama belirtilmemiş."}</p>
+          </div>
+        </section>
+
+        <div className="user-issue-info-grid">
+          <section className="user-issue-info-card user-issue-info-card-category">
+            <span
+              className="user-issue-info-icon user-issue-info-icon-category"
+              aria-hidden="true"
+            >
+              i
+            </span>
+
+            <div>
+              <span className="user-issue-info-label">SINIFLANDIRMA</span>
+
+              <h3>{ticket.category || "Kategori belirtilmemiş"}</h3>
+
+              <p>
+                {[ticket.department, ticket.subcategory]
+                  .filter(Boolean)
+                  .join(" · ") || "Departman veya alt kategori belirtilmemiş."}
+              </p>
+            </div>
+          </section>
+
+          <section className="user-issue-info-card user-issue-info-card-record">
+            <span
+              className="user-issue-info-icon user-issue-info-icon-record"
+              aria-hidden="true"
+            >
+              →
+            </span>
+
+            <div>
+              <span className="user-issue-info-label">KAYIT BİLGİSİ</span>
+
+              <h3>{translateStatus(ticket.status)}</h3>
+
+              <p>
+                {translatePriority(ticket.priority)} öncelik
+                {" · "}
+                {formatDate(ticket.created_at)}
+              </p>
+            </div>
+          </section>
+        </div>
+
+        <UserSupportTools ticketId={ticket.ticket_id} />
+      </div>
+    </section>
+  );
+}
+
+function UserSupportTools({ ticketId }) {
+  const [commentContent, setCommentContent] = useState("");
+
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
+
+  const [commentError, setCommentError] = useState("");
+
+  const [commentMessage, setCommentMessage] = useState("");
+
+  async function submitComment(event) {
+    event.preventDefault();
+
+    const normalizedContent = commentContent.trim();
+
+    if (!normalizedContent) {
+      setCommentError("Teknisyene göndermek istediğiniz mesajı yazın.");
+
+      return;
+    }
+
+    try {
+      setCommentSubmitting(true);
+      setCommentError("");
+      setCommentMessage("");
+
+      await api.post(`/tickets/${ticketId}/comments`, {
+        content: normalizedContent,
+      });
+
+      setCommentContent("");
+
+      setCommentMessage("Mesajınız teknisyene iletildi.");
+    } catch (requestError) {
+      console.error(requestError);
+
+      setCommentError(
+        getApiErrorMessage(requestError, "Mesaj teknisyene iletilemedi."),
+      );
+    } finally {
+      setCommentSubmitting(false);
+    }
+  }
+
+  function handleCommentChange(event) {
+    setCommentContent(event.target.value);
+
+    if (commentError) {
+      setCommentError("");
+    }
+
+    if (commentMessage) {
+      setCommentMessage("");
+    }
+  }
+
+  return (
+    <section className="user-support-tools">
+      <div className="user-support-tools-heading">
+        <span className="user-support-tools-kicker">TICKET İLETİŞİMİ</span>
+
+        <h3>Teknisyenle İletişim</h3>
+
+        <p>Ticket ile ilgili ek bilgi veya açıklamanızı teknisyene iletin.</p>
+      </div>
+
+      <form className="user-technician-message-form" onSubmit={submitComment}>
+        <div className="user-technician-message-heading">
+          <span className="user-technician-message-icon" aria-hidden="true">
+            ✎
+          </span>
+
+          <div>
+            <strong>Teknisyene mesaj bırak</strong>
+
+            <span>Mesajınız ticket zaman çizelgesine eklenecek.</span>
+          </div>
+        </div>
+
+        <textarea
+          rows={3}
+          maxLength={5000}
+          value={commentContent}
+          disabled={commentSubmitting}
+          placeholder="Ek açıklamanızı veya teknisyene iletmek istediğiniz bilgiyi yazın..."
+          onChange={handleCommentChange}
+        />
+
+        <div className="user-technician-message-meta">
+          <span>Bu mesajı ticketı görüntüleyen teknik ekip görebilir.</span>
+
+          <span>
+            {commentContent.length}
+            /5000
+          </span>
+        </div>
+
+        {commentError ? (
+          <p className="user-support-error">{commentError}</p>
+        ) : null}
+
+        {commentMessage ? (
+          <p className="user-support-success">{commentMessage}</p>
+        ) : null}
+
+        <div className="user-technician-message-actions">
+          <button
+            type="submit"
+            className="primary-button"
+            disabled={commentSubmitting || !commentContent.trim()}
+          >
+            {commentSubmitting ? "Gönderiliyor..." : "Mesajı Gönder"}
+          </button>
+        </div>
+      </form>
+    </section>
+  );
+}
+
+function AiSessionLoading() {
+  return (
+    <section
+      className={["panel", "ai-loading-panel", "user-ai-state-panel"].join(" ")}
+      role="status"
+    >
+      <div className="ai-loading-glow" aria-hidden="true" />
+
+      <div className="ai-loading-content">
+        <div className="ai-loading-heading">
+          <div className="ai-loading-orb" aria-hidden="true">
+            <div className="ai-loading-orb-ring" />
+
+            <div className="ai-loading-orb-core">
+              <span>✦</span>
+            </div>
+          </div>
+
+          <div className="ai-loading-heading-copy">
+            <span className="ai-loading-brand">IntelliDesk AI</span>
+
+            <h2>AI çözümü yükleniyor</h2>
+          </div>
+        </div>
+
+        <p className="ai-loading-description">
+          Talebiniz için oluşturulan çözüm bilgileri hazırlanıyor.
+        </p>
+
+        <div className="ai-loading-progress" aria-hidden="true" />
+      </div>
+    </section>
+  );
+}
+
+function AiSessionError({ message }) {
+  return (
+    <section className="panel user-ai-state-panel">
+      <div className="panel-header">
+        <div>
+          <span className="section-kicker">AI ÇÖZÜMÜ</span>
+
+          <h2>Çözüm bilgisi alınamadı</h2>
+
+          <p>{message}</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AiSessionPending({ aiSession }) {
+  return (
+    <section className="panel user-ai-state-panel">
+      <div className="panel-header">
+        <div>
+          <span className="section-kicker">INTELLIDESK AI</span>
+
+          <h2>Çözüm henüz hazır değil</h2>
+
+          <p>
+            AI oturumunun mevcut durumu:{" "}
+            <strong>{translateAiStatus(aiSession.status)}</strong>
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AISolutionResult({ solution, confidence, sourceTicketIds }) {
+  const hasStructuredContent =
+    solution.evaluation ||
+    solution.steps.length > 0 ||
+    solution.solutionIntro ||
+    solution.warning ||
+    solution.control ||
+    solution.nextAction;
+
+  return (
+    <section className="panel ai-solution-panel user-ai-solution-panel">
+      <header className="ai-solution-header">
+        <div className="ai-solution-title-area">
+          <span className="ai-solution-header-icon" aria-hidden="true">
+            ✦
+          </span>
+
+          <div className="ai-solution-title-copy">
+            <span className="ai-solution-eyebrow">ÇÖZÜM PLANI</span>
+
+            <h2 className="ai-solution-title">AI Çözüm Önerisi</h2>
+          </div>
+        </div>
+
+        {confidence ? <ConfidenceIndicator confidence={confidence} /> : null}
+      </header>
+
+      {hasStructuredContent ? (
+        <div className="ai-solution-content">
+          {solution.evaluation ? (
+            <section className="ai-evaluation-card">
+              <div className="ai-evaluation-accent" aria-hidden="true" />
+
+              <div className="ai-evaluation-body">
+                <div className="ai-evaluation-heading">
+                  <span className="ai-evaluation-badge">AI ÖZETİ</span>
+
+                  <h3>Sorun değerlendirmesi</h3>
+                </div>
+
+                <p>{solution.evaluation}</p>
+              </div>
+            </section>
+          ) : null}
+
+          {solution.steps.length > 0 || solution.solutionIntro ? (
+            <section className="ai-solution-main-section">
+              <div className="ai-section-heading">
+                <span
+                  className={[
+                    "ai-section-heading-icon",
+                    "ai-section-heading-icon-primary",
+                  ].join(" ")}
+                  aria-hidden="true"
+                >
+                  ✦
+                </span>
+
+                <div>
+                  <h3>Uygulanacak adımlar</h3>
+
+                  <span className="ai-section-description">
+                    İşlemleri sırayla uygulayın.
+                  </span>
+                </div>
+              </div>
+
+              {solution.solutionIntro ? (
+                <p className="ai-solution-intro">{solution.solutionIntro}</p>
+              ) : null}
+
+              {solution.steps.length > 0 ? (
+                <ol className="ai-solution-timeline">
+                  {solution.steps.map((step, index) => {
+                    const isLastStep = index === solution.steps.length - 1;
+
+                    return (
+                      <li
+                        className={[
+                          "ai-solution-timeline-item",
+
+                          isLastStep ? "ai-solution-timeline-item-last" : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
+                        key={`${index}-${step}`}
+                      >
+                        <div className="ai-solution-timeline-rail">
+                          <span className="ai-solution-timeline-number">
+                            {index + 1}
+                          </span>
+
+                          {!isLastStep ? (
+                            <span
+                              className="ai-solution-timeline-line"
+                              aria-hidden="true"
+                            />
+                          ) : null}
+                        </div>
+
+                        <div className="ai-solution-timeline-content">
+                          <p>{step}</p>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+              ) : null}
+            </section>
+          ) : null}
+
+          {solution.warning ? (
+            <aside className="ai-solution-warning">
+              <span className="ai-solution-warning-icon" aria-hidden="true">
+                !
+              </span>
+
+              <div>
+                <strong>Önemli uyarı</strong>
+
+                <p>{solution.warning}</p>
+              </div>
+            </aside>
+          ) : null}
+
+          {solution.control || solution.nextAction ? (
+            <div className="ai-solution-info-grid">
+              {solution.control ? (
+                <section className="ai-info-card ai-info-card-control">
+                  <span
+                    className="ai-info-card-icon ai-info-card-icon-control"
+                    aria-hidden="true"
+                  >
+                    ✓
+                  </span>
+
+                  <div>
+                    <span className="ai-info-card-label">DOĞRULAMA</span>
+
+                    <h3>Kontrol</h3>
+
+                    <p>{solution.control}</p>
+                  </div>
+                </section>
+              ) : null}
+
+              {solution.nextAction ? (
+                <section className="ai-info-card ai-info-card-next">
+                  <span
+                    className="ai-info-card-icon ai-info-card-icon-next"
+                    aria-hidden="true"
+                  >
+                    →
+                  </span>
+
+                  <div>
+                    <span className="ai-info-card-label">DEVAM EDİYORSA</span>
+
+                    <h3>Sonraki işlem</h3>
+
+                    <p>{solution.nextAction}</p>
+                  </div>
+                </section>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      ) : (
+        <div className="ai-solution-fallback">
+          {solution.fallback || "AI çözüm içeriği bulunamadı."}
+        </div>
+      )}
+
+      {sourceTicketIds.length > 0 ? (
+        <footer className="ai-solution-sources">
+          <div>
+            <span className="ai-solution-sources-label">Benzer kayıtlar</span>
+
+            <p>Çözümle ilişkili geçmiş Service Desk kayıtları</p>
+          </div>
+
+          <div className="ai-source-ticket-list">
+            {sourceTicketIds.map((requestId) => (
+              <span
+                className="ai-source-ticket"
+                title={`Kaynak ticket ${formatSourceTicketId(requestId)}`}
+                key={requestId}
+              >
+                <span aria-hidden="true">#</span>
+
+                {String(requestId).replace(/^#/, "")}
+              </span>
+            ))}
+          </div>
+        </footer>
+      ) : null}
+    </section>
+  );
+}
+
+function ConfidenceIndicator({ confidence }) {
+  const style = {
+    "--confidence-progress": `${confidence.progress}deg`,
+  };
+
+  return (
+    <div
+      className={[
+        "ai-confidence-card",
+        `ai-confidence-card-${confidence.tone}`,
+      ].join(" ")}
+      style={style}
+      aria-label={`Güven puanı yüzde ${confidence.value.toFixed(2)}`}
+    >
+      <span className="ai-confidence-ring" aria-hidden="true">
+        <span className="ai-confidence-ring-center">
+          {Math.round(confidence.value)}
+        </span>
+      </span>
+
+      <span className="ai-confidence-copy">
+        <span className="ai-confidence-label">Güven puanı</span>
+
+        <strong className="ai-confidence-value">{confidence.label}</strong>
+
+        <span className="ai-confidence-status">{confidence.status}</span>
+      </span>
+    </div>
+  );
+}
+
+export default UserTicketDetail;

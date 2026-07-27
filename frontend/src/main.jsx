@@ -28,6 +28,7 @@ import "./styles/ticket-timeline.css";
 import "./styles/ticket-detail-base.css";
 import "./styles/ticket-detail-staff.css";
 import "./styles/ticket-detail-user.css";
+import "./styles/ticket-ai-visual-section.css";
 
 /* Diğer sayfalar */
 import "./styles/settings.css";
@@ -39,6 +40,12 @@ import "./styles/user-management.css";
  * Çözüm adımları başlığının hizasını sabitler.
  */
 import "./styles/ai-solution-layout-fix.css";
+
+/*
+ * Orijinal ve AI çözüm görsellerinin
+ * sonuç ekranında daha kompakt görünmesini sağlar.
+ */
+import "./styles/ai-visual-guidance-compact.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

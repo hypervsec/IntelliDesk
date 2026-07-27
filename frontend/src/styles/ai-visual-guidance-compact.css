@@ -1,0 +1,179 @@
+/* =========================================================
+   AI GÖRSEL KARŞILAŞTIRMA — KOMPAKT BOYUT
+   ========================================================= */
+
+.ai-image-comparison {
+  gap: 8px;
+
+  padding: 10px;
+}
+
+.ai-image-comparison-header {
+  min-height: 18px;
+
+  align-items: center;
+
+  padding: 0 2px;
+}
+
+/*
+ * "GÖRSEL 1" altında gösterilen uzun dosya adını gizler.
+ */
+.ai-image-comparison-header strong {
+  display: none;
+}
+
+.ai-image-comparison-header > div {
+  gap: 0;
+}
+
+.ai-image-comparison-header span {
+  line-height: 1.2;
+}
+
+.ai-image-comparison-header small {
+  line-height: 1.2;
+}
+
+.ai-image-comparison-grid {
+  width: 100%;
+  max-width: 860px;
+
+  margin-right: auto;
+  margin-left: auto;
+
+  gap: 12px;
+}
+
+.ai-comparison-card {
+  grid-template-rows:
+    auto
+    170px;
+}
+
+.ai-comparison-card-header {
+  grid-template-columns:
+    32px
+    minmax(0, 1fr)
+    auto;
+
+  gap: 8px;
+
+  padding: 9px 11px;
+}
+
+.ai-comparison-card-icon {
+  width: 32px;
+  height: 32px;
+
+  border-radius: 9px;
+
+  font-size: 13px;
+}
+
+.ai-comparison-card-copy strong {
+  font-size: 10px;
+}
+
+.ai-comparison-card-copy small {
+  font-size: 7px;
+}
+
+.ai-comparison-image-stage {
+  width: 100%;
+  min-height: 0;
+  height: 170px;
+
+  padding: 9px;
+}
+
+.ai-comparison-image-stage img {
+  width: auto;
+  height: auto;
+
+  max-width: 100%;
+  max-height: 150px;
+
+  object-fit: contain;
+}
+
+.ai-comparison-card-empty {
+  grid-template-rows:
+    auto
+    170px;
+}
+
+.ai-comparison-empty-state {
+  min-height: 0;
+  height: 170px;
+
+  padding: 16px;
+}
+
+/* Tablet */
+
+@media (max-width: 900px) {
+  .ai-image-comparison-grid {
+    max-width: 760px;
+  }
+
+  .ai-comparison-card {
+    grid-template-rows:
+      auto
+      155px;
+  }
+
+  .ai-comparison-image-stage {
+    height: 155px;
+  }
+
+  .ai-comparison-image-stage img {
+    max-height: 137px;
+  }
+
+  .ai-comparison-card-empty {
+    grid-template-rows:
+      auto
+      155px;
+  }
+
+  .ai-comparison-empty-state {
+    height: 155px;
+  }
+}
+
+/* Mobil */
+
+@media (max-width: 720px) {
+  .ai-image-comparison {
+    padding: 8px;
+  }
+
+  .ai-image-comparison-grid {
+    max-width: 440px;
+  }
+
+  .ai-comparison-card {
+    grid-template-rows:
+      auto
+      180px;
+  }
+
+  .ai-comparison-image-stage {
+    height: 180px;
+  }
+
+  .ai-comparison-image-stage img {
+    max-height: 162px;
+  }
+
+  .ai-comparison-card-empty {
+    grid-template-rows:
+      auto
+      180px;
+  }
+
+  .ai-comparison-empty-state {
+    height: 180px;
+  }
+}

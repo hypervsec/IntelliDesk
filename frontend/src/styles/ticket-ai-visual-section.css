@@ -1,0 +1,34 @@
+/* =========================================================
+   TICKET DETAYINDA AI GÖRSEL ANALİZİ
+   ========================================================= */
+
+.ticket-ai-visual-section {
+  width: 100%;
+  min-width: 0;
+
+  margin-bottom: 18px;
+}
+
+.ticket-ai-visual-section > .ai-session-images {
+  width: 100%;
+
+  margin: 0;
+}
+
+.ticket-ai-visual-section .ai-image-comparison-grid {
+  max-width: 900px;
+}
+
+.staff-ticket-detail-page .ticket-ai-visual-section {
+  margin-bottom: 20px;
+}
+
+.user-ticket-detail-page .ticket-ai-visual-section {
+  margin-bottom: 16px;
+}
+
+@media (max-width: 760px) {
+  .ticket-ai-visual-section {
+    margin-bottom: 14px;
+  }
+}
