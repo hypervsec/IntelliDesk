@@ -1,4 +1,5 @@
 import asyncio
+import os
 from collections.abc import (
     AsyncGenerator,
 )
@@ -6,7 +7,9 @@ from contextlib import (
     asynccontextmanager,
     suppress,
 )
+from pathlib import Path
 
+from dotenv import load_dotenv
 from fastapi import (
     Depends,
     FastAPI,
@@ -24,9 +27,8 @@ from .audit import events as audit_events  # noqa: F401
 from .audit.failures import (
     record_failed_request_audit,
 )
-from .notifications import events as notification_events  # noqa: F401
-from .timeline import events as timeline_events  # noqa: F401
 from .models import Account
+from .notifications import events as notification_events  # noqa: F401
 from .request_context import (
     reset_request_actor,
     reset_request_metadata,
@@ -47,6 +49,74 @@ from .routers.auth import (
 )
 from .sla.alerts import (
     run_sla_alert_loop,
+)
+from .timeline import events as timeline_events  # noqa: F401
+
+
+# =========================================================
+# ORTAM DEĞİŞKENLERİ
+# =========================================================
+
+APP_DIR = Path(__file__).resolve().parent
+BACKEND_DIR = APP_DIR.parent
+ENV_PATH = BACKEND_DIR / ".env"
+
+load_dotenv(ENV_PATH)
+
+
+DEFAULT_CORS_ALLOWED_ORIGINS = (
+    "http://localhost:5173,"
+    "http://127.0.0.1:5173"
+)
+
+
+def get_cors_allowed_origins() -> list[str]:
+    raw_origins = os.getenv(
+        "CORS_ALLOWED_ORIGINS",
+        DEFAULT_CORS_ALLOWED_ORIGINS,
+    )
+
+    normalized_origins: list[str] = []
+
+    for raw_origin in raw_origins.split(","):
+        origin = raw_origin.strip().rstrip("/")
+
+        if not origin:
+            continue
+
+        if origin == "*":
+            raise RuntimeError(
+                "CORS_ALLOWED_ORIGINS içinde '*' "
+                "kullanılamaz. İzin verilen frontend "
+                "adreslerini açıkça belirt."
+            )
+
+        if not origin.startswith(
+            (
+                "http://",
+                "https://",
+            )
+        ):
+            raise RuntimeError(
+                "CORS origin değeri http:// veya "
+                "https:// ile başlamalıdır: "
+                f"{origin}"
+            )
+
+        if origin not in normalized_origins:
+            normalized_origins.append(origin)
+
+    if not normalized_origins:
+        raise RuntimeError(
+            "CORS_ALLOWED_ORIGINS en az bir "
+            "geçerli adres içermelidir."
+        )
+
+    return normalized_origins
+
+
+CORS_ALLOWED_ORIGINS = (
+    get_cors_allowed_origins()
 )
 
 
@@ -72,6 +142,7 @@ async def lifespan(
 
     try:
         yield
+
     finally:
         sla_alert_task.cancel()
 
@@ -94,10 +165,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=CORS_ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
