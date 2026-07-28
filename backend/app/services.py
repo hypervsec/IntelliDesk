@@ -1,37 +1,25 @@
 from __future__ import annotations
 
 import math
-import os
 import re
 import unicodedata
 from collections import Counter
-from pathlib import Path
 
 import numpy as np
 import psycopg2
-from dotenv import load_dotenv
 from pgvector.psycopg2 import register_vector
 from sentence_transformers import SentenceTransformer
 
+from .database import DATABASE_URL
 
-BACKEND_DIRECTORY = (
-    Path(__file__).resolve().parents[1]
+
+RAG_DATABASE_DSN = (
+    DATABASE_URL.set(
+        drivername="postgresql"
+    ).render_as_string(
+        hide_password=False
+    )
 )
-
-ENV_FILE = BACKEND_DIRECTORY / ".env"
-
-load_dotenv(
-    dotenv_path=ENV_FILE,
-    override=False,
-)
-
-DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "127.0.0.1"),
-    "port": int(os.getenv("DB_PORT", "5433")),
-    "dbname": os.getenv("DB_NAME", "Intellidesk"),
-    "user": os.getenv("DB_USER", "postgres"),
-    "password": os.getenv("DB_PASSWORD"),
-}
 
 MODEL_NAME = (
     "sentence-transformers/"
@@ -316,7 +304,7 @@ def find_similar_tickets(
     )
 
     connection = psycopg2.connect(
-        **DB_CONFIG
+        RAG_DATABASE_DSN
     )
 
     register_vector(connection)
