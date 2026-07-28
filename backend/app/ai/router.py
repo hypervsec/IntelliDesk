@@ -891,6 +891,12 @@ def generate_ai_session_solution(
 
     completed_time = datetime.now()
 
+    confidence_score = Decimal(
+        str(
+            rag_solution.confidence_score
+        )
+    )
+
     (
         first_response_due_at,
         resolution_due_at,
@@ -911,6 +917,13 @@ def generate_ai_session_solution(
             subcategory=ai_session.subcategory,
             priority=ai_session.priority,
             status="open",
+
+            ai_recommendation=(
+                rag_solution.content
+            ),
+            ai_confidence_score=(
+                confidence_score
+            ),
 
             created_at=completed_time,
             sla_started_at=completed_time,
@@ -949,10 +962,8 @@ def generate_ai_session_solution(
 
         ai_session.status = "completed"
 
-        ai_session.confidence_score = Decimal(
-            str(
-                rag_solution.confidence_score
-            )
+        ai_session.confidence_score = (
+            confidence_score
         )
 
         ai_session.updated_at = completed_time
