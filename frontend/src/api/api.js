@@ -16,6 +16,16 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
 
+    const requestBaseUrl = config.baseURL || "";
+
+    if (requestBaseUrl.includes(".ngrok-free.")) {
+      if (typeof config.headers?.set === "function") {
+        config.headers.set("ngrok-skip-browser-warning", "1");
+      } else if (config.headers) {
+        config.headers["ngrok-skip-browser-warning"] = "1";
+      }
+    }
+
     const requestUsesFormData =
       typeof FormData !== "undefined" && config.data instanceof FormData;
 
@@ -42,12 +52,10 @@ api.interceptors.response.use(
     const requestUrl = error.config?.url || "";
 
     const isLoginRequest = requestUrl.includes("/auth/login");
-
     const isRegisterRequest = requestUrl.includes("/auth/register");
 
     if (statusCode === 401 && !isLoginRequest && !isRegisterRequest) {
       localStorage.removeItem(AUTH_TOKEN_KEY);
-
       window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT));
     }
 
