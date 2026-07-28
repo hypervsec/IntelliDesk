@@ -1,8 +1,8 @@
 /* =========================================================
    DASHBOARD OPERASYON BÖLÜMLERİ
 
-   Ortak panel, başlık ve boş durum stilleri dashboard-v2.css
-   dosyasından alınmaktadır.
+   Ortak panel, başlık, renk ve boş durum stilleri
+   dashboard-v2.css dosyasından alınmaktadır.
    ========================================================= */
 
 /* =========================================================
@@ -12,12 +12,12 @@
 .dashboard-ops-overview-grid {
   display: grid;
   grid-template-columns:
-    minmax(0, 1.55fr)
-    minmax(430px, 0.75fr);
+    minmax(0, 1.48fr)
+    minmax(390px, 0.78fr);
   align-items: stretch;
-  gap: 18px;
+  gap: 16px;
 
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .dashboard-ops-overview-grid > * {
@@ -31,14 +31,14 @@
 
 .dashboard-ops-overview-grid .dashboard-v2-ticket-row {
   grid-template-columns:
-    48px
-    minmax(210px, 1fr)
-    125px
-    170px
-    74px
-    130px
-    48px
-    18px;
+    46px
+    minmax(190px, 1fr)
+    112px
+    minmax(125px, 155px)
+    68px
+    104px
+    43px
+    17px;
 }
 
 .dashboard-ops-overview-grid .dashboard-v2-ticket-category,
@@ -60,18 +60,18 @@
    ========================================================= */
 
 .dashboard-ops-sla-panel {
-  min-height: 100%;
+  min-height: 348px;
 
   display: flex;
   flex-direction: column;
 }
 
 .dashboard-ops-sla-link {
-  min-height: 30px;
+  min-height: 29px;
 
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
 
   padding: 0 10px;
 
@@ -84,6 +84,7 @@
   font-size: 10px;
   font-weight: 750;
   text-decoration: none;
+  white-space: nowrap;
 
   transition:
     border-color 150ms ease,
@@ -99,18 +100,18 @@
 }
 
 .dashboard-ops-sla-chart {
-  height: 238px;
+  height: 205px;
 
   display: grid;
   grid-template-columns:
-    28px
+    27px
     minmax(0, 1fr);
-  gap: 9px;
+  gap: 8px;
 
-  padding: 15px 14px 8px;
+  padding: 13px 12px 7px;
 
   border: 1px solid var(--color-divider);
-  border-radius: 15px;
+  border-radius: 13px;
 
   background: linear-gradient(180deg, rgba(129, 140, 248, 0.04), transparent);
 }
@@ -120,7 +121,7 @@
   flex-direction: column;
   justify-content: space-between;
 
-  padding-bottom: 30px;
+  padding-bottom: 28px;
 
   color: var(--color-text-faint);
 
@@ -137,7 +138,7 @@
 
 .dashboard-ops-sla-grid-lines {
   position: absolute;
-  inset: 0 0 30px;
+  inset: 0 0 28px;
 
   display: flex;
   flex-direction: column;
@@ -147,7 +148,7 @@
 }
 
 .dashboard-ops-sla-grid-lines span {
-  border-top: 1px dashed rgba(148, 163, 184, 0.16);
+  border-top: 1px dashed rgba(148, 163, 184, 0.15);
 }
 
 .dashboard-ops-sla-columns {
@@ -157,8 +158,8 @@
   height: 100%;
 
   display: grid;
-  grid-template-columns: repeat(4, minmax(50px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(4, minmax(46px, 1fr));
+  gap: 10px;
 }
 
 .dashboard-ops-sla-column {
@@ -167,8 +168,8 @@
   display: grid;
   grid-template-rows:
     minmax(0, 1fr)
-    24px;
-  gap: 6px;
+    22px;
+  gap: 5px;
 }
 
 .dashboard-ops-sla-bar-area {
@@ -178,13 +179,13 @@
   align-items: flex-end;
   justify-content: center;
 
-  border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
 }
 
 .dashboard-ops-sla-bar {
   position: relative;
 
-  width: min(42px, 58%);
+  width: min(38px, 56%);
   min-height: 0;
 
   border-radius: 7px 7px 2px 2px;
@@ -196,14 +197,14 @@
 }
 
 .dashboard-ops-sla-bar:hover {
-  filter: brightness(1.15);
+  filter: brightness(1.12);
   transform: translateY(-2px);
 }
 
 .dashboard-ops-sla-bar span {
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 6px);
+  bottom: calc(100% + 5px);
 
   color: var(--color-text);
 
@@ -216,25 +217,25 @@
 .dashboard-ops-sla-bar-danger {
   background: linear-gradient(180deg, #fca5a5, #ef4444);
 
-  box-shadow: 0 0 14px rgba(248, 113, 113, 0.23);
+  box-shadow: 0 0 13px rgba(248, 113, 113, 0.22);
 }
 
 .dashboard-ops-sla-bar-warning {
   background: linear-gradient(180deg, #fde68a, #f59e0b);
 
-  box-shadow: 0 0 14px rgba(251, 191, 36, 0.22);
+  box-shadow: 0 0 13px rgba(251, 191, 36, 0.2);
 }
 
 .dashboard-ops-sla-bar-success {
   background: linear-gradient(180deg, #5eead4, #0d9488);
 
-  box-shadow: 0 0 14px rgba(45, 212, 191, 0.22);
+  box-shadow: 0 0 13px rgba(45, 212, 191, 0.2);
 }
 
 .dashboard-ops-sla-bar-violet {
   background: linear-gradient(180deg, #ddd6fe, #8b5cf6);
 
-  box-shadow: 0 0 14px rgba(167, 139, 250, 0.22);
+  box-shadow: 0 0 13px rgba(167, 139, 250, 0.2);
 }
 
 .dashboard-ops-sla-column > strong {
@@ -242,7 +243,7 @@
 
   color: var(--color-text-muted);
 
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 650;
   text-align: center;
   text-overflow: ellipsis;
@@ -253,32 +254,32 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 18px;
+  gap: 15px;
 
-  margin-top: 15px;
+  margin-top: 12px;
 }
 
 .dashboard-ops-sla-legend {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px 13px;
+  gap: 8px 11px;
 }
 
 .dashboard-ops-sla-legend span {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 
   color: var(--color-text-muted);
 
-  font-size: 9px;
+  font-size: 8px;
   white-space: nowrap;
 }
 
 .dashboard-ops-sla-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 
   display: block;
 
@@ -313,34 +314,34 @@
 
   color: var(--color-text-muted);
 
-  font-size: 9px;
+  font-size: 8px;
 }
 
 .dashboard-ops-sla-score strong {
   display: block;
 
-  margin: 3px 0;
+  margin: 2px 0;
 
   color: #5eead4;
 
-  font-size: 19px;
+  font-size: 18px;
   line-height: 1;
 }
 
 .dashboard-ops-sla-loading {
-  min-height: 240px;
+  min-height: 205px;
 
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 11px;
+  gap: 10px;
 
   color: var(--color-text-muted);
 }
 
 .dashboard-ops-sla-loading > span {
-  width: 22px;
-  height: 22px;
+  width: 21px;
+  height: 21px;
 
   border: 2px solid rgba(129, 140, 248, 0.18);
   border-top-color: var(--color-primary);
@@ -359,7 +360,7 @@
 }
 
 .dashboard-ops-sla-error {
-  padding: 14px;
+  padding: 13px;
 
   border: 1px solid rgba(248, 113, 113, 0.2);
   border-radius: 10px;
@@ -382,9 +383,9 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: stretch;
-  gap: 18px;
+  gap: 16px;
 
-  margin-bottom: 18px;
+  margin-bottom: 0;
 }
 
 .dashboard-ops-distributions-grid > * {
@@ -403,19 +404,19 @@
   display: grid;
   flex: 1;
   align-content: start;
-  gap: 14px;
+  gap: 10px;
 }
 
 .dashboard-ops-aligned-row {
+  min-width: 0;
+
   display: grid;
   grid-template-columns:
-    minmax(130px, 180px)
+    minmax(125px, 170px)
     minmax(0, 1fr)
-    34px;
+    30px;
   align-items: center;
-  gap: 13px;
-
-  min-width: 0;
+  gap: 11px;
 }
 
 .dashboard-ops-aligned-label {
@@ -423,14 +424,14 @@
 
   color: var(--color-text-soft);
 
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 550;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .dashboard-ops-aligned-track {
-  height: 8px;
+  height: 7px;
 
   overflow: hidden;
 
@@ -451,19 +452,19 @@
 .dashboard-ops-aligned-fill-blue {
   background: linear-gradient(90deg, #0284c7, #38bdf8);
 
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.22);
+  box-shadow: 0 0 9px rgba(56, 189, 248, 0.2);
 }
 
 .dashboard-ops-aligned-fill-violet {
   background: linear-gradient(90deg, #7c3aed, #a78bfa);
 
-  box-shadow: 0 0 10px rgba(167, 139, 250, 0.2);
+  box-shadow: 0 0 9px rgba(167, 139, 250, 0.18);
 }
 
 .dashboard-ops-aligned-row strong {
   color: var(--color-text);
 
-  font-size: 11px;
+  font-size: 10px;
   text-align: right;
 }
 
@@ -472,7 +473,19 @@
    ========================================================= */
 
 html[data-theme="light"] .dashboard-ops-sla-chart {
-  background: linear-gradient(180deg, rgba(99, 102, 241, 0.03), transparent);
+  border-color: rgba(99, 102, 241, 0.13);
+
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.035), transparent);
+}
+
+html[data-theme="light"] .dashboard-ops-sla-link {
+  color: #4338ca;
+  background: rgba(99, 102, 241, 0.055);
+}
+
+html[data-theme="light"] .dashboard-ops-sla-link:hover {
+  color: #312e81;
+  background: rgba(99, 102, 241, 0.11);
 }
 
 /* =========================================================
@@ -482,22 +495,22 @@ html[data-theme="light"] .dashboard-ops-sla-chart {
 @media (max-width: 1450px) {
   .dashboard-ops-overview-grid {
     grid-template-columns:
-      minmax(0, 1.4fr)
-      minmax(400px, 0.8fr);
+      minmax(0, 1.35fr)
+      minmax(365px, 0.78fr);
   }
 
   .dashboard-ops-overview-grid .dashboard-v2-ticket-row {
     grid-template-columns:
-      45px
-      minmax(175px, 1fr)
-      105px
-      135px
-      70px
-      112px
-      42px
+      43px
+      minmax(165px, 1fr)
+      96px
+      120px
+      64px
+      93px
+      40px
       16px;
 
-    gap: 9px;
+    gap: 8px;
   }
 }
 
@@ -508,16 +521,20 @@ html[data-theme="light"] .dashboard-ops-sla-chart {
 
   .dashboard-ops-overview-grid .dashboard-v2-ticket-row {
     grid-template-columns:
-      48px
-      minmax(210px, 1fr)
-      125px
-      170px
-      74px
-      130px
-      48px
-      18px;
+      46px
+      minmax(200px, 1fr)
+      112px
+      150px
+      68px
+      104px
+      43px
+      17px;
 
-    gap: 12px;
+    gap: 10px;
+  }
+
+  .dashboard-ops-sla-panel {
+    min-height: auto;
   }
 }
 
@@ -528,12 +545,12 @@ html[data-theme="light"] .dashboard-ops-sla-chart {
 
   .dashboard-ops-overview-grid .dashboard-v2-ticket-row {
     grid-template-columns:
-      44px
-      minmax(160px, 1fr)
-      minmax(90px, 0.58fr)
+      43px
+      minmax(150px, 1fr)
+      minmax(82px, 0.55fr)
       auto
       auto
-      18px;
+      16px;
   }
 
   .dashboard-ops-overview-grid .dashboard-v2-ticket-department,
@@ -565,7 +582,7 @@ html[data-theme="light"] .dashboard-ops-sla-chart {
   }
 
   .dashboard-ops-sla-columns {
-    min-width: 430px;
+    min-width: 390px;
   }
 
   .dashboard-ops-sla-footer {
@@ -579,24 +596,24 @@ html[data-theme="light"] .dashboard-ops-sla-chart {
 
   .dashboard-ops-aligned-row {
     grid-template-columns:
-      minmax(100px, 135px)
+      minmax(100px, 130px)
       minmax(0, 1fr)
-      28px;
+      27px;
 
-    gap: 9px;
+    gap: 8px;
   }
 }
 
 @media (max-width: 480px) {
   .dashboard-ops-aligned-row {
     grid-template-columns:
-      minmax(85px, 105px)
+      minmax(82px, 105px)
       minmax(0, 1fr)
-      25px;
+      24px;
   }
 
   .dashboard-ops-aligned-label {
-    font-size: 10px;
+    font-size: 9px;
   }
 }
 
