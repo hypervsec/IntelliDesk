@@ -816,10 +816,484 @@ html[data-theme="light"] .settings-password-notice p {
 }
 
 @media (max-width: 700px) {
+  .settings-page {
+    width: calc(100% - 14px);
+
+    gap: 10px;
+
+    padding-top: 10px;
+    padding-bottom: 24px;
+  }
+
+  /* =======================================================
+     MOBİL SAYFA BAŞLIĞI
+     ======================================================= */
+
   .settings-page-header {
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1fr)
+      auto;
+    align-items: start;
+    gap: 7px 10px;
+  }
+
+  .settings-page-header > div {
+    min-width: 0;
+  }
+
+  .settings-page-header .page-eyebrow {
+    font-size: 7px;
+    letter-spacing: 0.12em;
+  }
+
+  .settings-page-header h1 {
+    margin-top: 4px;
+
+    font-size: 27px;
+    line-height: 1.05;
+  }
+
+  .settings-page-header p {
+    display: -webkit-box;
+
+    overflow: hidden;
+    margin-top: 5px;
+
+    font-size: 10px;
+    line-height: 1.4;
+
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .settings-page-header > .settings-account-status {
+    align-self: start;
+
+    min-height: 27px;
+
+    gap: 5px;
+
+    padding-inline: 8px;
+
+    font-size: 8px;
+  }
+
+  .settings-page-header > .settings-account-status > span {
+    width: 5px;
+    height: 5px;
+  }
+
+  /* =======================================================
+     MOBİL PROFİL KARTI
+     ======================================================= */
+
+  .settings-profile-card {
+    grid-template-columns: 1fr;
+    gap: 9px;
+
+    border-radius: 15px;
+
+    padding: 12px;
+  }
+
+  .settings-profile-card::before {
+    height: 2px;
+  }
+
+  .settings-profile-card::after {
+    top: -110px;
+    right: -95px;
+
+    width: 180px;
+    height: 180px;
+  }
+
+  .settings-profile-main {
+    align-items: center;
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .settings-profile-avatar {
+    width: 45px;
+    height: 45px;
+    flex: 0 0 45px;
+
+    border-radius: 13px;
+
+    font-size: 14px;
+  }
+
+  .settings-profile-copy {
+    min-width: 0;
+    width: auto;
+    flex: 1;
+  }
+
+  .settings-profile-label {
+    margin-bottom: 3px;
+
+    font-size: 6px;
+    letter-spacing: 0.1em;
+  }
+
+  .settings-profile-copy h2 {
+    font-size: 17px;
+    line-height: 1.15;
+  }
+
+  .settings-profile-copy > p {
+    margin-top: 3px;
+
+    font-size: 9px;
+  }
+
+  .settings-profile-badges {
+    gap: 5px;
+
+    margin-top: 7px;
+  }
+
+  .settings-role-badge,
+  .settings-status-badge {
+    min-height: 21px;
+
+    padding-inline: 7px;
+
+    font-size: 7px;
+  }
+
+  .settings-profile-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .settings-profile-metric {
+    min-height: 45px;
+
+    align-content: center;
+    gap: 3px;
+
+    border-radius: 9px;
+
+    padding: 7px 8px;
+  }
+
+  .settings-profile-metric span {
+    font-size: 6px;
+    line-height: 1.2;
+    letter-spacing: 0.03em;
+  }
+
+  .settings-profile-metric strong {
+    overflow: hidden;
+
+    font-size: 8px;
+    line-height: 1.3;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* =======================================================
+     MOBİL ALT PANELLER
+     ======================================================= */
+
+  .settings-content-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .settings-panel {
+    height: auto;
+
+    border-radius: 14px;
+
+    padding: 11px;
+  }
+
+  .settings-panel::before {
+    height: 2px;
+  }
+
+  .settings-panel-header {
+    grid-template-columns:
+      31px
+      minmax(0, 1fr)
+      auto;
+    align-items: center;
+    gap: 7px;
+
+    margin-bottom: 9px;
+    padding-bottom: 8px;
+  }
+
+  .settings-panel-icon {
+    width: 31px;
+    height: 31px;
+
+    border-radius: 9px;
+  }
+
+  .settings-panel-icon svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .settings-panel-header .section-kicker {
+    font-size: 6px;
+    letter-spacing: 0.1em;
+  }
+
+  .settings-panel-header h2 {
+    margin-top: 2px;
+
+    font-size: 14px;
+    line-height: 1.15;
+  }
+
+  .settings-panel-header p {
+    display: -webkit-box;
+
+    overflow: hidden;
+    margin-top: 2px;
+
+    font-size: 7px;
+    line-height: 1.3;
+
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .settings-panel-header .settings-account-status {
+    min-height: 23px;
+
+    gap: 4px;
+
+    padding-inline: 7px;
+
+    font-size: 7px;
+  }
+
+  .settings-panel-header .settings-account-status > span {
+    width: 5px;
+    height: 5px;
+  }
+
+  .settings-coming-soon-badge {
+    min-height: 23px;
+
+    padding-inline: 7px;
+
+    font-size: 7px;
+  }
+
+  /* =======================================================
+     MOBİL HESAP BİLGİLERİ
+     ======================================================= */
+
+  .settings-info-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: auto;
+    gap: 5px;
+  }
+
+  .settings-info-item {
+    min-height: 48px;
+
+    align-content: center;
+    gap: 3px;
+
+    border-radius: 8px;
+
+    padding: 7px;
+  }
+
+  .settings-info-item span {
+    overflow: hidden;
+
+    font-size: 6px;
+    line-height: 1.2;
+    letter-spacing: 0.025em;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .settings-info-item strong {
+    display: -webkit-box;
+
+    overflow: hidden;
+
+    font-size: 8px;
+    line-height: 1.3;
+
+    overflow-wrap: anywhere;
+
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  /* =======================================================
+     MOBİL PAROLA FORMU
+     ======================================================= */
+
+  .settings-password-form {
+    gap: 10px;
+  }
+
+  .settings-password-grid {
+    gap: 8px;
+  }
+
+  .settings-password-field {
+    gap: 4px;
+  }
+
+  .settings-password-field label {
+    font-size: 7px;
+    letter-spacing: 0.035em;
+  }
+
+  .settings-password-field input {
+    min-height: 38px;
+
+    border-radius: 9px;
+
+    padding-inline: 10px;
+
+    font-size: 10px;
+  }
+
+  .settings-password-footer {
+    align-items: stretch;
     flex-direction: column;
-    gap: 15px;
+    gap: 9px;
+
+    padding-top: 9px;
+  }
+
+  .settings-password-notice {
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .settings-password-notice > span {
+    width: 6px;
+    height: 6px;
+    flex-basis: 6px;
+
+    margin-top: 3px;
+  }
+
+  .settings-password-notice p {
+    font-size: 8px;
+    line-height: 1.4;
+  }
+
+  .settings-password-button {
+    width: 100%;
+    min-height: 38px;
+
+    justify-content: center;
+
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 420px) {
+  .settings-page {
+    width: calc(100% - 10px);
+
+    gap: 8px;
+
+    padding-top: 7px;
+  }
+
+  .settings-page-header {
+    gap: 6px 8px;
+  }
+
+  .settings-page-header h1 {
+    font-size: 24px;
+  }
+
+  .settings-page-header p {
+    font-size: 9px;
+  }
+
+  .settings-profile-card {
+    gap: 7px;
+
+    padding: 10px;
+  }
+
+  .settings-profile-avatar {
+    width: 41px;
+    height: 41px;
+    flex-basis: 41px;
+
+    border-radius: 12px;
+
+    font-size: 13px;
+  }
+
+  .settings-profile-copy h2 {
+    font-size: 16px;
+  }
+
+  .settings-profile-copy > p {
+    font-size: 8px;
+  }
+
+  .settings-profile-metric {
+    min-height: 42px;
+
+    padding: 6px 7px;
+  }
+
+  .settings-panel {
+    padding: 10px;
+  }
+
+  .settings-panel-header {
+    grid-template-columns:
+      29px
+      minmax(0, 1fr)
+      auto;
+
+    margin-bottom: 8px;
+    padding-bottom: 7px;
+  }
+
+  .settings-panel-icon {
+    width: 29px;
+    height: 29px;
+  }
+
+  .settings-info-item {
+    min-height: 45px;
+
+    padding: 6px;
+  }
+
+  .settings-password-field input {
+    min-height: 36px;
+  }
+
+  .settings-password-button {
+    min-height: 36px;
+  }
+}
+
+@media (max-width: 340px) {
+  .settings-page-header {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-page-header > .settings-account-status {
+    justify-self: start;
   }
 
   .settings-profile-main {
@@ -832,45 +1306,21 @@ html[data-theme="light"] .settings-password-notice p {
   }
 
   .settings-panel-header {
-    grid-template-columns: 42px minmax(0, 1fr);
+    grid-template-columns:
+      29px
+      minmax(0, 1fr);
   }
 
-  .settings-coming-soon-badge {
+  .settings-panel-header .settings-account-status {
     grid-column: 1 / -1;
 
-    width: fit-content;
-  }
-
-  .settings-password-footer {
-    align-items: flex-start;
-    flex-direction: column;
+    justify-self: start;
   }
 }
 
-@media (max-width: 520px) {
-  .settings-profile-card {
-    padding: 20px;
-  }
-
-  .settings-profile-main {
-    flex-direction: column;
-  }
-
-  .settings-profile-avatar {
-    width: 62px;
-    height: 62px;
-    flex-basis: 62px;
-
-    border-radius: 18px;
-
-    font-size: 18px;
-  }
-
-  .settings-profile-copy {
-    width: 100%;
-  }
-
-  .settings-profile-copy h2 {
-    font-size: 21px;
+@media (prefers-reduced-motion: reduce) {
+  .settings-info-item,
+  .settings-password-field input {
+    transition: none;
   }
 }

@@ -3,19 +3,16 @@
    VE KOMPAKT SAYFA BOŞLUKLARI
    ========================================================= */
 
-/* Sayfanın üst ve alt boşluğunu biraz azaltır. */
 .ticket-detail-page {
   padding-top: 16px;
   padding-bottom: 44px;
 }
 
-/* Üst ticket başlığı ile görsel analizi arasındaki boşluk. */
 .ticket-detail-page > .page-header,
 .staff-ticket-detail-page > .page-header {
   margin-bottom: 10px;
 }
 
-/* Görsel analizi ile sonraki içerik arasındaki boşluk. */
 .ticket-ai-visual-section {
   width: 100%;
   min-width: 0;
@@ -25,18 +22,14 @@
 
 .ticket-ai-visual-section > .ai-session-images {
   width: 100%;
-
   margin: 0;
 }
 
-/* Görsel analiz kutusunun iç yüksekliğini azaltır. */
 .ticket-ai-visual-section .ai-session-images-comparison {
   gap: 8px;
-
   padding: 12px 14px;
 }
 
-/* Başlık altındaki gereksiz dikey boşluğu azaltır. */
 .ticket-ai-visual-section .ai-session-images-heading {
   gap: 0;
 }
@@ -45,7 +38,6 @@
   margin-top: 1px;
 }
 
-/* Görsel kartlarının bulunduğu alan. */
 .ticket-ai-visual-section .ai-image-comparison-list {
   gap: 10px;
 }
@@ -60,14 +52,16 @@
   margin-left: auto;
 }
 
-/* Görsel kartlarının başlık ve görsel alanı arasındaki boşluğu azaltır. */
+.ticket-ai-visual-section .ai-comparison-card {
+  min-width: 0;
+}
+
 .ticket-ai-visual-section .ai-comparison-card-header {
   padding: 10px 12px;
 }
 
 .ticket-ai-visual-section .ai-comparison-image-stage {
   min-height: 140px;
-
   padding: 8px 10px;
 }
 
@@ -75,22 +69,56 @@
   max-height: 195px;
 }
 
-/* Ticket özeti ve AI çözümü kolonları arasındaki boşluk. */
+/* =========================================================
+   ORİJİNAL GÖRSEL MODALI
+
+   Küçük çözünürlüklü kullanıcı görsellerini modal alanının
+   genişliğine büyütür. AI çözüm modalını değiştirmez.
+   ========================================================= */
+
+.ai-image-modal-card-original {
+  width: min(1100px, 100%);
+  height: min(82dvh, 780px);
+}
+
+.ai-image-modal-content-original {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+
+  display: grid;
+  place-items: center;
+
+  overflow: auto;
+}
+
+.ai-image-modal-content-original > img {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+
+  object-fit: contain;
+  object-position: center;
+
+  image-rendering: auto;
+}
+
+/* =========================================================
+   TICKET DETAYI ANA YERLEŞİMİ
+   ========================================================= */
+
 .staff-ticket-detail-page .staff-primary-layout {
   gap: 14px;
-
   margin-bottom: 14px;
 }
 
-/* Sol taraftaki özet ve zaman çizelgesi arasındaki boşluk. */
 .staff-ticket-detail-page .staff-left-column {
   gap: 14px;
 }
 
-/* Alt panel grubundaki boşluklar. */
 .ticket-detail-page .ticket-bottom-layout {
   gap: 16px;
-
   margin-top: 14px;
 }
 
@@ -98,7 +126,6 @@
   gap: 16px;
 }
 
-/* Rol bazlı eski boşluk değerlerini ezer. */
 .staff-ticket-detail-page .ticket-ai-visual-section,
 .user-ticket-detail-page .ticket-ai-visual-section {
   margin-bottom: 10px;
@@ -142,7 +169,6 @@
 
   .ticket-detail-page .ticket-bottom-layout {
     gap: 12px;
-
     margin-top: 12px;
   }
 
@@ -156,45 +182,932 @@
    ========================================================= */
 
 @media (max-width: 520px) {
+  /* =======================================================
+     SAYFA VE ANA PANEL ARALIKLARI
+     ======================================================= */
+
   .ticket-detail-page {
-    padding-top: 12px;
-    padding-bottom: 30px;
+    width: calc(100% - 10px);
+
+    padding-top: 6px;
+    padding-bottom: 22px;
   }
 
   .ticket-detail-page > .page-header,
-  .staff-ticket-detail-page > .page-header,
+  .staff-ticket-detail-page > .page-header {
+    margin-bottom: 6px;
+  }
+
   .ticket-ai-visual-section {
-    margin-bottom: 8px;
-  }
-
-  .ticket-ai-visual-section .ai-session-images-comparison {
-    gap: 7px;
-
-    padding: 9px;
-  }
-
-  .ticket-ai-visual-section .ai-comparison-image-stage {
-    min-height: 130px;
-
-    padding: 6px;
-  }
-
-  .ticket-ai-visual-section .ai-comparison-image-stage img {
-    max-height: 175px;
+    margin-bottom: 6px;
   }
 
   .staff-ticket-detail-page .staff-primary-layout,
   .staff-ticket-detail-page .staff-left-column,
   .ticket-detail-page .ticket-bottom-layout,
   .ticket-detail-page .ticket-side-column {
-    gap: 10px;
+    gap: 7px;
   }
 
   .staff-ticket-detail-page .staff-primary-layout {
-    margin-bottom: 10px;
+    margin-bottom: 7px;
   }
 
   .ticket-detail-page .ticket-bottom-layout {
-    margin-top: 10px;
+    margin-top: 7px;
+  }
+
+  /* =======================================================
+     ÜST TICKET BAŞLIĞI
+     ======================================================= */
+
+  .ticket-detail-page .page-header {
+    min-height: 0;
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 5px 8px;
+
+    overflow: hidden;
+
+    border-radius: 13px;
+
+    padding: 8px 9px;
+  }
+
+  .ticket-detail-page .page-header > div:first-child {
+    min-width: 0;
+  }
+
+  .ticket-detail-page .back-link {
+    min-height: 23px;
+
+    margin-bottom: 3px;
+
+    border-radius: 999px;
+
+    padding: 0 7px;
+
+    font-size: 7px;
+  }
+
+  .ticket-detail-page .page-eyebrow {
+    font-size: 6px;
+    letter-spacing: 0.09em;
+  }
+
+  .ticket-detail-page .page-header h1 {
+    margin-top: 3px;
+
+    font-size: 19px;
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+
+    overflow-wrap: anywhere;
+  }
+
+  .ticket-detail-page .page-header p {
+    margin-top: 3px;
+
+    font-size: 8px;
+    line-height: 1.25;
+  }
+
+  .ticket-detail-page .header-actions {
+    align-self: end;
+
+    display: flex;
+    gap: 4px;
+
+    margin: 0;
+    padding: 3px;
+  }
+
+  .ticket-detail-page .header-actions .badge {
+    min-height: 21px;
+
+    padding-inline: 7px;
+
+    font-size: 7px;
+  }
+
+  /* =======================================================
+     GÖRSEL ANALİZİ
+     ======================================================= */
+
+  .ticket-ai-visual-section .ai-session-images-comparison {
+    display: block;
+
+    gap: 0;
+
+    border-radius: 13px;
+
+    padding: 6px;
+  }
+
+  .ticket-ai-visual-section .ai-session-images-heading {
+    display: block;
+
+    margin-bottom: 4px;
+  }
+
+  .ticket-ai-visual-section .ai-session-images-kicker {
+    margin-bottom: 1px;
+
+    font-size: 5.5px;
+    letter-spacing: 0.1em;
+  }
+
+  .ticket-ai-visual-section .ai-session-images-heading h3 {
+    margin: 0;
+
+    font-size: 12px;
+    line-height: 1.15;
+  }
+
+  .ticket-ai-visual-section .ai-session-images-heading p {
+    display: -webkit-box;
+
+    overflow: hidden;
+    margin-top: 1px;
+
+    font-size: 6px;
+    line-height: 1.25;
+
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .ticket-ai-visual-section .ai-image-comparison-list {
+    gap: 4px;
+  }
+
+  .ticket-ai-visual-section .ai-image-pair {
+    min-width: 0;
+  }
+
+  .ticket-ai-visual-section .ai-image-comparison-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 5px;
+  }
+
+  .ticket-ai-visual-section .ai-comparison-card {
+    min-width: 0;
+
+    display: grid;
+    grid-template-rows: 38px 76px;
+
+    overflow: hidden;
+
+    border-radius: 9px;
+  }
+
+  .ticket-ai-visual-section .ai-comparison-card-header {
+    min-width: 0;
+    min-height: 0;
+
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 4px;
+
+    overflow: hidden;
+
+    padding: 4px;
+  }
+
+  .ticket-ai-visual-section .ai-comparison-card-icon {
+    width: 20px;
+    height: 20px;
+
+    flex: 0 0 20px;
+
+    border-radius: 6px;
+
+    font-size: 7px;
+  }
+
+  .ticket-ai-visual-section .ai-comparison-card-copy {
+    min-width: 0;
+
+    display: grid;
+    gap: 0;
+  }
+
+  .ticket-ai-visual-section .ai-comparison-card-eyebrow {
+    overflow: hidden;
+
+    font-size: 4.5px;
+    line-height: 1.1;
+    letter-spacing: 0.05em;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ticket-ai-visual-section .ai-comparison-card-copy strong {
+    overflow: hidden;
+
+    font-size: 6.5px;
+    line-height: 1.15;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ticket-ai-visual-section .ai-comparison-card-copy small {
+    display: none;
+  }
+
+  .ticket-ai-visual-section .ai-comparison-card-badge {
+    min-height: 17px;
+
+    padding-inline: 4px;
+
+    font-size: 5px;
+  }
+
+  .ticket-ai-visual-section .ai-comparison-image-stage {
+    width: 100%;
+    height: 76px;
+    min-height: 0;
+
+    padding: 3px;
+  }
+
+  .ticket-ai-visual-section .ai-comparison-image-stage img {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+
+    object-fit: contain;
+    object-position: center;
+  }
+
+  .ticket-ai-visual-section .ai-comparison-open-label {
+    min-height: 18px;
+
+    padding-inline: 5px;
+
+    font-size: 5px;
+  }
+
+  /* =======================================================
+     MOBİL ORİJİNAL GÖRSEL MODALI
+     ======================================================= */
+
+  .ai-image-modal {
+    padding: 6px;
+  }
+
+  .ai-image-modal-card-original {
+    width: calc(100vw - 12px);
+    height: min(82dvh, 680px);
+    max-height: calc(100dvh - 12px);
+
+    border-radius: 12px;
+  }
+
+  .ai-image-modal-card-original .ai-image-modal-header {
+    padding: 8px 9px;
+  }
+
+  .ai-image-modal-card-original .ai-image-modal-kicker {
+    font-size: 6px;
+  }
+
+  .ai-image-modal-card-original .ai-image-modal-header strong {
+    font-size: 10px;
+  }
+
+  .ai-image-modal-card-original .ai-image-modal-close {
+    width: 30px;
+    height: 30px;
+
+    border-radius: 8px;
+  }
+
+  .ai-image-modal-content-original {
+    padding: 5px;
+  }
+
+  .ai-image-modal-content-original > img {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+
+    border-radius: 8px;
+
+    object-fit: contain;
+  }
+
+  .ai-image-modal-card-original .ai-image-modal-footer {
+    padding: 7px 9px;
+
+    font-size: 7px;
+  }
+
+  /* =======================================================
+     KULLANICI BİLDİRİMİ
+     ======================================================= */
+
+  .staff-ticket-detail-page .staff-overview-panel-compact {
+    padding: 8px;
+  }
+
+  .staff-ticket-detail-page .staff-overview-panel-compact .panel-header {
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+  }
+
+  .staff-ticket-detail-page .staff-overview-panel-compact .panel-header h2 {
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  .staff-ticket-detail-page .staff-overview-panel-compact .panel-header p {
+    margin-top: 2px;
+
+    font-size: 7px;
+    line-height: 1.25;
+  }
+
+  .staff-ticket-detail-page .staff-overview-content {
+    gap: 5px;
+  }
+
+  .staff-ticket-detail-page .staff-problem-user {
+    gap: 5px;
+
+    border-radius: 8px;
+
+    padding: 5px 6px;
+  }
+
+  .staff-ticket-detail-page .staff-problem-avatar {
+    width: 26px;
+    height: 26px;
+
+    flex-basis: 26px;
+
+    border-radius: 7px;
+
+    font-size: 7px;
+  }
+
+  .staff-ticket-detail-page .staff-problem-user > div > span {
+    font-size: 5px;
+  }
+
+  .staff-ticket-detail-page .staff-problem-user strong {
+    font-size: 9px;
+  }
+
+  .staff-ticket-detail-page .staff-problem-description {
+    border-radius: 8px;
+
+    padding: 7px 7px 7px 11px;
+  }
+
+  .staff-ticket-detail-page .staff-problem-description::before {
+    top: 6px;
+    bottom: 6px;
+
+    width: 2px;
+  }
+
+  .staff-ticket-detail-page .staff-info-label {
+    margin-bottom: 2px;
+
+    font-size: 5px;
+  }
+
+  .staff-ticket-detail-page .staff-problem-description h3 {
+    font-size: 10px;
+    line-height: 1.25;
+  }
+
+  .staff-ticket-detail-page .staff-problem-description p {
+    display: -webkit-box;
+
+    overflow: hidden;
+    margin-top: 3px;
+
+    font-size: 7.5px;
+    line-height: 1.3;
+
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .staff-ticket-detail-page .staff-overview-grid-compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .staff-ticket-detail-page .staff-overview-card {
+    min-height: 37px;
+
+    gap: 2px;
+
+    border-radius: 7px;
+
+    padding: 5px 6px;
+  }
+
+  .staff-ticket-detail-page .staff-overview-card > span {
+    font-size: 5px;
+    letter-spacing: 0.05em;
+  }
+
+  .staff-ticket-detail-page .staff-overview-card > strong {
+    overflow: hidden;
+
+    font-size: 7.5px;
+    line-height: 1.2;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .staff-ticket-detail-page .staff-overview-meta {
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 2px 4px;
+
+    padding-top: 4px;
+
+    font-size: 6px;
+    line-height: 1.25;
+  }
+
+  .staff-ticket-detail-page .staff-overview-meta span[aria-hidden="true"] {
+    display: inline;
+  }
+
+  /* =======================================================
+     ZAMAN ÇİZELGESİ VE TEKNİSYENLE İLETİŞİM
+     ======================================================= */
+
+  .staff-ticket-detail-page .staff-left-column > .ticket-timeline-panel {
+    padding: 9px;
+  }
+
+  .staff-ticket-detail-page .ticket-timeline-header {
+    align-items: center;
+    flex-direction: row;
+    gap: 6px;
+
+    margin-bottom: 7px;
+    padding-bottom: 7px;
+  }
+
+  .staff-ticket-detail-page .ticket-timeline-header > div {
+    min-width: 0;
+  }
+
+  .staff-ticket-detail-page .ticket-timeline-header h2 {
+    font-size: 13px;
+  }
+
+  .staff-ticket-detail-page .ticket-timeline-header p {
+    margin-top: 2px;
+
+    font-size: 7px;
+    line-height: 1.3;
+  }
+
+  .staff-ticket-detail-page .ticket-timeline-refresh {
+    width: auto;
+    min-height: 27px;
+
+    flex: 0 0 auto;
+
+    padding: 0 7px;
+
+    font-size: 6.5px;
+  }
+
+  .staff-ticket-detail-page .ticket-comment-form {
+    margin-bottom: 7px;
+
+    border-radius: 9px;
+
+    padding: 7px;
+  }
+
+  .staff-ticket-detail-page .ticket-comment-form textarea {
+    min-height: 48px;
+    max-height: 90px;
+
+    padding: 7px;
+
+    font-size: 8px;
+    line-height: 1.35;
+  }
+
+  .staff-ticket-detail-page .ticket-comment-meta {
+    font-size: 6.5px;
+  }
+
+  .staff-ticket-detail-page .ticket-comment-actions {
+    margin-top: 6px;
+  }
+
+  .staff-ticket-detail-page .ticket-comment-actions button {
+    min-height: 29px;
+
+    padding-inline: 8px;
+
+    font-size: 6.5px;
+  }
+
+  .staff-ticket-detail-page .ticket-timeline-list {
+    max-height: 320px;
+  }
+
+  .staff-ticket-detail-page .ticket-timeline-card {
+    padding: 8px 9px;
+  }
+
+  .staff-ticket-detail-page .ticket-timeline-card-header strong {
+    font-size: 8.5px;
+  }
+
+  .staff-ticket-detail-page .ticket-timeline-actor {
+    font-size: 6.5px;
+  }
+
+  .staff-ticket-detail-page .ticket-timeline-content {
+    font-size: 8px;
+    line-height: 1.4;
+  }
+
+  /* =======================================================
+     AI ÇÖZÜM PANELİ
+     ======================================================= */
+
+  .staff-ticket-detail-page .staff-ai-panel.ai-solution-panel {
+    border-radius: 13px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-header {
+    align-items: center;
+    flex-direction: row;
+    gap: 6px;
+
+    padding: 8px 9px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-title-area {
+    min-width: 0;
+
+    flex: 1;
+    gap: 6px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-header-icon {
+    width: 29px;
+    height: 29px;
+
+    flex: 0 0 29px;
+
+    border-radius: 8px;
+
+    font-size: 10px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-eyebrow {
+    margin-bottom: 1px;
+
+    font-size: 5.5px;
+    letter-spacing: 0.08em;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-title {
+    font-size: 13px;
+    line-height: 1.1;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-confidence-card {
+    width: auto;
+    min-width: 98px;
+
+    flex: 0 0 98px;
+    gap: 4px;
+
+    border-radius: 9px;
+
+    padding: 4px 5px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-confidence-ring {
+    width: 28px;
+    height: 28px;
+
+    flex: 0 0 28px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-confidence-ring-center {
+    width: 20px;
+    height: 20px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-confidence-label {
+    font-size: 5px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-confidence-value {
+    font-size: 9px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-confidence-status {
+    font-size: 5.5px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-status-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px;
+
+    padding: 7px 9px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-status-item {
+    gap: 2px;
+
+    border-radius: 8px;
+
+    padding: 5px 6px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-status-item span {
+    font-size: 5.5px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-status-item strong {
+    font-size: 7.5px;
+    line-height: 1.25;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-content {
+    gap: 6px;
+
+    padding: 8px 9px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-evaluation-card {
+    border-radius: 9px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-evaluation-body {
+    padding: 7px 8px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-evaluation-heading {
+    gap: 4px;
+
+    margin-bottom: 3px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-evaluation-badge {
+    min-height: 16px;
+
+    padding-inline: 4px;
+
+    font-size: 5px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-evaluation-heading h3 {
+    font-size: 9px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-evaluation-card p {
+    font-size: 8.5px;
+    line-height: 1.4;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-main-section {
+    border-radius: 10px;
+
+    padding: 8px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-section-heading {
+    gap: 5px;
+
+    margin-bottom: 6px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-section-heading-icon {
+    width: 20px;
+    height: 20px;
+
+    border-radius: 6px;
+
+    font-size: 7px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-section-heading h3 {
+    font-size: 9px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-section-description {
+    font-size: 6.5px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-intro {
+    margin-bottom: 6px;
+
+    font-size: 8.5px;
+    line-height: 1.35;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-timeline {
+    gap: 0;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-timeline-item {
+    min-height: 0;
+
+    grid-template-columns:
+      22px
+      minmax(0, 1fr);
+    gap: 5px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-timeline-number {
+    width: 20px;
+    height: 20px;
+
+    font-size: 6.5px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-timeline-line {
+    width: 1px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-timeline-content {
+    margin-bottom: 5px;
+
+    border-radius: 8px;
+
+    padding: 7px 8px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-timeline-content p {
+    font-size: 8.5px;
+    line-height: 1.4;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-warning {
+    gap: 6px;
+
+    border-radius: 9px;
+
+    padding: 7px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-warning-icon {
+    width: 20px;
+    height: 20px;
+
+    flex-basis: 20px;
+
+    font-size: 7px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-warning strong {
+    font-size: 8.5px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-warning p {
+    margin-top: 2px;
+
+    font-size: 7.5px;
+    line-height: 1.35;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-info-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-info-card {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+
+    border-radius: 9px;
+
+    padding: 7px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-info-card-icon {
+    width: 20px;
+    height: 20px;
+
+    flex-basis: 20px;
+
+    border-radius: 6px;
+
+    font-size: 7px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-info-card-label {
+    font-size: 5px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-info-card h3 {
+    margin-bottom: 1px;
+
+    font-size: 8px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-info-card p {
+    font-size: 7px;
+    line-height: 1.35;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-sources {
+    align-items: center;
+    flex-direction: row;
+    gap: 6px;
+
+    padding: 7px 9px;
+  }
+
+  .staff-ticket-detail-page
+    .staff-ai-panel
+    .ai-solution-sources
+    > div:first-child {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-sources-label {
+    font-size: 5.5px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-sources p {
+    margin-top: 1px;
+
+    font-size: 6.5px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-source-ticket-list {
+    justify-content: flex-end;
+    gap: 3px;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-source-ticket {
+    min-height: 20px;
+
+    padding-inline: 5px;
+
+    font-size: 6.5px;
+  }
+}
+
+/* =========================================================
+   ÇOK DAR TELEFONLAR
+   ========================================================= */
+
+@media (max-width: 350px) {
+  .ticket-ai-visual-section .ai-image-comparison-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ticket-ai-visual-section .ai-comparison-card {
+    grid-template-rows: 36px 68px;
+  }
+
+  .ticket-ai-visual-section .ai-comparison-image-stage {
+    height: 68px;
+  }
+
+  .ticket-detail-page .page-header {
+    grid-template-columns: 1fr;
+  }
+
+  .ticket-detail-page .header-actions {
+    justify-self: start;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-confidence-card {
+    width: 100%;
+    flex-basis: auto;
+  }
+
+  .staff-ticket-detail-page .staff-ai-panel .ai-solution-info-grid {
+    grid-template-columns: 1fr;
   }
 }

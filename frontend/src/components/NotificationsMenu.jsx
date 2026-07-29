@@ -5,138 +5,30 @@ import { useNavigate } from "react-router-dom";
 import api from "../api/api";
 import { useTheme } from "../theme/ThemeContext";
 
-const containerStyle = {
-  position: "relative",
-};
+const MOBILE_QUERY = "(max-width: 720px)";
 
-const panelLayoutStyle = {
-  position: "absolute",
-  top: "calc(100% + 12px)",
-  right: 0,
-  zIndex: 50,
-  width: "min(380px, calc(100vw - 32px))",
-  overflow: "hidden",
-  borderRadius: "16px",
-};
+function getInitialMobileState() {
+  if (typeof window === "undefined") {
+    return false;
+  }
 
-const panelHeaderLayoutStyle = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: "16px",
-  padding: "17px 18px",
-};
-
-const panelTitleStyle = {
-  margin: 0,
-  fontSize: "15px",
-};
-
-const panelSubtitleLayoutStyle = {
-  display: "block",
-  marginTop: "4px",
-  fontSize: "11px",
-};
-
-const markAllButtonLayoutStyle = {
-  padding: 0,
-  border: 0,
-  background: "transparent",
-  fontSize: "11px",
-  fontWeight: 800,
-};
-
-const listStyle = {
-  display: "flex",
-  maxHeight: "390px",
-  overflowY: "auto",
-  flexDirection: "column",
-};
-
-const notificationButtonLayoutStyle = {
-  position: "relative",
-  display: "flex",
-  width: "100%",
-  alignItems: "flex-start",
-  gap: "12px",
-  padding: "15px 18px",
-  border: 0,
-  textAlign: "left",
-};
-
-const typeBadgeLayoutStyle = {
-  display: "grid",
-  width: "38px",
-  height: "38px",
-  flex: "0 0 38px",
-  placeItems: "center",
-  borderRadius: "11px",
-  fontSize: "10px",
-  fontWeight: 800,
-};
-
-const notificationContentStyle = {
-  minWidth: 0,
-  flex: 1,
-};
-
-const notificationTitleLayoutStyle = {
-  display: "block",
-  fontSize: "12px",
-  fontWeight: 800,
-};
-
-const notificationDescriptionLayoutStyle = {
-  display: "block",
-  marginTop: "5px",
-  fontSize: "11px",
-  lineHeight: 1.5,
-};
-
-const notificationTimeLayoutStyle = {
-  display: "block",
-  marginTop: "7px",
-  fontSize: "10px",
-};
-
-const unreadDotLayoutStyle = {
-  width: "8px",
-  height: "8px",
-  marginTop: "5px",
-  flex: "0 0 8px",
-  borderRadius: "50%",
-};
-
-const panelMessageLayoutStyle = {
-  padding: "30px 20px",
-  fontSize: "12px",
-  lineHeight: 1.6,
-  textAlign: "center",
-};
-
-const panelFooterLayoutStyle = {
-  padding: "13px 18px",
-  fontSize: "11px",
-  textAlign: "center",
-};
+  return window.matchMedia(MOBILE_QUERY).matches;
+}
 
 function NotificationsMenu() {
   const containerRef = useRef(null);
 
   const navigate = useNavigate();
-
   const { isDark } = useTheme();
 
+  const [isMobile, setIsMobile] = useState(getInitialMobileState);
   const [isOpen, setIsOpen] = useState(false);
 
   const [notifications, setNotifications] = useState([]);
-
   const [unreadCount, setUnreadCount] = useState(0);
 
   const [isLoading, setIsLoading] = useState(true);
-
   const [isMarkingAll, setIsMarkingAll] = useState(false);
-
   const [readingNotificationId, setReadingNotificationId] = useState(null);
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -156,9 +48,7 @@ function NotificationsMenu() {
       });
 
       setNotifications(response.data.notifications || []);
-
       setUnreadCount(response.data.unread_count || 0);
-
       setErrorMessage("");
     } catch (error) {
       setErrorMessage(
@@ -169,6 +59,22 @@ function NotificationsMenu() {
         setIsLoading(false);
       }
     }
+  }, []);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(MOBILE_QUERY);
+
+    function handleMediaChange(event) {
+      setIsMobile(event.matches);
+    }
+
+    setIsMobile(mediaQuery.matches);
+
+    mediaQuery.addEventListener("change", handleMediaChange);
+
+    return () => {
+      mediaQuery.removeEventListener("change", handleMediaChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -214,15 +120,27 @@ function NotificationsMenu() {
     }
 
     document.addEventListener("pointerdown", handlePointerDown);
-
     document.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown);
-
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !isMobile) {
+      return undefined;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen, isMobile]);
 
   function handleToggleNotifications() {
     const nextIsOpen = !isOpen;
@@ -263,7 +181,6 @@ function NotificationsMenu() {
       );
 
       setUnreadCount((currentCount) => Math.max(currentCount - 1, 0));
-
       setErrorMessage("");
 
       return true;
@@ -315,7 +232,6 @@ function NotificationsMenu() {
       );
 
       setUnreadCount(0);
-
       setErrorMessage("");
     } catch (error) {
       setErrorMessage(
@@ -326,18 +242,33 @@ function NotificationsMenu() {
     }
   }
 
+  const containerStyle = {
+    position: "relative",
+    flex: "0 0 auto",
+  };
+
+  const triggerSize = isMobile ? "40px" : "42px";
+
   const triggerStyle = {
     position: "relative",
+
+    width: triggerSize,
+    height: triggerSize,
+
     display: "grid",
-    width: "42px",
-    height: "42px",
-    padding: 0,
     placeItems: "center",
+
+    flex: `0 0 ${triggerSize}`,
+
     border: `1px solid ${colors.border}`,
     borderRadius: "11px",
-    background: isOpen ? colors.triggerActive : colors.trigger,
+    padding: 0,
+
     color: colors.text,
+    background: isOpen ? colors.triggerActive : colors.trigger,
+
     boxShadow: colors.triggerShadow,
+
     cursor: "pointer",
   };
 
@@ -345,60 +276,164 @@ function NotificationsMenu() {
     position: "absolute",
     top: "-5px",
     right: "-5px",
-    display: "grid",
+
     minWidth: "19px",
     height: "19px",
-    padding: "0 5px",
+
+    display: "grid",
     placeItems: "center",
+
     border: `2px solid ${colors.badgeBorder}`,
     borderRadius: "999px",
-    background: "#e11d48",
+    padding: "0 5px",
+
     color: "#ffffff",
+    background: "#e11d48",
+
     fontSize: "10px",
     fontWeight: 800,
     lineHeight: 1,
   };
 
   const panelStyle = {
-    ...panelLayoutStyle,
+    position: isMobile ? "fixed" : "absolute",
+
+    top: isMobile
+      ? "calc(var(--topbar-height, 60px) + 8px)"
+      : "calc(100% + 12px)",
+
+    right: isMobile ? "12px" : 0,
+    left: "auto",
+
+    zIndex: 100,
+
+    width: isMobile
+      ? "min(350px, calc(100vw - 28px))"
+      : "min(380px, calc(100vw - 32px))",
+
+    maxWidth: isMobile ? "calc(100vw - 28px)" : "none",
+
+    maxHeight: isMobile
+      ? "min(560px, calc(100dvh - var(--topbar-height, 60px) - 28px))"
+      : "min(560px, calc(100vh - 92px))",
+
+    display: "flex",
+    flexDirection: "column",
+
+    overflow: "hidden",
+
     border: `1px solid ${colors.border}`,
+    borderRadius: isMobile ? "13px" : "16px",
+
     background: colors.panel,
     boxShadow: colors.panelShadow,
   };
 
   const panelHeaderStyle = {
-    ...panelHeaderLayoutStyle,
+    minWidth: 0,
+
+    display: "flex",
+    alignItems: isMobile ? "flex-start" : "center",
+    justifyContent: "space-between",
+    gap: isMobile ? "8px" : "16px",
+
+    flex: "0 0 auto",
+
     borderBottom: `1px solid ${colors.divider}`,
+    padding: isMobile ? "11px 12px" : "17px 18px",
+
     background: colors.header,
   };
 
+  const panelHeadingStyle = {
+    minWidth: 0,
+  };
+
+  const panelTitleStyle = {
+    margin: 0,
+
+    color: colors.text,
+
+    fontSize: isMobile ? "13px" : "15px",
+    fontWeight: 800,
+    lineHeight: 1.25,
+  };
+
   const panelSubtitleStyle = {
-    ...panelSubtitleLayoutStyle,
+    display: "block",
+
+    marginTop: "3px",
+
     color: colors.muted,
+
+    fontSize: isMobile ? "9px" : "11px",
+    lineHeight: 1.4,
   };
 
   const markAllButtonStyle = {
-    ...markAllButtonLayoutStyle,
+    maxWidth: isMobile ? "112px" : "none",
+
+    flex: "0 0 auto",
+
+    border: 0,
+    padding: 0,
+
     color: colors.primary,
+    background: "transparent",
+
+    fontSize: isMobile ? "9px" : "11px",
+    fontWeight: 800,
+    lineHeight: 1.3,
+    textAlign: "right",
+    whiteSpace: isMobile ? "normal" : "nowrap",
+
     cursor: isMarkingAll ? "wait" : "pointer",
     opacity: isMarkingAll ? 0.65 : 1,
   };
 
+  const listStyle = {
+    minHeight: 0,
+
+    display: "flex",
+    flex: "1 1 auto",
+    flexDirection: "column",
+
+    maxHeight: isMobile ? "none" : "390px",
+
+    overflowY: "auto",
+    overflowX: "hidden",
+
+    overscrollBehavior: "contain",
+    WebkitOverflowScrolling: "touch",
+  };
+
   const panelMessageStyle = {
-    ...panelMessageLayoutStyle,
+    padding: isMobile ? "20px 14px" : "30px 20px",
+
     color: colors.muted,
+
+    fontSize: isMobile ? "10px" : "12px",
+    lineHeight: 1.55,
+    textAlign: "center",
   };
 
   const errorMessageStyle = {
-    ...panelMessageLayoutStyle,
+    ...panelMessageStyle,
     color: colors.error,
   };
 
   const panelFooterStyle = {
-    ...panelFooterLayoutStyle,
+    flex: "0 0 auto",
+
     borderTop: `1px solid ${colors.divider}`,
-    background: colors.footer,
+    padding: isMobile ? "8px 10px" : "13px 18px",
+
     color: colors.muted,
+    background: colors.footer,
+
+    fontSize: isMobile ? "8.5px" : "11px",
+    lineHeight: 1.35,
+    textAlign: "center",
   };
 
   return (
@@ -424,17 +459,12 @@ function NotificationsMenu() {
           id="notifications-panel"
           style={panelStyle}
           aria-label="Bildirimler"
+          role={isMobile ? "dialog" : undefined}
+          aria-modal={isMobile ? "true" : undefined}
         >
           <header style={panelHeaderStyle}>
-            <div>
-              <h2
-                style={{
-                  ...panelTitleStyle,
-                  color: colors.text,
-                }}
-              >
-                Bildirimler
-              </h2>
+            <div style={panelHeadingStyle}>
+              <h2 style={panelTitleStyle}>Bildirimler</h2>
 
               <span style={panelSubtitleStyle}>
                 {unreadCount > 0
@@ -482,43 +512,106 @@ function NotificationsMenu() {
                     readingNotificationId === notification.notification_id;
 
                   const notificationStyle = {
-                    ...notificationButtonLayoutStyle,
+                    position: "relative",
+
+                    width: "100%",
+
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: isMobile ? "8px" : "12px",
+
+                    border: 0,
                     borderBottom: `1px solid ${colors.divider}`,
-                    background: isUnread ? colors.unread : colors.panel,
+                    padding: isMobile ? "10px 11px" : "15px 18px",
+
                     color: colors.text,
+                    background: isUnread ? colors.unread : colors.panel,
+
+                    font: "inherit",
+                    textAlign: "left",
+
                     cursor: isReading
                       ? "wait"
                       : notification.ticket_id
                         ? "pointer"
                         : "default",
+
                     opacity: isReading ? 0.7 : 1,
                   };
 
+                  const typeBadgeSize = isMobile ? "28px" : "38px";
+
                   const typeBadgeStyle = {
-                    ...typeBadgeLayoutStyle,
-                    background: colors.typeBackground,
+                    width: typeBadgeSize,
+                    height: typeBadgeSize,
+
+                    display: "grid",
+                    placeItems: "center",
+
+                    flex: `0 0 ${typeBadgeSize}`,
+
+                    borderRadius: isMobile ? "8px" : "11px",
+
                     color: colors.primary,
+                    background: colors.typeBackground,
+
+                    fontSize: isMobile ? "8px" : "10px",
+                    fontWeight: 800,
+                  };
+
+                  const notificationContentStyle = {
+                    minWidth: 0,
+                    flex: 1,
                   };
 
                   const notificationTitleStyle = {
-                    ...notificationTitleLayoutStyle,
+                    display: "block",
+
                     color: colors.text,
+
+                    fontSize: isMobile ? "11px" : "12px",
+                    fontWeight: 800,
+                    lineHeight: 1.35,
+
+                    overflowWrap: "anywhere",
                   };
 
                   const notificationDescriptionStyle = {
-                    ...notificationDescriptionLayoutStyle,
+                    display: "block",
+
+                    marginTop: isMobile ? "3px" : "5px",
+
                     color: colors.muted,
+
+                    fontSize: isMobile ? "9.5px" : "11px",
+                    lineHeight: isMobile ? 1.4 : 1.5,
+
+                    overflowWrap: "anywhere",
                   };
 
                   const notificationTimeStyle = {
-                    ...notificationTimeLayoutStyle,
+                    display: "block",
+
+                    marginTop: isMobile ? "5px" : "7px",
+
                     color: colors.time,
+
+                    fontSize: isMobile ? "8.5px" : "10px",
+                    lineHeight: 1.3,
                   };
 
                   const unreadDotStyle = {
-                    ...unreadDotLayoutStyle,
+                    width: isMobile ? "7px" : "8px",
+                    height: isMobile ? "7px" : "8px",
+
+                    flex: isMobile ? "0 0 7px" : "0 0 8px",
+
+                    marginTop: "4px",
+
+                    borderRadius: "50%",
+
                     background: colors.primary,
-                    boxShadow: `0 0 0 4px ${colors.dotShadow}`,
+                    boxShadow: `0 0 0 3px ${colors.dotShadow}`,
                   };
 
                   return (
@@ -634,19 +727,25 @@ function getThemeColors(isDark) {
       trigger: "#1b2636",
       triggerActive: "#24344a",
       triggerShadow: "0 8px 20px rgb(2 6 23 / 22%)",
+
       panel: "#141d2a",
       header: "#1a2636",
       footer: "#182333",
       unread: "#1d2d43",
+
       border: "#304158",
       divider: "#29384c",
+
       text: "#f1f5f9",
       muted: "#a4b2c5",
       time: "#7f91aa",
+
       primary: "#60a5fa",
       error: "#fda4af",
+
       typeBackground: "rgb(59 130 246 / 17%)",
       dotShadow: "rgb(96 165 250 / 15%)",
+
       badgeBorder: "#1b2636",
       panelShadow: "0 24px 60px rgb(2 6 23 / 36%)",
     };
@@ -656,19 +755,25 @@ function getThemeColors(isDark) {
     trigger: "#eef3f9",
     triggerActive: "#e1eaf6",
     triggerShadow: "0 6px 18px rgb(31 45 72 / 8%)",
+
     panel: "#f5f8fc",
     header: "#edf3fa",
     footer: "#edf3fa",
     unread: "#e7f0ff",
+
     border: "#d7e0ec",
     divider: "#dce4ef",
+
     text: "#172033",
     muted: "#66758b",
     time: "#8b98aa",
+
     primary: "#2563eb",
     error: "#be123c",
+
     typeBackground: "rgb(37 99 235 / 12%)",
     dotShadow: "rgb(37 99 235 / 12%)",
+
     badgeBorder: "#eef3f9",
     panelShadow: "0 24px 60px rgb(31 45 72 / 18%)",
   };

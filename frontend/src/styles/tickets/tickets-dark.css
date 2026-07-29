@@ -233,7 +233,10 @@
 .ticket-list-panel .tickets-table tbody tr {
   background: rgba(14, 26, 47, 0.28);
 
-  transition: background-color 150ms ease;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .ticket-list-panel .tickets-table tbody tr:nth-child(even) {
@@ -310,27 +313,59 @@
   font-size: 10px;
 }
 
+.ticket-list-panel .priority-high {
+  border-color: rgba(251, 146, 60, 0.38);
+  color: #fdba74;
+  background: rgba(249, 115, 22, 0.14);
+}
+
+.ticket-list-panel .priority-critical {
+  border-color: rgba(251, 113, 133, 0.44);
+  color: #fda4af;
+  background: rgba(225, 29, 72, 0.17);
+}
+
+/* =========================================================
+   AI GÜVENİ
+   ========================================================= */
+
+.ticket-list-panel .tickets-table th:nth-child(7),
+.ticket-list-panel .tickets-table td:nth-child(7) {
+  min-width: 100px;
+  white-space: nowrap;
+}
+
+.ticket-list-panel .tickets-table td:nth-child(7) {
+  color: #67e8f9;
+
+  font-size: 14px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
 /* =========================================================
    DETAY BAĞLANTISI
    ========================================================= */
 
 .ticket-list-panel .detail-link {
-  min-height: 32px;
+  min-width: 76px;
+  min-height: 39px;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
   border: 1px solid rgba(129, 140, 248, 0.26);
-  border-radius: 9px;
+  border-radius: 11px;
 
-  padding: 0 12px;
+  padding: 0 18px;
 
   color: #c7d2fe;
   background: rgba(99, 102, 241, 0.11);
 
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 800;
   text-decoration: none;
 
   transition:
@@ -504,6 +539,22 @@ html[data-theme="light"] .ticket-list-panel .tickets-table td:first-child {
   color: #6366f1;
 }
 
+html[data-theme="light"] .ticket-list-panel .priority-high {
+  border-color: #fdba74;
+  color: #c2410c;
+  background: #fff7ed;
+}
+
+html[data-theme="light"] .ticket-list-panel .priority-critical {
+  border-color: #fda4af;
+  color: #be123c;
+  background: #fff1f2;
+}
+
+html[data-theme="light"] .ticket-list-panel .tickets-table td:nth-child(7) {
+  color: #0f766e;
+}
+
 html[data-theme="light"] .ticket-list-panel .detail-link {
   color: #4338ca;
 
@@ -519,10 +570,6 @@ html[data-theme="light"] .ticket-list-panel .detail-link:hover {
 
   background: #e0e7ff;
 }
-
-/*
-   Ticketlar ve Bana Atananlar alt bölümü.
-*/
 
 html[data-theme="light"] .ticket-pagination {
   border-top-color: #d7e0ec;
@@ -590,13 +637,13 @@ html[data-theme="light"] .ticket-pagination-button:disabled {
 
 @media (max-width: 850px) {
   .page:has(.ticket-list-panel) {
-    width: calc(100% - 30px);
+    width: calc(100% - 24px);
+    padding-top: 20px;
   }
 
   .ticket-filters {
     grid-template-columns: repeat(2, minmax(140px, 1fr));
-
-    padding: 16px;
+    padding: 15px;
   }
 
   .ticket-pagination {
@@ -606,23 +653,345 @@ html[data-theme="light"] .ticket-pagination-button:disabled {
 }
 
 @media (max-width: 540px) {
+  .page:has(.ticket-list-panel) {
+    width: calc(100% - 16px);
+    padding-top: 13px;
+    padding-bottom: 24px;
+  }
+
+  .page:has(.ticket-list-panel) .page-header {
+    margin-bottom: 13px;
+  }
+
+  .page:has(.ticket-list-panel) .page-header .page-eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+  }
+
+  .page:has(.ticket-list-panel) .page-header h1 {
+    margin-top: 5px;
+
+    font-size: 28px;
+    line-height: 1.08;
+  }
+
+  .page:has(.ticket-list-panel) .page-header p {
+    margin-top: 7px;
+
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .ticket-list-panel {
+    border-radius: 14px;
+  }
+
   .ticket-filters {
     grid-template-columns: 1fr;
+    gap: 9px;
+
+    padding: 12px;
+  }
+
+  .ticket-filter-field {
+    gap: 5px;
+  }
+
+  .ticket-filter-field label {
+    font-size: 9px;
+    letter-spacing: 0.07em;
+  }
+
+  .ticket-filter-field input,
+  .ticket-filter-field select,
+  .clear-filters-button {
+    min-height: 40px;
+
+    border-radius: 10px;
+
+    font-size: 12px;
+  }
+
+  .ticket-filter-field input,
+  .ticket-filter-field select {
+    padding-inline: 11px;
+  }
+
+  .clear-filters-button {
+    margin-top: 1px;
   }
 
   .ticket-filter-summary {
-    padding-inline: 16px;
+    min-height: 39px;
+
+    padding: 9px 12px;
+
+    font-size: 10px;
+  }
+
+  .ticket-list-panel > .error-message,
+  .ticket-list-panel > .empty-message,
+  .ticket-list-panel > p {
+    margin: 13px 12px;
+  }
+
+  .ticket-list-panel .table-wrapper {
+    overflow: visible;
+    padding: 10px;
+  }
+
+  .ticket-list-panel .tickets-table {
+    min-width: 0;
+
+    display: block;
+  }
+
+  .ticket-list-panel .tickets-table thead {
+    display: none;
+  }
+
+  .ticket-list-panel .tickets-table tbody {
+    display: grid;
+    gap: 10px;
+  }
+
+  .ticket-list-panel .tickets-table tbody tr {
+    display: grid;
+
+    overflow: hidden;
+
+    padding: 10px 12px;
+
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 12px;
+
+    background: linear-gradient(
+      145deg,
+      rgba(25, 42, 70, 0.97),
+      rgba(18, 32, 55, 0.97)
+    );
+
+    box-shadow:
+      0 8px 20px rgba(2, 6, 23, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  }
+
+  .ticket-list-panel .tickets-table tbody tr:nth-child(even) {
+    background: linear-gradient(
+      145deg,
+      rgba(28, 46, 76, 0.97),
+      rgba(20, 35, 60, 0.97)
+    );
+  }
+
+  .ticket-list-panel .tickets-table tbody tr:hover {
+    border-color: rgba(129, 140, 248, 0.3);
+
+    background: linear-gradient(
+      145deg,
+      rgba(35, 51, 86, 0.98),
+      rgba(23, 39, 67, 0.98)
+    );
+
+    box-shadow:
+      0 10px 24px rgba(2, 6, 23, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  }
+
+  .ticket-list-panel .tickets-table tbody tr:last-child {
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  }
+
+  html[data-theme="light"] .ticket-list-panel .tickets-table tbody tr,
+  html[data-theme="light"]
+    .ticket-list-panel
+    .tickets-table
+    tbody
+    tr:nth-child(even) {
+    border-color: #d7e0ec;
+
+    background: linear-gradient(145deg, #ffffff, #f5f8fc);
+
+    box-shadow:
+      0 8px 20px rgba(30, 41, 59, 0.075),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  html[data-theme="light"] .ticket-list-panel .tickets-table tbody tr:hover {
+    border-color: #c7d2fe;
+
+    background: linear-gradient(145deg, #f8faff, #eef2ff);
+  }
+
+  .ticket-list-panel .tickets-table td {
+    width: 100%;
+    height: auto;
+    min-width: 0;
+
+    display: grid;
+    grid-template-columns: 78px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+
+    border: 0;
+    padding: 5px 0;
+
+    font-size: 12px;
+    line-height: 1.4;
+
+    overflow-wrap: anywhere;
+  }
+
+  .ticket-list-panel .tickets-table td::before {
+    color: var(--color-text-muted);
+
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  .ticket-list-panel .tickets-table td:nth-child(1)::before {
+    content: "ID";
+  }
+
+  .ticket-list-panel .tickets-table td:nth-child(2)::before {
+    content: "Konu";
+  }
+
+  .ticket-list-panel .tickets-table td:nth-child(3)::before {
+    content: "Kategori";
+  }
+
+  .ticket-list-panel .tickets-table td:nth-child(4)::before {
+    content: "Departman";
+  }
+
+  .ticket-list-panel .tickets-table td:nth-child(5)::before {
+    content: "Öncelik";
+  }
+
+  .ticket-list-panel .tickets-table td:nth-child(6)::before {
+    content: "Durum";
+  }
+
+  .ticket-list-panel .tickets-table td:nth-child(7)::before {
+    content: "AI Güveni";
+  }
+
+  .ticket-list-panel .tickets-table td:nth-child(7) {
+    min-width: 0;
+
+    font-size: 13px;
+  }
+
+  .ticket-list-panel .tickets-table td:nth-child(8) {
+    display: block;
+
+    padding-top: 8px;
+  }
+
+  .ticket-list-panel .tickets-table td:nth-child(8)::before {
+    content: none;
+  }
+
+  .ticket-title-cell {
+    min-width: 0;
+
+    gap: 2px;
+  }
+
+  .ticket-title-cell strong,
+  .ticket-title-cell span {
+    max-width: none;
+
+    overflow: visible;
+
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .ticket-title-cell strong {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .ticket-title-cell span {
+    font-size: 10px;
+  }
+
+  .ticket-list-panel .badge {
+    width: auto;
+    min-width: 0;
+    min-height: 24px;
+
+    justify-self: start;
+
+    padding-inline: 10px;
+
+    font-size: 9px;
+  }
+
+  .ticket-list-panel .detail-link {
+    width: 100%;
+    min-height: 38px;
+
+    font-size: 12px;
   }
 
   .ticket-pagination {
-    padding-inline: 16px;
+    gap: 10px;
+
+    padding: 11px 12px;
+  }
+
+  .ticket-pagination-info {
+    font-size: 10px;
   }
 
   .ticket-pagination-actions {
     width: 100%;
+
+    gap: 7px;
   }
 
   .ticket-pagination-button {
     flex: 1;
+
+    min-height: 37px;
+  }
+
+  .ticket-page-indicator {
+    min-width: 38px;
+
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  .page:has(.ticket-list-panel) {
+    width: calc(100% - 12px);
+  }
+
+  .ticket-filters {
+    padding: 10px;
+  }
+
+  .ticket-list-panel .table-wrapper {
+    padding: 8px;
+  }
+
+  .ticket-list-panel .tickets-table tbody {
+    gap: 8px;
+  }
+
+  .ticket-list-panel .tickets-table tbody tr {
+    padding-inline: 10px;
+  }
+
+  .ticket-list-panel .tickets-table td {
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 7px;
   }
 }
