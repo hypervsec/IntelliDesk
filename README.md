@@ -47,20 +47,13 @@ yapılmaz.
 
 ## Ekran Görüntüleri
 
-Görselleri `docs/screenshots/` klasörüne ekledikten sonra aşağıdaki
-yorum işaretlerini kaldırabilirsiniz.
-
 ### Dashboard
 
-<!--
 ![IntelliDesk Dashboard](docs/screenshots/dashboard.png)
--->
 
 ### AI Destek Oluşturma
 
-<!--
 ![AI Destek Oluşturma](docs/screenshots/ai-support.png)
--->
 
 ### AI Çözüm Oluşturma Süreci
 
@@ -68,27 +61,19 @@ yorum işaretlerini kaldırabilirsiniz.
 
 ### Görsel Analizi ve AI Çözümü
 
-<!--
 ![Görsel Analizi ve AI Çözümü](docs/screenshots/ai-solution.png)
--->
 
 ### Ticket Listesi
 
-<!--
 ![Ticket Listesi](docs/screenshots/tickets.png)
--->
 
 ### Ticket Detayı
 
-<!--
 ![Ticket Detayı](docs/screenshots/ticket-detail.png)
--->
 
 ### Mobil Görünüm
 
-<!--
 ![Mobil Görünüm](docs/screenshots/mobile.png)
--->
 
 ---
 
